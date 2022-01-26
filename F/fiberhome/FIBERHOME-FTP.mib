@@ -1,0 +1,196 @@
+     
+QTECH-FTP-MIB DEFINITIONS ::= BEGIN
+
+ IMPORTS
+       MODULE-IDENTITY, OBJECT-TYPE, OBJECT-IDENTITY,
+       Counter32, Integer32, Gauge32,
+       IpAddress, TimeTicks, mib-2,enterprises      FROM SNMPv2-SMI 
+       RowStatus, DisplayString         FROM SNMPv2-TC
+       MODULE-COMPLIANCE, OBJECT-GROUP  FROM SNMPv2-CONF
+       qtechProtocol       FROM QTECH-SMI;
+	qtech MODULE-IDENTITY
+		LAST-UPDATED 	"200712050000Z"
+		ORGANIZATION 	"FiberHome Networks Systems, Inc."
+		CONTACT-INFO	"http://www.fhn.com.cn"
+		DESCRIPTION		"The Structure of Management Information for the FHN enterprise."
+		::= { enterprises 3807 }	-- assigned by IANA
+	qtechProtocol	 		OBJECT IDENTIFIER ::= { qtech 2 }	
+	qtechFTP     	OBJECT IDENTIFIER ::= { qtechProtocol 600}
+	ftpCommon     	OBJECT IDENTIFIER ::= { qtechFTP 1}
+
+	ftpStatus OBJECT-TYPE
+       SYNTAX  INTEGER {
+            enable (1),        
+            disable (2)        
+            }
+        MAX-ACCESS  read-write
+        STATUS  current
+        DESCRIPTION
+            "This object is used to set the status of ftp. The default value is disable"
+      ::= { ftpCommon 1 }  
+      
+ftpConnTimeout OBJECT-TYPE
+      SYNTAX  INTEGER  (1..255)
+      MAX-ACCESS  read-write
+      STATUS  current
+      DESCRIPTION
+            "DURABLE:
+             The timeout of ftp connection."
+      ::= { ftpCommon 2 }    
+      
+
+ftpServerTable OBJECT-TYPE
+      SYNTAX     SEQUENCE OF FtpServerEntry
+      MAX-ACCESS not-accessible
+      STATUS     current
+      DESCRIPTION
+            " the ftp server table."
+      ::= { qtechFTP 2}
+
+ftpServerEntry OBJECT-TYPE
+      SYNTAX     FtpServerEntry
+      MAX-ACCESS not-accessible
+      STATUS     current
+      DESCRIPTION
+            "An entry representing a ftp server with which the client shares
+             a secret."
+      INDEX      { ftpServerIndex }
+      ::= { ftpServerTable 1 }
+
+FtpServerEntry ::= SEQUENCE {
+      ftpServerIndex       INTEGER, 
+      ftpServerName        DisplayString,
+      ftpServerPassword    DisplayString,
+      ftpServerAddress     IpAddress,  
+      ftpServerOperType    INTEGER,
+      ftpFileName          DisplayString,
+      ftpServerRowStatus	 RowStatus,
+      ftpFileType          INTEGER,
+      ftpServerStatus      INTEGER,
+	  ftpServerPort   		INTEGER,
+	  ftpFileDstName     DisplayString
+}
+
+ftpServerIndex OBJECT-TYPE
+      SYNTAX     INTEGER (1..5)
+      MAX-ACCESS read-only
+      STATUS     current
+      DESCRIPTION
+             "A number uniquely identifying each ftp server 
+             which this client communicates with."
+      ::= { ftpServerEntry 1 } 
+      
+ftpServerName OBJECT-TYPE
+      SYNTAX     DisplayString (SIZE (0..64))
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+             "The ftp server 's name."
+      ::= { ftpServerEntry 2 }
+
+ftpServerPassword OBJECT-TYPE
+      SYNTAX     DisplayString (SIZE (0..64))
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+            "the password which client and server shared."
+      ::= { ftpServerEntry 3 } 
+
+
+ftpServerAddress OBJECT-TYPE
+      SYNTAX     IpAddress
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+            "The IP address of the FTP server
+             referred to in this table entry."
+      ::= { ftpServerEntry 4 }  
+      
+ftpServerOperType OBJECT-TYPE
+      SYNTAX     INTEGER { 
+                  get (1),
+                  put (2)
+                 }
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+            "The operation type of ftp server: get(1),put(2)"
+      ::= { ftpServerEntry 5 }
+
+ftpFileName OBJECT-TYPE
+      SYNTAX     DisplayString (SIZE (0..128))
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+            "the file Name which is transfered between ftp client and server"
+      ::= { ftpServerEntry 6 } 
+
+ftpServerRowStatus OBJECT-TYPE
+      SYNTAX     RowStatus
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+            "the rowstatus object"
+      ::= { ftpServerEntry 7 }       
+
+ftpFileType OBJECT-TYPE
+      SYNTAX     INTEGER { 
+                  configurationFile (1),
+                  softwareImage (2)
+                 }
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+            "File type."
+      ::= { ftpServerEntry 8 }
+
+ftpServerStatus OBJECT-TYPE
+      SYNTAX     INTEGER { 
+                  completed         (1),
+                  inProgress        (2),
+                  fileNameLenErr    (3),
+                  fileNameErr       (4),
+                  fileOpenErr       (5),
+                  authErr           (6),
+                  ioErr             (7),
+                  noEnoughSpace	    (8),
+                  noReply           (9),
+                  quitCommandErr    (10),
+                  connectServerErr  (11)                  
+                 }
+      MAX-ACCESS read-only
+      STATUS     current
+      DESCRIPTION
+            "The status of the ftp operation.
+            completed:the last operation is successful.
+            inProgress:upload/download operation is in progress.
+            fileNameLenErr:the length of file name exceed 128 bytes.
+            fileNameErr:the file name include invalid character.such as'\', '/', ':', '*','?','<', '>','|',double quotation marks.
+            fileOperErr:failed to open the file which user want to download/upload.
+            authErr:the user name or/and password is error.
+            ioErr:failed to read/write file.eg:the bytes writen in the fact not equal with the expectation.
+            noEnoughSpace:current device has not enough space to continue the operation.
+            noReply:return error if unexpected eof encountered.
+            quitCommandErr:send 'quit' command to the ftp server,but server excute it error.
+            connectServerErr:failed to connect the ftp server."
+      ::= { ftpServerEntry 9 }
+	  
+	  
+ftpServerPort OBJECT-TYPE
+      SYNTAX     INTEGER 
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+            "Ftp server port."
+      ::= { ftpServerEntry 10 }	 
+
+ftpFileDstName OBJECT-TYPE
+      SYNTAX     DisplayString (SIZE (0..255))
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+            "The name of destination"
+      ::= { ftpServerEntry 11 } 
+	  
+
+END

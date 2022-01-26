@@ -1,0 +1,138 @@
+--MibName=rcDhcpOption
+-- *****************************************************************
+-- switch-dhcpoptin-mib.mib:  Raisecom DHCP Option MIB file
+--
+-- 20081105,tangyoucan 
+--
+--
+-- Copyright (c) 1996-2008 by Raisecom Technology Co., Ltd. 
+-- All rights reserved.
+-- 
+-- *****************************************************************
+
+DHCP-OPTION-MIB  DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY,
+    NOTIFICATION-TYPE,
+    OBJECT-TYPE                         FROM SNMPv2-SMI
+        
+    MODULE-COMPLIANCE,
+    NOTIFICATION-GROUP,
+    OBJECT-GROUP                        FROM SNMPv2-CONF
+          
+    EnableVar        			        FROM SWITCH-TC
+   
+    iscomSwitch                         FROM RAISECOM-BASE-MIB        
+
+    rcPortIndex                         FROM SWITCH-SYSTEM-MIB;
+     
+	rcDhcpOption MODULE-IDENTITY
+        LAST-UPDATED    "200811050000Z"
+        ORGANIZATION    "Raisecom Technology Co., Ltd."
+        CONTACT-INFO
+                "Raisecom Science & Technology Co., ltd.
+                 E-mail: support@raisecom.com"
+        DESCRIPTION
+         "This MIB module is designed for DHCP option ,the current version of which
+         only contain sub-option 1 and 2 of Option 82, i.e. circuit ID and remote ID."
+        REVISION   "200811060000Z"
+        DESCRIPTION
+            "version 1.0"
+        ::= { iscomSwitch 41 }
+  
+------------------------------------------------------------------------------
+-- define groups in rcDhcpOption
+------------------------------------------------------------------------------
+    rcDhcpOption82MibObjects	
+    	OBJECT IDENTIFIER ::= { rcDhcpOption 1 }
+    
+    rcDhcpOption82PortGroup		             	
+    	OBJECT IDENTIFIER ::= { rcDhcpOption82MibObjects 1 }
+    rcDhcpOption82ConfigGroup	
+    	OBJECT IDENTIFIER ::= { rcDhcpOption82MibObjects 2 }
+					
+    
+------------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+-- begin-- rcDhcpOption82PortGroup--
+--------------------------------------------------------------------------
+rcDhcpOption82PortTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF rcDhcpOption82PortEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "A table keep record of circuit ID for every port."
+        ::= { rcDhcpOption82PortGroup 1 }
+
+rcDhcpOption82PortEntry OBJECT-TYPE
+        SYNTAX rcDhcpOption82PortEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "Table entry for switch dhcp option config based on port."
+        INDEX { rcPortIndex }
+        ::= { rcDhcpOption82PortTable 1 }
+
+rcDhcpOption82PortEntry ::= SEQUENCE 
+	{     
+        rcDhcpOption82CircuitID	OCTET STRING (SIZE(1..64))
+    }
+        
+rcDhcpOption82CircuitID OBJECT-TYPE
+        SYNTAX OCTET STRING (SIZE(1..64))
+        MAX-ACCESS read-write
+        STATUS current
+        DESCRIPTION
+            "string of circuit-ID in which you can fill anything you want. 
+            The maximum length is 64 bytes.If it not configged,it is zero.
+            if it configged,the OPTION82 will use it as circuit-id."
+        ::= { rcDhcpOption82PortEntry 1 }
+
+      
+-- end--rcDhcpOption82PortGroup------------------------
+
+---------------------------------------------------
+-- begin--rcDhcpOption82ConfigGroup-----
+-- rcDhcpOption82ConfigGroup scale MIB--
+---------------------------------------------------
+
+rcDhcpOption82AttachString OBJECT-TYPE
+        SYNTAX OCTET STRING (SIZE(1..32))
+        MAX-ACCESS read-write
+        STATUS current
+        DESCRIPTION
+            "the string use in sub option 1,in this mode,the sub option
+            1 discribe as port-number\VID\AttachingSring ."
+        ::= { rcDhcpOption82ConfigGroup 1 }
+
+rcDhcpOption82RemoteIDMode OBJECT-TYPE
+        SYNTAX INTEGER{switchmac(1), 
+                       clientmac(2),
+                       switchmac-string(3),
+                       clientmac-string(4),
+                       hostname(5),
+                       user-defined(6)
+                       }
+        MAX-ACCESS read-write
+        STATUS current
+        DESCRIPTION
+            "mode of Remote-ID, switchmac:switch MAC as HEX;clientmac:client MAC as HEX;
+             switchmac-string:switch MAX as string;clientmac-string:client MAC as string; 
+             hostname:host name of device;user-defined:string of user set."
+        DEFVAL { switchmac }
+        ::= { rcDhcpOption82ConfigGroup 2 }
+
+rcDhcpOption82RemoteIDString OBJECT-TYPE
+        SYNTAX OCTET STRING (SIZE(1..64))
+        MAX-ACCESS read-write
+        STATUS current
+        DESCRIPTION
+            "string of remote ID, only used in user-define mode. if the remote-id mode is not user-define , it returns NULL."
+        ::= { rcDhcpOption82ConfigGroup 3 }
+
+-- end--rcDhcpOption82ConfigGroup-------
+------------------------------------------------------------------------------
+          
+END

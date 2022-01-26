@@ -1,0 +1,2196 @@
+--MibName=rcSla
+-- *****************************************************************
+-- RAISECOM-SLA-MIB.mib
+--
+-- july 2008, wangyuhang
+--
+-- Copyright(c) 2003-2005 by RAISECOM TECH, Ltd. 
+-- All rights reserved.
+-- *****************************************************************
+
+
+RAISECOM-SLA-MIB DEFINITIONS ::= BEGIN      
+IMPORTS
+    Integer32, 
+    Counter32,
+    Unsigned32,
+    Gauge32,          
+    IpAddress                   		FROM SNMPv2-SMI    -- [RFC2578]  
+    TimeStamp,
+    RowStatus,
+    TruthValue,
+    MacAddress                          FROM SNMPv2-TC     -- [RFC2579]
+    InterfaceIndex					    FROM IF-MIB        -- [RFC2863]
+    EnableVar                           FROM SWITCH-TC
+    VlanId     		                	FROM Q-BRIDGE-MIB  
+    iscomSwitch                         FROM RAISECOM-BASE-MIB 
+    VlanIdOrNone, VlanId     FROM Q-BRIDGE-MIB  -- [RFC4363q]   
+    Dot1agCfmMepId,
+    Dot1agCfmMDLevel                    FROM IEEE8021-CFM-MIB
+    ;
+rcSla  MODULE-IDENTITY
+    LAST-UPDATED   "201102150000Z"
+    ORGANIZATION   "Raisecom, Inc."
+    CONTACT-INFO  
+                "       Raise Systems
+                        
+                Postal: Beijing,
+                        China
+
+                   Tel: 86-010-82884499
+
+                E-mail: wangyuhang@raisecom.com"
+    DESCRIPTION
+        "This MIB module defines objects to SLA "
+        REVISION   "200711020000Z"
+        DESCRIPTION
+            "The initial revision of this MIB."
+        ::={ iscomSwitch  36 } 
+--
+--
+RcSlaCfgOperType ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+       "  Specifies the type of operation to be performed. 
+        The value 'y1731-echo' will cause the  application to perform a timed echo y1731
+    operation directed at the 'rcSlaConfigDestMacAddr' or 'rcSlaConfigRMepId'.
+        The value 'y1731-jitter' will cause the  application to perform delay variance analysis.  
+        The value 'icmp-echo' will cause the  application to perform a timed echo icmp
+    operation directed at the 'rcSlaConfigDestIpAddr'.
+        The value 'icmp-jitter' will cause the  application to perform delay variance analysis.   
+      " 
+    REFERENCE
+       "rcSla"
+    SYNTAX      INTEGER {
+                  y1731-echo         (1),
+                  y1731-jitter       (2),
+                  icmp-echo          (3),
+                  icmp-jitter        (4)
+                }
+--   
+--
+RcSlaCfgScheduleStatus ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+       " The RcSlaCfgScheduleStatus textual convention is used to manage the
+ 	creation and deletion of Schedule.
+     	The status column has five defined values: 
+     	 - `scheduleInitial', which indicates that the operation dose not be 
+     scheduled ;    
+     	 - `scheduleCreate', which is supplied by a management station wishing to 
+      create a new schedule and to have its status automatically set to active;
+     	 - `scheduleBreak', which is supplied by a management station wishing to 
+      break a scheduling operationand to have its status automatically set to complete;   
+         - `scheduleActive', which indicates that the operation is being scheduled ; 
+         - `scheduleComplete', which indicates that the scheduled operation has been over; 
+         "
+    REFERENCE
+       "rcSla"
+    SYNTAX      INTEGER {
+                  scheduleInitial   (1),
+                  scheduleCreate    (2),
+                  scheduleBreak     (3),
+                  scheduleActive    (4),
+                  scheduleComplete  (5)
+                }  
+                
+--                                   
+
+--
+RcSlaOWSupport ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+       "  The type  use to  decide whether to support one way Test. " 
+    REFERENCE
+       "rcSla"
+    SYNTAX      INTEGER {
+                  sla_unknown        (1),
+                  sla_support        (2),
+                  sla_no_support     (3)
+                  }
+  
+             
+
+--groupsType
+    rcSlaObjectsGroup	OBJECT IDENTIFIER ::= {rcSla 1}  
+    rcSlaConfigGroup	OBJECT IDENTIFIER ::= {rcSla 2}  
+    rcSlaScheduleGroup	OBJECT IDENTIFIER ::= {rcSla 3}        
+    rcSlaThroughputGroup  OBJECT IDENTIFIER ::= {rcSla 4}  
+    rcSlaThresholdGroup  OBJECT IDENTIFIER ::= {rcSla 5}
+
+--rcSlaObjectsGroup
+	-- rcSlaConfigOperSum
+	-- rcSlaActiveOperSum  
+                     
+-- rcSlaConfigOperSum
+                                                                         
+	rcSlaConfigOperSum        OBJECT-TYPE
+		SYNTAX      Gauge32
+   		MAX-ACCESS  read-only
+    	STATUS      current
+    	DESCRIPTION
+            "The total number of operation configured " 
+       	::= { rcSlaObjectsGroup 1 }     
+    	
+-- rcSlaActiveOperSum 
+                                                                                              
+	rcSlaActiveOperSum        OBJECT-TYPE
+		SYNTAX      Gauge32
+   		MAX-ACCESS  read-only
+    	STATUS      current
+    	DESCRIPTION
+            "The total number of active configured " 
+    	::= { rcSlaObjectsGroup 2 }                
+    	
+ -- rcSlaY1731OperType 
+                                                                                              
+	rcSlaY1731OperType        OBJECT-TYPE
+		SYNTAX      RcSlaCfgOperType
+   		MAX-ACCESS  read-write
+    	STATUS      current
+    	DESCRIPTION
+            "Y.1731 Operation Type : y1731-echo / y1731-jitter" 
+    	::= { rcSlaObjectsGroup 3 }
+
+ -- rcSlaY1731MDLevel
+                                                                                              
+	rcSlaY1731MDLevel        OBJECT-TYPE
+		SYNTAX      Dot1agCfmMDLevel
+   		MAX-ACCESS  read-write
+    	STATUS      current
+    	DESCRIPTION
+            "This object specifies the maintenance domain level to be used by Y.1731 operation." 
+    	::= { rcSlaObjectsGroup 4 }
+
+ -- rcSlaY1731SVlanId
+                                                                                              
+    rcSlaY1731SVlanId       OBJECT-TYPE
+		SYNTAX      VlanId
+   		MAX-ACCESS  read-write
+    	STATUS      current
+    	DESCRIPTION
+            "This object specifies the identifier of VLAN for MA to be used by  Y.1731 operation.
+				It is an unique identifier for a service instance 
+				within a Maintenance Domain specified by rcSlaConfigMDLevel."
+    	::= { rcSlaObjectsGroup 5 }
+
+  -- rcSlaY1731OperQuickInput
+                                                                                              
+    rcSlaY1731OperQuickInput       OBJECT-TYPE
+		SYNTAX      TruthValue
+   		MAX-ACCESS  read-write
+    	STATUS      current
+    	DESCRIPTION
+            "Quick creat operation when  learning Rmep by Y.1731"
+    	::= { rcSlaObjectsGroup 6 }       	
+                                                                          
+   -- rcSlaY1731TestPduType                                                                         
+    rcSlaY1731TestPduType       OBJECT-TYPE
+		SYNTAX      INTEGER {loopBack(1),delayMeasurement(2)}
+   		MAX-ACCESS  read-write
+    	STATUS      current
+    	DESCRIPTION
+            "Quick input test pdu type"
+    	::= { rcSlaObjectsGroup 7 } 
+
+
+--------------------------------------------------OperConfigGroup -----------------------  
+--rcSlaConfigGroup                                                                                              
+		--rcSlaConfigTable    
+			--rcSlaConfigEntry 
+				--rcSlaConfigOperId
+				--rcSlaConfigOwner   
+				--rcSlaOneWaySupport
+				--rcSlaConfigOperType
+				--rcSlaConfigCos   				
+				--rcSlaConfigCVlanId 
+				--rcSlaConfigSVlanId 
+				--rcSlaConfigMDLevel
+				--rcSlaConfigRMepId
+				--rcSlaConfigDestMacAddr
+				--rcSlaConfigDestIpAddr
+				--rcSlaConfigJitterInterval
+				--rcSlaConfigJitterFrameNums
+				--rcSlaConfigScheduleStartTime
+				--rcSlaConfigScheduleLife
+				--rcSlaConfigSchedulePeriod
+				--rcSlaConfigScheduleStatus
+				--rcSlaConfigRowStatus   
+				--rcSlaConfigParam 
+				--rcSlaConfigDscp 
+				
+				            
+
+rcSlaConfigTable  OBJECT-TYPE
+    SYNTAX      SEQUENCE OF RcSlaConfigEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "This table contains sla  control data."
+    ::= { rcSlaConfigGroup 1 }
+
+rcSlaConfigEntry   OBJECT-TYPE
+    SYNTAX      RcSlaConfigEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "A collection of objects that define three conceptual
+    control row : slaY.1731EntryTable, slaIcmpEntryTable, slaSchEntryTable.
+   		The 'slaY.1731EntryTable' is used to control y1731 operation .
+    	The following objects must be specified in order to create this 
+    conceptual row.
+    	- rcSlaConfigOperType
+    	- rcSlaConfigVlanId
+    	- rcSlaConfigMDLevel
+    	- rcSlaConfigDestMacAddr 
+    	- rcSlaConfigRMepId
+    	The ' slaIcmpEntryTable' is used to control ICMP operation .
+    	The following objects must be specified in order to create this 
+    conceptual row.
+    	- rcSlaConfigOperType
+    	- rcSlaConfigDestIpAddr
+        The ' slaIcmpSchTable' is used to control operation schduled."
+	INDEX        { rcSlaConfigOperId }    
+    ::={ rcSlaConfigTable 1 }     
+    
+RcSlaConfigEntry ::= SEQUENCE {
+        rcSlaConfigOperId				     Unsigned32,
+    	rcSlaConfigOwner				     OCTET STRING (SIZE(0..1024)),
+    	rcSlaOneWaySupport                   RcSlaOWSupport,
+    	rcSlaConfigOperType		             RcSlaCfgOperType,       
+	    rcSlaConfigCos                       Integer32 (0..7 ),  
+	    rcSlaConfigCVlanId                   VlanId,
+	    rcSlaConfigSVlanId                   VlanId,
+	    rcSlaConfigMDLevel		             Dot1agCfmMDLevel,
+	    rcSlaConfigRMepId                    Dot1agCfmMepId,
+	    rcSlaConfigDestMacAddr               MacAddress,
+	    rcSlaConfigDestIpAddr                IpAddress, 
+	    rcSlaConfigJitterInterval            Unsigned32,
+	    rcSlaConfigJitterFrameNums           Unsigned32,
+	    rcSlaConfigScheduleStartTime         TimeStamp,     
+	    rcSlaConfigScheduleLife              Unsigned32, 
+	    rcSlaConfigSchedulePeriod            Unsigned32,
+	    rcSlaConfigScheduleStatus            RcSlaCfgScheduleStatus,
+	    rcSlaConfigRowStatus                 RowStatus,   
+	    rcSlaConfigParam                     OCTET STRING (SIZE(0..255)),
+	    rcSlaConfigDscp                      Integer32 (0..63 ),
+	    rcSlaConfigTestPduType				       INTEGER
+	    }
+
+rcSlaConfigOperId       OBJECT-TYPE 
+	SYNTAX      Unsigned32 
+	MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaConfigEntry 1 }   
+    
+rcSlaConfigOwner       OBJECT-TYPE 
+	SYNTAX      OCTET STRING (SIZE(0..1024))
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+            "This object specifies a string which used by a managing application 
+        to identify the entity that created this operation."
+    ::= { rcSlaConfigEntry 2 }  
+   
+       
+rcSlaOneWaySupport     OBJECT-TYPE 
+	SYNTAX      RcSlaOWSupport
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "Specifies the type of  decision whether to support one way test.  "
+    ::= { rcSlaConfigEntry 3 }
+    
+rcSlaConfigOperType       OBJECT-TYPE 
+	SYNTAX      RcSlaCfgOperType
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+            "Specifies the type of operation to be performed. "
+    ::= { rcSlaConfigEntry 4 }
+
+rcSlaConfigCos       OBJECT-TYPE 
+	SYNTAX      Integer32 (0..7 )
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+          "This object specifies the Class Of Service field 
+        in an frame header of SLA PDU to be used by Y.1731 operation."   
+    ::= { rcSlaConfigEntry 5 }
+
+rcSlaConfigCVlanId       OBJECT-TYPE 
+	SYNTAX      VlanId
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+          "This object specifies the CVlan user configured 
+          	in an frame header of SLA PDU to be used by Y.1731 operation.
+          	It could be zero when there is no cunsomer vlan"
+    ::= { rcSlaConfigEntry 6 }
+
+rcSlaConfigSVlanId       OBJECT-TYPE 
+	SYNTAX      VlanId
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the identifier of VLAN for MA to be used by Y.1731 operation.
+				It is an unique identifier for a service instance 
+				within a Maintenance Domain specified by rcSlaConfigMDLevel."
+    ::= { rcSlaConfigEntry 7 }                    
+
+rcSlaConfigMDLevel       OBJECT-TYPE 
+	SYNTAX      Dot1agCfmMDLevel
+	MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the maintenance domain level to be used by Y.1731 operation."
+    ::= { rcSlaConfigEntry 8 }                    
+             
+
+rcSlaConfigRMepId       OBJECT-TYPE 
+	SYNTAX      Dot1agCfmMepId
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the Target Remote MEP Identify to be used by Y.1731 operation."
+    ::= { rcSlaConfigEntry 9 }                    
+
+rcSlaConfigDestMacAddr       OBJECT-TYPE 
+	SYNTAX      MacAddress
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the Target MAC Address Field to be used by Y.1731 operation."
+    ::= { rcSlaConfigEntry 10 }
+
+rcSlaConfigDestIpAddr       OBJECT-TYPE 
+	SYNTAX      IpAddress
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the Target IP Address Field to be used by ICMP operation."
+    ::= { rcSlaConfigEntry 11 }                    
+
+rcSlaConfigJitterInterval       OBJECT-TYPE 
+	SYNTAX      Unsigned32 
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+            "This value specifies the inter-frame delay between Ethernet
+        frames that need to be transmitted to the target device.
+        This object is applicable to 'Jitter' operation only."
+   ::= { rcSlaConfigEntry 12 }                    
+
+rcSlaConfigJitterFrameNums       OBJECT-TYPE 
+	SYNTAX      Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+           "This object specifies the number of frames that need to be transmitted to the target device.  
+           		This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaConfigEntry 13 }                    
+
+rcSlaConfigScheduleStartTime       OBJECT-TYPE 
+	SYNTAX      TimeStamp
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the time when this schedule status will become 'active'.  
+            	Value of 0 puts in other status."
+    ::= { rcSlaConfigEntry 14 }                    
+
+rcSlaConfigScheduleLife       OBJECT-TYPE 
+	SYNTAX      Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the time duration over the whole schedule process. "
+    ::= { rcSlaConfigEntry 15 }                    
+
+rcSlaConfigSchedulePeriod       OBJECT-TYPE 
+	SYNTAX      Unsigned32
+	MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the duration between two SLA test 
+            	which includes all of probes schedule process in test. 
+           	Take above example, if all of the rcSlaConfigSchedulePeriod of three operations are set to 60, 
+            	then the start time of each test of SLA operation like:
+			start time:   T+0 --------  T+9 ----------  T+19-----
+           		operation1  operation2    operation3 
+			start again:  T+60--------  T+69 ----------  T+79--
+           		operation1  operation2    operation3   
+			start 3rd time:T+120-------- T+129 ----------T+139--
+         		operation1  operation2    operation3"
+    ::= { rcSlaConfigEntry 16 }                    
+
+rcSlaConfigScheduleStatus       OBJECT-TYPE 
+	SYNTAX      RcSlaCfgScheduleStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the status of Schedule.  
+            The status column has five defined values: 
+		- `scheduleInitial', which indicates that the operation has not been scheduled ;    
+		- `scheduleCreate', which is supplied by a management station wishing to create a new schedule 
+				and to have its status set to active;
+		- `scheduleBreak', which is supplied by a management station wishing to break a scheduling operation 
+				and to have its status set to complete;   
+		- `scheduleActive', which indicates that the operation is being scheduled ; 
+		- `scheduleComplete', which indicates that the scheduled operation has been over;"
+    ::= { rcSlaConfigEntry 17 }                    
+
+rcSlaConfigRowStatus       OBJECT-TYPE 
+	SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+            "The status of the row.
+			All columns must have a valid value before a row can be activated. 
+			The following objects must be specified obviously in order for row status object to become active.
+				rcSlaConfigOperId
+				rcSlaConfigOperType
+    		For ICMP operation:
+    			rcSlaConfigDestIpAddr
+			For Y.1731 operation:
+       			rcSlaConfigVlanId
+    			rcSlaConfigMDLevel
+    			rcSlaConfigDestMacAddr
+
+			The following objects about the configuration of operation cannot be modified after creating the row:
+				rcSlaConfigOperId
+    			rcSlaConfigOwner
+    			rcSlaConfigOperType
+    			rcSlaConfigCos
+    			rcSlaConfigVlanId
+				rcSlaConfigMDLevel
+				rcSlaConfigDestMacAddr
+				rcSlaConfigDestIpAddr
+    			rcSlaConfigJitterInterval
+				rcSlaConfigJitterFrameNums
+
+			The following objects about the schedule configuration of operation can be modified even after creating the row:
+    			rcSlaConfigScheduleStartTime
+    			rcSlaConfigScheduleLife
+    			rcSlaConfigSchedulePeriod
+				rcSlaConfigScheduleStatus
+			The ahead three objects of above won't be modified until another schedule of this operation start."
+    ::= { rcSlaConfigEntry 18 }   
+    
+rcSlaConfigParam       OBJECT-TYPE 
+	SYNTAX      OCTET STRING (SIZE(0..255))
+	MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+            "This object uses to restore the value of config params which is needed by  all kinds of operation.  
+            The meaning of this  object decides by different operation : 
+		For Y.1731 operation, this  object means:
+		    -- mdlevel (0 - 7) in 0 BYTE
+		    -- Cos (0 - 7) in 1 BYTE
+		    -- Svlan (1 - 4094） in 2 - 3 BYTE     
+		    -- Cvlan (0 - 4094)  in 4 - 5 BYTE
+		    -- RmepId (1 - 8191 ) in 6 - 7 BYTE 
+		 For ICMP operation:
+			-- Ipaddress in 0 - 3 BYTE
+		
+			mdlevel :  the maintenance domain level to be used by Y.1731 operation.     
+			Cos     :  the Class Of Service field in an frame header of SLA PDU to be used by Y.1731 operation.  
+			Svlan   :  the identifier of VLAN for MA to be used by Y.1731 operation.
+					   It is an unique identifier for a service instance within a Maintenance Domain specified by rcSlaConfigMDLevel.
+		    Cvlan   :  the CVlan user configured in an frame header of SLA PDU to be used by Y.1731 operation.
+          			   It could be zero when there is no cunsomer vlan   
+          	RmepId	:  the Target Remote MEP Identify to be used by Y.1731 operation.          	
+          	Ipaddress : the Target IP Address Field to be used by ICMP operation.	   
+		"
+    ::= { rcSlaConfigEntry 19 }                    
+
+rcSlaConfigDscp       OBJECT-TYPE 
+	SYNTAX      Integer32 (0..63 )
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+          "This object specifies the ToS field in an frame header of ip hearder."
+    ::= { rcSlaConfigEntry 20 }
+    
+  rcSlaConfigTestPduType 	OBJECT-TYPE 
+	SYNTAX      INTEGER {loopback(1), delayMeasurement(2)}
+	MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION      "This object specifies the type of Y1731 echo/jitter packats.
+    				Two types are avalibale:
+    				loopBack          (1),
+    				delayMeasurement  (2)
+					"
+    ::= { rcSlaConfigEntry 21 }
+
+--------------------------------OperScheduleGroup---------------------------               
+--rcSlaScheduleGroup
+	-- rcSlaLatestTable
+		--rcSlaLatestEntry
+			--rcSlaLatestTXNum 
+			--rcSlaLatestRTTNum
+	    	--rcSlaLatestRTTSum
+	    	--rcSlaLatestRTTSumJitter
+	    	--rcSlaLatestRTTSum2    
+	    	--rcSlaLatestRTTMin                    
+	    	--rcSlaLatestRTTMax 
+	    	--rcSlaLatestRTTNumSD	                    
+	       	--rcSlaLatestRTTSumSD                  
+	    	--rcSlaLatestRTTSumJitterSD             
+ 	    	--rcSlaLatestRTTSum2SD                 
+	    	--rcSlaLatestRTTMinSD                  
+	    	--rcSlaLatestRTTMaxSD  
+	    	--rcSlaLatestRTTNumDS                  
+	    	--rcSlaLatestRTTSumDS                  
+	    	--rcSlaLatestRTTSumJitterDS            
+	    	--rcSlaLatestRTTSum2DS                 
+	    	--rcSlaLatestRTTMinDS                  
+	    	--rcSlaLatestRTTMaxDS   
+	    	--rcSlaLatestRTTCurrent
+	    	--rcSlaLatestRTTCurrentSD
+	    	--rcSlaLatestRTTCurrentDS
+	    	--rcSlaLatestRTTCurrentJitter
+	    	--rcSlaLatestRTTCurrentJitterSD
+	    	--rcSlaLatestRTTCurrentJitterDS
+	    	--rcSlaLatestRTTMinJitter                  
+	    	--rcSlaLatestRTTMinJitterSD                  
+	    	--rcSlaLatestRTTMinJitterDS                  
+	    	--rcSlaLatestRTTMaxJitter                  
+	    	--rcSlaLatestRTTMaxJitterSD                  
+	    	--rcSlaLatestRTTMaxJitterDS  	    	
+	    	--rcSlaLatestRTTPktLossNum 		    	
+	    	--rcSlaLatestRTTPktLossRate
+    	
+	    	
+	-- rcSlaStatisticTable
+		--rcSlaStatisticEntry
+			--rcSlaStatisticStartTime   
+			--rcSlaStatisticScheduleLife         
+        	--rcSlaStatisticSchedulePeriod 		     
+	    	--rcSlaStatisticTXNum 
+	    	--rcSlaStatisticRTTNum            	 
+	    	--rcSlaStatisticRTTSums              	 
+	    	--rcSlaStatisticRTTSumJitter   		                
+	    	--rcSlaStatisticRTTSum2L               
+	    	--rcSlaStatisticRTTSum2H               
+	    	--rcSlaStatisticRTTMin                 
+	    	--rcSlaStatisticRTTMax  
+	    	--rcSlaStatisticRTTNumSD                   
+	    	--rcSlaStatisticRTTSumsSD              
+	    	--rcSlaStatisticRTTSumJitterSD         
+	       	--rcSlaStatisticRTTSum2LSD             
+	    	--rcSlaStatisticRTTSum2HSD             
+	    	--rcSlaStatisticRTTMinSD                
+	    	--rcSlaStatisticRTTMaxSD 
+	    	--rcSlaStatisticRTTNumDS                       
+	    	--rcSlaStatisticRTTSumsDS              
+	    	--rcSlaStatisticRTTSumJitterDS         
+	    	--rcSlaStatisticRTTSum2LDS             
+	    	--rcSlaStatisticRTTSum2HDS             
+	    	--rcSlaStatisticRTTMinDS               
+	    	--rcSlaStatisticRTTMaxDS   
+	    	--rcSlaStatisticRTTAverage           
+	    	--rcSlaStatisticRTTAverageSD          
+	    	--rcSlaStatisticRTTAverageDS          
+	    	--rcSlaStatisticRTTAverageJitter     
+	    	--rcSlaStatisticRTTAverageJitterSD  
+	    	--rcSlaStatisticRTTAverageJitterDS  
+	    	--rcSlaStatisticRTTMinJitter                  
+	    	--rcSlaStatisticRTTMinJitterSD                  
+	    	--rcSlaStatisticRTTMinJitterDS                  
+	    	--rcSlaStatisticRTTMaxJitter                  
+	    	--rcSlaStatisticRTTMaxJitterSD                  
+	    	--rcSlaStatisticRTTMaxJitterDS  	    	            
+	    	--rcSlaStatisticRTTPktLossNum 	        
+	        --rcSlaStatisticRTTPktLossRate	 	    	            
+               
+
+--rcSlaLatestTable
+
+rcSlaLatestTable  OBJECT-TYPE
+    SYNTAX      SEQUENCE OF RcSlaLatestEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "This table contains the statistics calculated for the 
+        latest sent frames."
+    ::= { rcSlaScheduleGroup 1 }
+
+rcSlaLatestEntry   OBJECT-TYPE
+    SYNTAX      RcSlaLatestEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "A collection of objects that record the latest operation.
+
+        An entry is created only when the operation has been set and scheduled.      
+        The entry will start to collect data when rcSlaConfigScheduleStatus 
+        is in 'active' state.  The entry will be removed when the 
+        rcSlaConfigScheduleStatus is changed to 'complete' state. "
+	INDEX        { rcSlaConfigOperId }    
+    ::={ rcSlaLatestTable 1 }     
+    
+RcSlaLatestEntry ::= SEQUENCE {
+        rcSlaLatestTXNum   					 Gauge32,  
+        rcSlaLatestRTTNum               	 Gauge32,
+	    rcSlaLatestRTTSum   			     Gauge32,
+	    rcSlaLatestRTTSumJitter   		     Gauge32,  
+	    rcSlaLatestRTTSum2                   Gauge32,
+	    rcSlaLatestRTTMin                    Gauge32,
+	    rcSlaLatestRTTMax                    Gauge32, 
+	    rcSlaLatestRTTNumSD                  Gauge32,
+	    rcSlaLatestRTTSumSD                  Gauge32,
+	    rcSlaLatestRTTSumJitterSD            Gauge32, 
+ 	    rcSlaLatestRTTSum2SD                 Gauge32,
+	    rcSlaLatestRTTMinSD                  Gauge32,
+	    rcSlaLatestRTTMaxSD                  Gauge32,
+	    rcSlaLatestRTTNumDS                  Gauge32,
+	    rcSlaLatestRTTSumDS                  Gauge32,
+	    rcSlaLatestRTTSumJitterDS            Gauge32,
+	    rcSlaLatestRTTSum2DS                 Gauge32,
+	    rcSlaLatestRTTMinDS                  Gauge32,
+	    rcSlaLatestRTTMaxDS                  Gauge32,	    
+	    rcSlaLatestRTTCurrent                  Gauge32,
+	    rcSlaLatestRTTCurrentSD                  Gauge32,
+	    rcSlaLatestRTTCurrentDS                  Gauge32,
+	    rcSlaLatestRTTCurrentJitter                  Gauge32,
+	    rcSlaLatestRTTCurrentJitterSD                  Gauge32,
+	    rcSlaLatestRTTCurrentJitterDS                  Gauge32,
+	    rcSlaLatestRTTMinJitter                  Gauge32,
+	    rcSlaLatestRTTMinJitterSD                  Gauge32,
+	    rcSlaLatestRTTMinJitterDS                  Gauge32,
+	    rcSlaLatestRTTMaxJitter                  Gauge32,
+	    rcSlaLatestRTTMaxJitterSD                  Gauge32,
+	    rcSlaLatestRTTMaxJitterDS                  Gauge32
+	    rcSlaLatestRTTPktLossNum 	         Gauge32,
+	    rcSlaLatestRTTPktLossRate            OCTET STRING (SIZE(0..1024))
+}
+
+rcSlaLatestTXNum       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the number of RTT's probe sent in latest test."
+    ::= { rcSlaLatestEntry 1 }    
+    
+rcSlaLatestRTTNum       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the number of RTT's probe that were successfully measured in latest test."
+    ::= { rcSlaLatestEntry 2 } 
+    
+rcSlaLatestRTTSum       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the sum of RTT's delay that were successfully measured in latest test."
+    ::= { rcSlaLatestEntry 3 }
+    
+rcSlaLatestRTTSumJitter       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the number of RTT's jitter that were successfully measured in latest test.  
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaLatestEntry 4 }
+
+rcSlaLatestRTTSum2       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the sum of squares of RTT's delay that are successfully measured in latest test. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaLatestEntry 5 }
+
+rcSlaLatestRTTMin       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the minimum of RTT's that were successfully measured in latest test. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaLatestEntry 6 }                    
+
+rcSlaLatestRTTMax       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the maximum of RTT's that were successfully measured in latest test. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaLatestEntry 7 }                    
+ 
+rcSlaLatestRTTNumSD       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the number of RTT's probe 
+            	that were successfully measured from source to destination in latest test."
+    ::= { rcSlaLatestEntry 8 }        
+
+rcSlaLatestRTTSumSD       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the sum of RTT's delay 
+            	that were successfully measured from source to destination in latest test."
+    ::= { rcSlaLatestEntry 9 }                    
+
+rcSlaLatestRTTSumJitterSD       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the number of RTT's jitter that were successfully measured from source to destination in latest test. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaLatestEntry 10 }                    
+
+rcSlaLatestRTTSum2SD       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the sum of squares of RTT's delay that are successfully measured from source to destination in latest test. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaLatestEntry 11 }                    
+
+rcSlaLatestRTTMinSD       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the minimum of RTT's that were successfully measured from source to destination in latest test. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaLatestEntry 12 }                    
+
+rcSlaLatestRTTMaxSD       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the maximum of RTT's that were successfully measured from source to destination in latest test. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaLatestEntry 13 }              
+                                     
+rcSlaLatestRTTNumDS       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the number of RTT's probe 
+            	that were successfully measured from destination to source in latest test."
+    ::= { rcSlaLatestEntry 14 }                                       
+
+rcSlaLatestRTTSumDS       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the sum of RTT's delay 
+            	that were successfully measured from destination to source in latest test."
+    ::= { rcSlaLatestEntry 15 }                    
+
+rcSlaLatestRTTSumJitterDS       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the number of RTT's jitter that were successfully measured from destination to source in latest test. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaLatestEntry 16 }                    
+
+rcSlaLatestRTTSum2DS       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the sum of squares of RTT's delay that are successfully measured from destination to source in latest test. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaLatestEntry 17 }                    
+
+rcSlaLatestRTTMinDS       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the minimum of RTT's that were successfully measured from destination to source in latest test. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaLatestEntry 18 }                    
+
+rcSlaLatestRTTMaxDS       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the maximum of RTT's that were successfully measured from destination to source in latest test. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaLatestEntry 19 }                    
+
+rcSlaLatestRTTCurrent       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the current value of RTT's delay that were successfully measured in latest test."
+    ::= { rcSlaLatestEntry 20 }
+    
+	    	--rcSlaLatestRTTCurrentSD
+rcSlaLatestRTTCurrentSD       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the current value of RTT's delay 
+            	that were successfully measured from source to destination in latest test."
+    ::= { rcSlaLatestEntry 21 } 	    	
+	    	
+	    	--rcSlaLatestRTTCurrentDS
+rcSlaLatestRTTCurrentDS       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the current value of RTT's delay 
+            	that were successfully measured from destination to source in latest test."
+    ::= { rcSlaLatestEntry 22 } 
+	    	
+	    	--rcSlaLatestRTTCurrentJitter
+rcSlaLatestRTTCurrentJitter       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the current number of RTT's jitter that were successfully measured in latest test.  
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaLatestEntry 23 } 
+    
+    
+	    	--rcSlaLatestRTTCurrentJitterSD
+rcSlaLatestRTTCurrentJitterSD       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the current number of RTT's jitter that were successfully measured from source to destination in latest test. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaLatestEntry 24 }  
+    
+    
+	    	--rcSlaLatestRTTCurrentJitterDS 
+rcSlaLatestRTTCurrentJitterDS       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the current number of RTT's jitter that were successfully measured from destination to source in latest test. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaLatestEntry 25 } 
+    
+	    	--rcSlaLatestRTTMinJitter 
+rcSlaLatestRTTMinJitter       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the minimum jitter of RTT's that were successfully measured in latest test. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaLatestEntry 26 } 	   
+    
+                     
+	    	--rcSlaLatestRTTMinJitterSD 
+rcSlaLatestRTTMinJitterSD       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the minimum jitter of RTT's that were successfully measured from source to destination in latest test. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaLatestEntry 27 } 	
+    
+                        
+	    	--rcSlaLatestRTTMinJitterDS 
+rcSlaLatestRTTMinJitterDS       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the minimum jitter of RTT's that were successfully measured from destination  to source in latest test. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaLatestEntry 28 } 
+    	    	                 
+	    	--rcSlaLatestRTTMaxJitter 
+rcSlaLatestRTTMaxJitter       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the max jitter of RTT's that were successfully measured in latest test. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaLatestEntry 29 } 	    	
+	    	                 
+	    	--rcSlaLatestRTTMaxJitterSD 
+rcSlaLatestRTTMaxJitterSD       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the max jitter of RTT's that were successfully measured from source to destination in latest test.
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaLatestEntry 30 } 	    	
+	    	                 
+	    	--rcSlaLatestRTTMaxJitterDS  
+rcSlaLatestRTTMaxJitterDS       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the max jitter of RTT's that were successfully measured from destination to source in latest test.
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaLatestEntry 31 }    
+      
+      	    	--rcSlaLatestRTTPktLossNum 	
+rcSlaLatestRTTPktLossNum       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the pkat loss number in latest test."
+    ::= { rcSlaLatestEntry 32 }  
+         	    		    	
+	    	--rcSlaLatestRTTPktLossRate
+rcSlaLatestRTTPktLossRate       OBJECT-TYPE 
+	SYNTAX      OCTET STRING (SIZE(0..1024))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies a string to identify the pkt loss rate in latest test."
+    ::= { rcSlaLatestEntry 33 }      
+    
+    
+
+-- rcSlaStatisticTable
+--  
+
+rcSlaStatisticTable  OBJECT-TYPE
+    SYNTAX      SEQUENCE OF RcSlaStatisticEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The 'SlaStatistic' statistics table contains summarized
+    information of the results for a conceptual control row."
+    ::= { rcSlaScheduleGroup 2 }
+
+rcSlaStatisticEntry   OBJECT-TYPE
+    SYNTAX      RcSlaStatisticEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "This entry contains the objects which accumulate the
+    results of a series of 'Jitter' operations over a time 
+    period stored in rcSlaConfigScheduleLife. 
+        An entry is created only when the operation has been set and scheduled.      
+        The entry will start to collect data when rcSlaConfigScheduleStatus 
+    is in 'active' state.  The entry will stop to collect data when the 
+    rcSlaConfigScheduleStatus is changed to 'complete' state.
+         "
+	INDEX        { rcSlaConfigOperId,
+	               rcSlaStatisticStartTime
+	             }    
+    ::={ rcSlaStatisticTable 1 }     
+    
+    RcSlaStatisticEntry ::= SEQUENCE {
+        rcSlaStatisticStartTime   		     TimeStamp,  
+        rcSlaStatisticScheduleLife           Unsigned32,
+        rcSlaStatisticSchedulePeriod         Unsigned32,
+	    rcSlaStatisticTXNum             	 Counter32,
+	    rcSlaStatisticRTTNum              	 Counter32,
+	    rcSlaStatisticRTTSums              	 Counter32,
+	    rcSlaStatisticRTTSumJitter   		 Counter32,               
+	    rcSlaStatisticRTTSum2L               Counter32,
+	    rcSlaStatisticRTTSum2H               Counter32,
+	    rcSlaStatisticRTTMin                 Gauge32,
+	    rcSlaStatisticRTTMax                 Gauge32,  
+	    rcSlaStatisticRTTNumSD               Counter32,
+	    rcSlaStatisticRTTSumsSD              Counter32,
+	    rcSlaStatisticRTTSumJitterSD         Counter32,
+	    rcSlaStatisticRTTSum2LSD             Counter32,
+	    rcSlaStatisticRTTSum2HSD             Counter32,
+	    rcSlaStatisticRTTMinSD               Gauge32, 
+	    rcSlaStatisticRTTMaxSD               Gauge32, 
+	    rcSlaStatisticRTTNumDS               Counter32,
+	    rcSlaStatisticRTTSumsDS              Counter32,
+	    rcSlaStatisticRTTSumJitterDS         Counter32,
+	    rcSlaStatisticRTTSum2LDS             Counter32,
+	    rcSlaStatisticRTTSum2HDS             Counter32,
+	    rcSlaStatisticRTTMinDS               Gauge32,
+	    rcSlaStatisticRTTMaxDS               Gauge32,
+	    rcSlaStatisticRTTAverage             Gauge32,
+	    rcSlaStatisticRTTAverageSD           Gauge32,
+	    rcSlaStatisticRTTAverageDS           Gauge32,
+	    rcSlaStatisticRTTAverageJitter       Gauge32,
+	    rcSlaStatisticRTTAverageJitterSD     Gauge32,
+	    rcSlaStatisticRTTAverageJitterDS     Gauge32,
+	    rcSlaStatisticRTTMinJitter           Gauge32,       
+	    rcSlaStatisticRTTMinJitterSD         Gauge32,         
+	    rcSlaStatisticRTTMinJitterDS         Gauge32,         
+	    rcSlaStatisticRTTMaxJitter           Gauge32,       
+	    rcSlaStatisticRTTMaxJitterSD         Gauge32,         
+	    rcSlaStatisticRTTMaxJitterDS         Gauge32
+   	    rcSlaStatisticRTTPktLossNum 	     Gauge32,
+	    rcSlaStatisticRTTPktLossRate         OCTET STRING (SIZE(0..1024))
+}
+
+
+rcSlaStatisticStartTime       OBJECT-TYPE 
+	SYNTAX      TimeStamp
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the time when the operation starts to be scheduled."   
+            
+    ::= { rcSlaStatisticEntry 1 }      
+     
+rcSlaStatisticScheduleLife       OBJECT-TYPE 
+	SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the time duration over the whole schedule process. "
+    ::= { rcSlaStatisticEntry 2 }  
+    
+rcSlaStatisticSchedulePeriod       OBJECT-TYPE 
+	SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the number of RTT's probe that were successfully measured in schedule."
+    ::= { rcSlaStatisticEntry 3 }   
+      
+rcSlaStatisticTXNum       OBJECT-TYPE 
+	SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the duration between two SLA test 
+            	which includes all of probes schedule process in test. "
+    ::= { rcSlaStatisticEntry 4 }    
+    
+rcSlaStatisticRTTNum       OBJECT-TYPE 
+	SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the duration between two SLA test 
+            	which includes all successful probes schedule process in test. 
+           	Take above example, if all of the rcSlaConfigSchedulePeriod of three operations are set to 60, 
+            	then the start time of each test of SLA operation like:
+			start time:   T+0 --------  T+9 ----------  T+19-----
+           		operation1  operation2    operation3 
+			start again:  T+60--------  T+69 ----------  T+79--
+           		operation1  operation2    operation3   
+			start 3rd time:T+120-------- T+129 ----------T+139--
+         		operation1  operation2    operation3"
+    ::= { rcSlaStatisticEntry 5 }                   
+
+rcSlaStatisticRTTSums        OBJECT-TYPE 
+	SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the sum of RTT's delay that were successfully measured in schedule."
+    ::= { rcSlaStatisticEntry 6 }        
+    
+rcSlaStatisticRTTSumJitter       OBJECT-TYPE 
+	SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the number of RTT's jitter that were successfully measured in Schedule.  
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaStatisticEntry 7 }
+
+rcSlaStatisticRTTSum2L       OBJECT-TYPE 
+	SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the sum of squares of RTT's delay that are successfully measured in Schedule.
+            	 This object is applicable to 'Jitter' operation only. (low order 32 bits)"
+    ::= { rcSlaStatisticEntry 8 }
+
+rcSlaStatisticRTTSum2H       OBJECT-TYPE 
+	SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the sum of squares of RTT's delay that are successfully measured in Schedule. 
+            	This object is applicable to 'Jitter' operation only. (high order 32 bits)"
+    ::= { rcSlaStatisticEntry 9 }                    
+
+rcSlaStatisticRTTMin       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the minimum of RTT's that were successfully measured in Schedule. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaStatisticEntry 10 }                    
+
+rcSlaStatisticRTTMax       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the maximum of RTT's that were successfully measured in Schedule. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaStatisticEntry 11 }                    
+                  
+rcSlaStatisticRTTNumSD       OBJECT-TYPE 
+	SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the number of RTT's probe 
+            	that were successfully measured from source to destination in Schedule."
+    ::= { rcSlaStatisticEntry 12 }  
+    
+rcSlaStatisticRTTSumsSD       OBJECT-TYPE 
+	SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the sum of RTT's delay 
+            	that were successfully measured from source to destination in Schedule."
+    ::= { rcSlaStatisticEntry 13 }                    
+
+rcSlaStatisticRTTSumJitterSD       OBJECT-TYPE 
+	SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the number of RTT's jitter that were successfully measured from source to destination in Schedule.
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaStatisticEntry 14 }                    
+
+rcSlaStatisticRTTSum2LSD       OBJECT-TYPE 
+	SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the sum of squares of RTT's delay that are successfully measured from source to destination in Schedule. 
+            	This object is applicable to 'Jitter' operation only. (low order 32 bits)"
+    ::= { rcSlaStatisticEntry 15 }                    
+
+rcSlaStatisticRTTSum2HSD       OBJECT-TYPE 
+	SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the sum of squares of RTT's delay that are successfully measured from source to destination in Schedule. 
+            	This object is applicable to 'Jitter' operation only. (high order 32 bits)"
+    ::= { rcSlaStatisticEntry 16 }                    
+
+rcSlaStatisticRTTMinSD       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the minimum of RTT's that were successfully measured from source to destination in Schedule. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaStatisticEntry 17 }                    
+
+rcSlaStatisticRTTMaxSD       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the maximum of RTT's that were successfully measured from source to destination in Schedule. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaStatisticEntry 18 }    
+
+rcSlaStatisticRTTNumDS       OBJECT-TYPE 
+	SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the number of RTT's probe 
+            	that were successfully measured from destination to source in Schedule."
+    ::= { rcSlaStatisticEntry 19 } 
+                    
+
+rcSlaStatisticRTTSumsDS       OBJECT-TYPE 
+	SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the sum of RTT's delay 
+            that were successfully measured from destination to source in Schedule."
+    ::= { rcSlaStatisticEntry 20 }                    
+
+rcSlaStatisticRTTSumJitterDS       OBJECT-TYPE 
+	SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the number of RTT's jitter that were successfully measured from destination to source in Schedule.  
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaStatisticEntry 21 }                    
+
+rcSlaStatisticRTTSum2LDS       OBJECT-TYPE 
+	SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the sum of squares of RTT's delay that are successfully measured from destination to source in Schedule. 
+            	This object is applicable to 'Jitter' operation only. (low order 32 bits)"
+    ::= { rcSlaStatisticEntry 22 }  
+    
+
+rcSlaStatisticRTTSum2HDS       OBJECT-TYPE 
+	SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the sum of squares of RTT's delay that are successfully measured from destination to source in Schedule. 
+            	This object is applicable to 'Jitter' operation only. (hige order 32 bits)"
+    ::= { rcSlaStatisticEntry 23 }  
+    
+
+rcSlaStatisticRTTMinDS       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the minimum of RTT's that were successfully measured from destination to source in Schedule. 
+            	This object is applicable to 'Jitter' operation only. "
+    ::= { rcSlaStatisticEntry 24 }  
+    
+
+rcSlaStatisticRTTMaxDS       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the maximum of RTT's that were successfully measured from destination to source in Schedule. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaStatisticEntry 25 }        
+
+
+	    	--rcSlaStatisticRTTAverage  
+rcSlaStatisticRTTAverage       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the average value of RTT's delay that were successfully measured in schedule."
+    ::= { rcSlaStatisticEntry 26 }
+    
+          
+	    	--rcSlaStatisticRTTAverageSD 
+ rcSlaStatisticRTTAverageSD       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the average value of RTT's delay that were successfully measured from source to destination in Schedule."
+    ::= { rcSlaStatisticEntry 27 } 
+           
+	    	--rcSlaStatisticRTTAverageDS
+ rcSlaStatisticRTTAverageDS       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the average value of RTT's delay that were successfully measured from destination to source in Schedule."
+    ::= { rcSlaStatisticEntry 28 }	    	
+	    	
+	           
+	    	--rcSlaStatisticRTTAverageJitter
+rcSlaStatisticRTTAverageJitter       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the average value of RTT's jitter that were successfully measured in schedule."
+    ::= { rcSlaStatisticEntry 29 }
+     
+	    	--rcSlaStatisticRTTAverageJitterSD 
+rcSlaStatisticRTTAverageJitterSD       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the average value of RTT's jitter that were successfully measured from source to destination in Schedule."
+    ::= { rcSlaStatisticEntry 30 }
+     
+	    	--rcSlaStatisticRTTAverageJitterDS  
+rcSlaStatisticRTTAverageJitterDS       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the average value of RTT's jitter that were successfully measured from destination to source in Schedule."
+    ::= { rcSlaStatisticEntry 31 }
+    
+    	    	--rcSlaStatisticRTTMinJitter  
+rcSlaStatisticRTTMinJitter       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the minimum jitter value of RTT's that were successfully measured in Schedule. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaStatisticEntry 32 } 
+    
+        	    	                
+	    	--rcSlaStatisticRTTMinJitterSD
+rcSlaStatisticRTTMinJitterSD       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the minimum jitter value of RTT's that were successfully from source to destination in Schedule. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaStatisticEntry 33 } 	    	
+	    	
+	    	                  
+	    	--rcSlaStatisticRTTMinJitterDS 
+rcSlaStatisticRTTMinJitterDS       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the minimum jitter value of RTT's that were successfully from destination to source in Schedule. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaStatisticEntry 34 } 	    	
+	    	                 
+	    	--rcSlaStatisticRTTMaxJitter 
+rcSlaStatisticRTTMaxJitter       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the MAX jitter value of RTT's that were successfully in Schedule. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaStatisticEntry 35 } 	    	
+	    	
+	    	                 
+	    	--rcSlaStatisticRTTMaxJitterSD   
+rcSlaStatisticRTTMaxJitterSD       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the MAX jitter value of RTT's that were successfully from source to destination in Schedule. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaStatisticEntry 36 }	    	
+	    	        
+	    	--rcSlaStatisticRTTMaxJitterDS
+rcSlaStatisticRTTMaxJitterDS       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the MAX jitter value of RTT's that were successfully from destination to source in Schedule. 
+            	This object is applicable to 'Jitter' operation only."
+    ::= { rcSlaStatisticEntry 37 }		    	 
+  
+      	    	--rcSlaStatisticRTTPktLossNum 	
+rcSlaStatisticRTTPktLossNum       OBJECT-TYPE 
+	SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies the pkat loss number in Schedule."
+    ::= { rcSlaStatisticEntry 38 }  
+         	    		    	
+	    	--rcSlaStatisticRTTPktLossRate
+rcSlaStatisticRTTPktLossRate       OBJECT-TYPE 
+	SYNTAX      OCTET STRING (SIZE(0..1024))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object specifies a string to identify the pkt loss rate in Schedule."
+    ::= { rcSlaStatisticEntry 39 }     
+  
+--------------------------------------------------rcSlaThroughputGroup -----------------------  
+--rcSlaThroughputGroup                                                                                              
+		--rcSlaCThroughputConfigTable    
+			--rcSlaThroughputConfigEntry 
+				--rcSlaThroughputIndex
+				--rcSlaThroughputOperId
+				--rcSlaThroughputObject   
+				--rcSlaThroughputPktLength
+				--rcSlaThroughputCount
+				--rcSlaThroughputDuration   				
+				--rcSlaThroughputEnable
+				--rcSlaThroughputStatus
+				--rcSlaThroughputRowStatus
+				--rcSlaThroughputCompleteNum
+				--rcSlaThroughputMeasureStartTime
+				--rcSlaThroughputMeasureLastTime
+				--rcSlaThroughputMeasureEndTime
+				--rcSlaThroughputFailedNum    	
+				
+	--rcSlaCThroughputResultTable    
+			--rcSlaThroughputResultEntry 
+				--rcSlaThroughputResultId
+				--rcSlaThroughputCfgId
+				--rcSlaThroughputStartTime   
+				--rcSlaThroughputEndTime				
+				--rcSlaThroughputLastTime
+				--rcSlaThroughputLocalSendPStatics 	
+				--rcSlaThroughputLocalSendBStatics 
+				--rcSlaThroughputLocalReceivePStatics 
+				--rcSlaThroughputLocalReceiveBStatics 
+				--rcSlaThroughputRemoteSendPStatics 
+				--rcSlaThroughputRemoteSendBStatics 
+				--rcSlaThroughputRemoteReceivePStatics 
+				--rcSlaThroughputRemoteReceiveBStatics 				
+				            
+
+rcSlaThroughputConfigTable  OBJECT-TYPE
+    SYNTAX      SEQUENCE OF RcSlaThroughputConfigEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "This table contains sla  control data."
+    ::= { rcSlaThroughputGroup 1 }
+
+rcSlaThroughputConfigEntry   OBJECT-TYPE
+    SYNTAX      RcSlaThroughputConfigEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "A collection of objects that define three conceptual
+    control row : slaY.1731EntryTable, slaIcmpEntryTable, slaSchEntryTable.
+   		The 'slaY.1731EntryTable' is used to control y1731 operation .
+    	The following objects must be specified in order to create this 
+    conceptual row.
+    	- rcSlaConfigOperType
+    	- rcSlaConfigVlanId
+    	- rcSlaConfigMDLevel
+    	- rcSlaConfigDestMacAddr 
+    	- rcSlaConfigRMepId
+    	The ' slaIcmpEntryTable' is used to control ICMP operation .
+    	The following objects must be specified in order to create this 
+    conceptual row.
+    	- rcSlaConfigOperType
+    	- rcSlaConfigDestIpAddr
+        The ' slaIcmpSchTable' is used to control operation schduled."
+	INDEX        { rcSlaThroughputIndex }    
+    ::={ rcSlaThroughputConfigTable 1 }     
+    
+RcSlaThroughputConfigEntry ::= SEQUENCE {
+        rcSlaThroughputIndex			     Unsigned32 (0..100 ), 
+        rcSlaThroughputOperId			     Unsigned32,
+    	rcSlaThroughputObject                Unsigned32 (125..1000000),
+    	rcSlaThroughputPktLength             INTEGER,       
+	    rcSlaThroughputCount	             Unsigned32,  
+	    rcSlaThroughputDuration              Unsigned32,
+	    rcSlaThroughputEnable                TruthValue,
+	    rcSlaThroughputStatus                INTEGER,  
+	    rcSlaThroughputFailedNum             Unsigned32,
+	    rcSlaThroughputCompleteNum           Unsigned32,
+	    rcSlaThroughputMeasureStartTime      Unsigned32,
+		rcSlaThroughputMeasureLastTime       Unsigned32,
+		rcSlaThroughputMeasureEndTime        Unsigned32,
+	    rcSlaThroughputRowStatus             RowStatus
+	 }
+
+rcSlaThroughputIndex       OBJECT-TYPE 
+	SYNTAX      Unsigned32 (0..100 ) 
+	MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputConfigEntry 1 }  
+    
+rcSlaThroughputOperId       OBJECT-TYPE 
+	SYNTAX      Unsigned32 
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputConfigEntry 2 }  
+    
+rcSlaThroughputObject       OBJECT-TYPE 
+	SYNTAX      Unsigned32 (125..1000000) 
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputConfigEntry 3 }  
+    
+rcSlaThroughputPktLength       OBJECT-TYPE 
+	SYNTAX       INTEGER{
+	            length64      (0),
+	            length128     (1),
+	            length256     (2),
+	            length512     (3),
+	            length1024    (4),
+	            length1280    (5),
+	            length1518    (6)
+	            }
+ 
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputConfigEntry 4 }     
+    
+rcSlaThroughputCount       OBJECT-TYPE 
+	SYNTAX      Unsigned32 
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputConfigEntry 5 }  
+    
+rcSlaThroughputDuration       OBJECT-TYPE 
+	SYNTAX      Unsigned32 
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputConfigEntry 6 }  
+    
+rcSlaThroughputEnable       OBJECT-TYPE 
+	SYNTAX      TruthValue 
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputConfigEntry 7 }  
+    
+rcSlaThroughputStatus       OBJECT-TYPE 
+    SYNTAX      INTEGER {
+                  	throughput_init		(1),
+	              	throughput_Active   (2),
+                  	throughput_Complete (3),
+                 	throughput_Disturb  (4)    
+                  }  
+                
+	MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputConfigEntry 8 }     
+    
+rcSlaThroughputCompleteNum       OBJECT-TYPE 
+	SYNTAX      Unsigned32 
+	MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputConfigEntry 9 } 
+
+rcSlaThroughputFailedNum       OBJECT-TYPE 
+	SYNTAX      Unsigned32 
+	MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputConfigEntry 10 }    
+    
+    
+rcSlaThroughputMeasureStartTime       OBJECT-TYPE 
+	SYNTAX      Unsigned32 
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputConfigEntry 11 } 
+  
+rcSlaThroughputMeasureEndTime       OBJECT-TYPE 
+	SYNTAX      Unsigned32 
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputConfigEntry 12 } 
+
+
+rcSlaThroughputMeasureLastTime       OBJECT-TYPE 
+	SYNTAX      Unsigned32 
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputConfigEntry 13 } 
+    
+    
+rcSlaThroughputRowStatus       OBJECT-TYPE 
+	SYNTAX      RowStatus 
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputConfigEntry 14 } 
+    
+    
+    
+ rcSlaThroughputResultTable  OBJECT-TYPE
+    SYNTAX      SEQUENCE OF RcSlaThroughputResultEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "This table contains sla  control data."
+    ::= { rcSlaThroughputGroup 2 }
+
+rcSlaThroughputResultEntry   OBJECT-TYPE
+    SYNTAX      RcSlaThroughputResultEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "A collection of objects that define three conceptual
+    control row : slaY.1731EntryTable, slaIcmpEntryTable, slaSchEntryTable.
+   		The 'slaY.1731EntryTable' is used to control y1731 operation .
+    	The following objects must be specified in order to create this 
+    conceptual row.
+    	- rcSlaConfigOperType
+    	- rcSlaConfigVlanId
+    	- rcSlaConfigMDLevel
+    	- rcSlaConfigDestMacAddr 
+    	- rcSlaConfigRMepId
+    	The ' slaIcmpEntryTable' is used to control ICMP operation .
+    	The following objects must be specified in order to create this 
+    conceptual row.
+    	- rcSlaConfigOperType
+    	- rcSlaConfigDestIpAddr
+        The ' slaIcmpSchTable' is used to control operation schduled."
+	INDEX        {  rcSlaThroughputIndex,
+					rcSlaThroughputResultId }    
+    ::={ rcSlaThroughputResultTable 1 }     
+    
+RcSlaThroughputResultEntry ::= SEQUENCE {
+        rcSlaThroughputResultId			     Unsigned32, 
+       	rcSlaThroughputTestStartTime         Unsigned32,
+    	rcSlaThroughputTestEndTime           Unsigned32, 
+    	rcSlaThroughputTestLastTime          Unsigned32,      
+	    rcSlaThroughputLocalSendPStatics     Counter64,
+	    rcSlaThroughputLocalSendBStatics     Counter64,
+	    rcSlaThroughputLocalReceivePStatics  Counter64,
+	    rcSlaThroughputLocalReceiveBStatics  Counter64,
+	    rcSlaThroughputRemoteSendPStatics    Counter64,
+	    rcSlaThroughputRemoteSendBStatics    Counter64,
+	    rcSlaThroughputRemoteReceivePStatics Counter64,
+	    rcSlaThroughputRemoteReceiveBStatics Counter64
+	}
+
+rcSlaThroughputResultId       OBJECT-TYPE 
+	SYNTAX      Unsigned32
+	MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputResultEntry 1 }  
+    
+    
+rcSlaThroughputTestStartTime       OBJECT-TYPE 
+	SYNTAX      Unsigned32 
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputResultEntry 2 } 
+  
+rcSlaThroughputTestEndTime       OBJECT-TYPE 
+	SYNTAX      Unsigned32 
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputResultEntry 3 } 
+
+
+rcSlaThroughputTestLastTime       OBJECT-TYPE 
+	SYNTAX      Unsigned32 
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputResultEntry 4 } 
+
+rcSlaThroughputLocalSendPStatics       OBJECT-TYPE 
+	SYNTAX      Counter64 
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputResultEntry 5 } 
+
+rcSlaThroughputLocalSendBStatics       OBJECT-TYPE 
+	SYNTAX      Counter64 
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputResultEntry 6 } 
+    
+rcSlaThroughputLocalReceivePStatics       OBJECT-TYPE 
+	SYNTAX      Counter64 
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputResultEntry 7 } 
+
+rcSlaThroughputLocalReceiveBStatics       OBJECT-TYPE 
+	SYNTAX      Counter64 
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputResultEntry 8 } 
+
+rcSlaThroughputRemoteSendPStatics       OBJECT-TYPE 
+	SYNTAX      Counter64 
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputResultEntry 9 } 
+
+rcSlaThroughputRemoteSendBStatics       OBJECT-TYPE 
+	SYNTAX      Counter64 
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputResultEntry 10 } 
+
+rcSlaThroughputRemoteReceivePStatics       OBJECT-TYPE 
+	SYNTAX      Counter64 
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputResultEntry 11 } 
+
+rcSlaThroughputRemoteReceiveBStatics       OBJECT-TYPE 
+	SYNTAX      Counter64 
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "This object indicates a row in the rcSlaConfigTable.
+        This value is an operation number configured by user."
+    ::= { rcSlaThroughputResultEntry 12 }   
+    
+rcSlaThroughputResultTrap NOTIFICATION-TYPE
+        OBJECTS {   rcSlaThroughputResultId
+                }
+        STATUS  current
+        DESCRIPTION
+          ""
+       ::= { rcSlaThroughputGroup 4 }
+              
+              
+ ---告警阈值表
+rcSlaThresholdTable  OBJECT-TYPE
+    SYNTAX      SEQUENCE OF RcSlaThresholdEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "This table contains sla trap threshold."
+    ::= { rcSlaThresholdGroup 1 }
+
+rcSlaThresholdEntry   OBJECT-TYPE
+    SYNTAX      RcSlaThresholdEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The entry of rcSlaThresholdTable."
+	INDEX        { rcSlaConfigOperId }    
+    ::={ rcSlaThresholdTable 1 }     
+    
+RcSlaThresholdEntry ::= SEQUENCE {
+        rcSlaTrapEnableType			         BITS, 
+       	rcSlaPktLossRateCurrThreshold        INTEGER,
+    	rcSlaPktLossRateAverThreshold        INTEGER, 
+    	rcSlaDelayCurrThreshold              Counter32,      
+	    rcSlaDelayCurrThresholdSD            Counter32,
+	    rcSlaDelayCurrThresholdDS            Counter32,
+	    rcSlaDelayAverThreshold              Counter32,
+	    rcSlaDelayAverThresholdSD            Counter32,
+	    rcSlaDelayAverThresholdDS            Counter32,
+	    rcSlaJitterCurrThreshold             Counter32,
+	    rcSlaJitterCurrThresholdSD           Counter32,
+	    rcSlaJitterCurrThresholdDS           Counter32,
+	    rcSlaJitterAverThreshold             Counter32,
+	    rcSlaJitterAverThresholdSD           Counter32,
+	    rcSlaJitterAverThresholdDS           Counter32
+	}
+
+rcSlaTrapEnableType       OBJECT-TYPE 
+	SYNTAX      BITS
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "The enable status of threshold trap."
+    ::= { rcSlaThresholdEntry 1 }  
+
+rcSlaPktLossRateCurrThreshold       OBJECT-TYPE 
+	SYNTAX      INTEGER(0..10000)
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "The pkt loss rate threshold of the last test."
+    ::= { rcSlaThresholdEntry 2 }
+    
+rcSlaPktLossRateAverThreshold       OBJECT-TYPE 
+	SYNTAX      INTEGER(0..10000)
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "The average pkt loss rate threshold of all test."
+    ::= { rcSlaThresholdEntry 3 }       
+    
+rcSlaDelayCurrThreshold       OBJECT-TYPE 
+	SYNTAX      Counter32
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "The RTT delay threshold of the last test."
+    ::= { rcSlaThresholdEntry 4 }   
+    
+rcSlaDelayCurrThresholdSD       OBJECT-TYPE 
+	SYNTAX      Counter32
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "The delay threshold of the last test from source to destination."
+    ::= { rcSlaThresholdEntry 5 }   
+    
+rcSlaDelayCurrThresholdDS       OBJECT-TYPE 
+	SYNTAX      Counter32
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "The delay threshold of the last test from destination to source."
+    ::= { rcSlaThresholdEntry 6 }     
+    
+rcSlaDelayAverThreshold       OBJECT-TYPE 
+	SYNTAX      Counter32
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "The RTT average delay threshold of all test."
+    ::= { rcSlaThresholdEntry 7 }         
+    
+rcSlaDelayAverThresholdSD       OBJECT-TYPE 
+	SYNTAX      Counter32
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "The average delay threshold of all test from source to destination."
+    ::= { rcSlaThresholdEntry 8 }     
+    
+rcSlaDelayAverThresholdDS       OBJECT-TYPE 
+	SYNTAX      Counter32
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "The average delay threshold of all test from destination to source."
+    ::= { rcSlaThresholdEntry 9 }     
+    
+rcSlaJitterCurrThreshold       OBJECT-TYPE 
+	SYNTAX      Counter32
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "The RTT jitter threshold of the last test."
+    ::= { rcSlaThresholdEntry 10 }       
+    
+rcSlaJitterCurrThresholdSD       OBJECT-TYPE 
+	SYNTAX      Counter32
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "The jitter threshold of the last test from source to destination."
+    ::= { rcSlaThresholdEntry 11 }     
+    
+rcSlaJitterCurrThresholdDS       OBJECT-TYPE 
+	SYNTAX      Counter32
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "The jitter threshold of the last test from destination to source."
+    ::= { rcSlaThresholdEntry 12 }       
+    
+rcSlaJitterAverThreshold       OBJECT-TYPE 
+	SYNTAX      Counter32
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "The RTT average jitter threshold of all test."
+    ::= { rcSlaThresholdEntry 13 }    
+        
+rcSlaJitterAverThresholdSD       OBJECT-TYPE 
+	SYNTAX      Counter32
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "The average jitter threshold of all test from source to destination."
+    ::= { rcSlaThresholdEntry 14 }    
+    
+rcSlaJitterAverThresholdDS       OBJECT-TYPE 
+	SYNTAX      Counter32
+	MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "The average jitter threshold of all test from destination to source."
+    ::= { rcSlaThresholdEntry 15 }   
+    
+ ---告警信息表
+rcSlaThresholdTestResultTable  OBJECT-TYPE
+    SYNTAX      SEQUENCE OF RcSlaThresholdTestResultEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "This table contains sla test result."
+    ::= { rcSlaThresholdGroup 2 }
+
+rcSlaThresholdTestResultEntry   OBJECT-TYPE
+    SYNTAX      RcSlaThresholdTestResultEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The entry of rcSlaThresholdTestResultTable."
+	INDEX        { rcSlaConfigOperId }    
+    ::={ rcSlaThresholdTestResultTable 1 }     
+    
+RcSlaThresholdTestResultEntry ::= SEQUENCE {
+        rcSlaCurrResultTrap			         BITS, 
+       	rcSlaAverResultTrap                  BITS,
+    	rcSlaPktCurrLossRate                 INTEGER,    
+    	rcSlaPktAverLossRate                 INTEGER,
+    	rcSlaCurrDelay                       Counter32,      
+	    rcSlaCurrDelaySD                     Counter32,
+	    rcSlaCurrDelayDS                     Counter32,
+	    rcSlaAverDelay                       Counter32,
+	    rcSlaAverDelaySD                     Counter32,
+	    rcSlaAverDelayDS                     Counter32,
+	    rcSlaCurrJitter                      Counter32,
+	    rcSlaCurrJitterSD                    Counter32,
+	    rcSlaCurrJitterDS                    Counter32,
+	    rcSlaAverJitter                      Counter32,
+	    rcSlaAverJitterSD                    Counter32,
+	    rcSlaAverJitterDS                    Counter32
+	}
+
+rcSlaCurrResultTrap       OBJECT-TYPE 
+	SYNTAX      BITS
+	MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The sla result trap status of the last test."
+    ::= { rcSlaThresholdTestResultEntry 1 }  
+
+rcSlaAverResultTrap       OBJECT-TYPE 
+	SYNTAX      BITS
+	MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The sla average result trap status of all test."
+    ::= { rcSlaThresholdTestResultEntry 2 }  
+    
+rcSlaPktCurrLossRate       OBJECT-TYPE 
+	SYNTAX      INTEGER(0..10000)
+	MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The pkt loss rate of the last test."
+    ::= { rcSlaThresholdTestResultEntry 3 }     
+    
+rcSlaPktAverLossRate       OBJECT-TYPE 
+	SYNTAX      INTEGER(0..10000)
+	MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The average pkt loss rate of all test."
+    ::= { rcSlaThresholdTestResultEntry 4 }     
+    
+rcSlaCurrDelay       OBJECT-TYPE 
+	SYNTAX      Counter32
+	MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The RTT delay of the last test."
+    ::= { rcSlaThresholdTestResultEntry 5 }     
+    
+rcSlaCurrDelaySD       OBJECT-TYPE 
+	SYNTAX      Counter32
+	MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The delay of the last test from source to destination."
+    ::= { rcSlaThresholdTestResultEntry 6 }       
+    
+rcSlaCurrDelayDS       OBJECT-TYPE 
+	SYNTAX      Counter32
+	MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The delay of the last test from destination to source."
+    ::= { rcSlaThresholdTestResultEntry 7 }       
+    
+rcSlaAverDelay       OBJECT-TYPE 
+	SYNTAX      Counter32
+	MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The RTT average delay of all test."
+    ::= { rcSlaThresholdTestResultEntry 8 }   
+
+rcSlaAverDelaySD       OBJECT-TYPE 
+	SYNTAX      Counter32
+	MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The average delay of all test from source to destination."
+    ::= { rcSlaThresholdTestResultEntry 9 } 
+
+rcSlaAverDelayDS       OBJECT-TYPE 
+	SYNTAX      Counter32
+	MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The average delay of all test from destination to source."
+    ::= { rcSlaThresholdTestResultEntry 10 } 
+
+rcSlaCurrJitter       OBJECT-TYPE 
+	SYNTAX      Counter32
+	MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The RTT jitter of the last test."
+    ::= { rcSlaThresholdTestResultEntry 11 } 
+
+rcSlaCurrJitterSD       OBJECT-TYPE 
+	SYNTAX      Counter32
+	MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The jitter of the last test from source to destination."
+    ::= { rcSlaThresholdTestResultEntry 12 } 
+    
+rcSlaCurrJitterDS       OBJECT-TYPE 
+	SYNTAX      Counter32
+	MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The jitter of the last test from destination to source."
+    ::= { rcSlaThresholdTestResultEntry 13 }    
+    
+rcSlaAverJitter       OBJECT-TYPE 
+	SYNTAX      Counter32
+	MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The RTT average jitter of all test."
+    ::= { rcSlaThresholdTestResultEntry 14 }      
+    
+rcSlaAverJitterSD       OBJECT-TYPE 
+	SYNTAX      Counter32
+	MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The average jitter of all test from source to destination."
+    ::= { rcSlaThresholdTestResultEntry 15 }       
+    
+rcSlaAverJitterDS       OBJECT-TYPE 
+	SYNTAX      Counter32
+	MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The average jitter of all test from destination to source."
+    ::= { rcSlaThresholdTestResultEntry 16 }       
+
+--阈值告警    
+rcSlaThresholdTrapGroup  OBJECT IDENTIFIER ::= {rcSlaThresholdGroup 3} 
+
+rcSlaCurrTestResultBeyondTrap   NOTIFICATION-TYPE
+        OBJECTS {   rcSlaCurrResultTrap,
+                    rcSlaPktCurrLossRate,
+                    rcSlaPktLossRateCurrThreshold,
+                    rcSlaCurrDelay,
+                    rcSlaDelayCurrThreshold,
+                    rcSlaCurrDelaySD,
+                    rcSlaDelayCurrThresholdSD,
+                    rcSlaCurrDelayDS,
+                    rcSlaDelayCurrThresholdDS,
+                    rcSlaCurrJitter,
+                    rcSlaJitterCurrThreshold,
+                    rcSlaCurrJitterSD,
+                    rcSlaJitterCurrThresholdSD,
+                    rcSlaCurrJitterDS,
+                    rcSlaJitterCurrThresholdDS                   
+                }
+        STATUS  current
+        DESCRIPTION
+          "Send this trap when result beyond threshold of the last test."
+       ::= { rcSlaThresholdTrapGroup 1 }
+
+rcSlaAverTestResultBeyondTrap   NOTIFICATION-TYPE
+        OBJECTS {   rcSlaAverResultTrap,
+                    rcSlaPktAverLossRate,
+                    rcSlaPktLossRateAverThreshold,
+                    rcSlaAverDelay,
+                    rcSlaDelayAverThreshold,
+                    rcSlaAverDelaySD,
+                    rcSlaDelayAverThresholdSD,
+                    rcSlaAverDelayDS,
+                    rcSlaDelayAverThresholdDS,
+                    rcSlaAverJitter,
+                    rcSlaJitterAverThreshold,
+                    rcSlaAverJitterSD,
+                    rcSlaJitterAverThresholdSD,
+                    rcSlaAverJitterDS,
+                    rcSlaJitterAverThresholdDS                   
+                }
+        STATUS  current
+        DESCRIPTION
+          "Send this trap when average result beyond threshold of all test."
+       ::= { rcSlaThresholdTrapGroup 2 }
+     
+END      
+
+
+

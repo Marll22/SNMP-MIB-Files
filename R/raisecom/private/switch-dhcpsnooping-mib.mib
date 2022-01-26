@@ -1,0 +1,254 @@
+--MibName=rcDhcpSnooping
+-- *****************************************************************
+-- switch-dhcpsnooping-mib.mib:  Raisecom DHCP Snooping MIB file
+--
+-- Dec 2006, dongxiaogang
+--
+-- Copyright (c) 1994-2006 by Raisecom Technology Co., Ltd.
+-- All rights reserved.
+--
+-- *****************************************************************
+
+-- *****************************************************************
+-- Modi Report£ºFormat: <number>, <time>, <author>, <desc> 
+-- 02£¬20100326£¬huochao,  changeing at:rcDhcpSnoopingBindLease OBJECT-TYPE  SYNTAX   Unsigned32    (complier error)       
+--
+-- 01, 20080701, wumingyu, add node rcDhcpSnoopingBindCurrentRows,
+--                         rcDhcpSnoopingBindHistoryMaxRows and table
+--                         rcDhcpSnoopingBindTable
+--
+-- *****************************************************************
+
+
+DHCP-SNOOPING-MIB  DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY,
+    NOTIFICATION-TYPE,
+    OBJECT-TYPE                         FROM SNMPv2-SMI
+
+    MODULE-COMPLIANCE,
+    NOTIFICATION-GROUP,
+    OBJECT-GROUP                        FROM SNMPv2-CONF
+    MacAddress                          FROM SNMPv2-TC
+
+    EnableVar                           FROM SWITCH-TC
+
+    iscomSwitch                         FROM RAISECOM-BASE-MIB;
+
+
+    rcDhcpSnooping MODULE-IDENTITY
+        LAST-UPDATED    "200612180000Z"
+        ORGANIZATION    "Raisecom Technology Co., Ltd."
+        CONTACT-INFO
+                "Raisecom Systems
+
+                Postal: No.617/619 Haitai Tower,
+                229 Fourth North Loop Middle Road,
+                Haidian District, Beijing, PRC
+
+                Tel: +86-10-82884499
+
+                E-mail: dongxiaogang@raisecom.com"
+        DESCRIPTION
+         "The MIB module is for configuration of DHCP Snooping
+         feature. DHCP Snooping is a security mechanism which
+         uses information gleaned from DHCP packets to provide
+         per-port security capabilities."
+        REVISION   "200612180000Z"
+        DESCRIPTION
+            "The initial revision of this MIB module."
+        ::= { iscomSwitch 23 }
+
+------------------------------------------------------------------------------
+-- define groups in rcDhcpSnooping
+------------------------------------------------------------------------------
+    rcDhcpSnoopingMibObjects
+        OBJECT IDENTIFIER ::= { rcDhcpSnooping 1 }
+
+    rcDhcpSnoopingGroup
+        OBJECT IDENTIFIER ::= { rcDhcpSnoopingMibObjects 1 }
+    rcDhcpSnoopingInformationOptionGroup
+        OBJECT IDENTIFIER ::= { rcDhcpSnoopingMibObjects 2 }
+
+
+------------------------------------------------------------------------------
+-- begin--rcDhcpSnoopingGroup-----
+-- rcDhcpSnoopingGroup scale MIB--
+----------------------------------
+rcDhcpSnoopingEnable OBJECT-TYPE
+        SYNTAX EnableVar
+        MAX-ACCESS read-write
+        STATUS current
+        DESCRIPTION
+            "The state of global dhcp snooping. It has two values,
+            one is enable(1),which indicates that the system start dhcp snooping;
+            the other is disable(2) that means dhcp snooping is invalid in this system."
+        DEFVAL { disable }
+        ::= { rcDhcpSnoopingGroup 1 }
+
+------------------------------------------------
+-- rcDhcpSnoopingGroup rcDhcpSnoopingPortTable--
+------------------------------------------------
+rcDhcpSnoopingPortTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF RcDhcpSnoopingPortEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "A table provides the mechanism to control DHCP Snooping per port."
+        ::= { rcDhcpSnoopingGroup 2 }
+
+rcDhcpSnoopingPortEntry OBJECT-TYPE
+        SYNTAX RcDhcpSnoopingPortEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "Table entry for switch dhcp snooping config based on port."
+        INDEX { rcDhcpSnoopingPortIndex }
+        ::= { rcDhcpSnoopingPortTable 1 }
+
+RcDhcpSnoopingPortEntry ::= SEQUENCE
+    {
+        rcDhcpSnoopingPortIndex     INTEGER,
+        rcDhcpSnoopingPortEnable    EnableVar,
+        rcDhcpSnoopingPortTrust     INTEGER
+    }
+
+rcDhcpSnoopingPortIndex OBJECT-TYPE
+        SYNTAX INTEGER
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "An index that uniquely identifies a configuration about dhcp snooping.
+            Eg:for iscom2826/2826e,the value range is from 1 to 26, for iscom2812gf,
+            from 1 to 12, for iscom2828f,from 1 to 28, for iscom2852,from 1 to 52,and so on."
+        ::= { rcDhcpSnoopingPortEntry 1}
+
+rcDhcpSnoopingPortEnable OBJECT-TYPE
+        SYNTAX EnableVar
+        MAX-ACCESS read-write
+        STATUS current
+        DESCRIPTION
+            "The state of dhcp snooping about specified port.
+            It also has two values,one is enabled(1),which indicates that the port
+            start dhcp snooping; the other is disable(2) that means dhcp snooping
+            is invalid on the port.The default value is enable(1)."
+        ::= { rcDhcpSnoopingPortEntry 2 }
+
+rcDhcpSnoopingPortTrust OBJECT-TYPE
+        SYNTAX      INTEGER{trusted(1), untrusted(2)}
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "Trust state of port.It has two values,one is trusted(1),the other is untrusted(2).
+            The default value is untrusted(2)."
+        ::= { rcDhcpSnoopingPortEntry 3}
+
+rcDhcpSnoopingBindCurrentRows OBJECT-TYPE
+        SYNTAX INTEGER
+        MAX-ACCESS read-only
+        STATUS current
+        DESCRIPTION
+            "Current rows of binding table."
+        DEFVAL { 0 }
+        ::= { rcDhcpSnoopingGroup 3 }
+
+rcDhcpSnoopingBindHistoryMaxRows OBJECT-TYPE
+        SYNTAX INTEGER
+        MAX-ACCESS read-only
+        STATUS current
+        DESCRIPTION
+            "History max rows of binding table."
+        DEFVAL { 0 }
+        ::= { rcDhcpSnoopingGroup 4 }
+
+------------------------------------------------
+-- rcDhcpSnoopingGroup rcDhcpSnoopingBindTable--
+------------------------------------------------
+rcDhcpSnoopingBindTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF RcDhcpSnoopingBindEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "A table records dhcp snooping bindings."
+        ::= { rcDhcpSnoopingGroup 5 }
+
+rcDhcpSnoopingBindEntry OBJECT-TYPE
+        SYNTAX RcDhcpSnoopingBindEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "Table entry for dhcp snooping binding."
+        INDEX { rcDhcpSnoopingBindIp }
+        ::= { rcDhcpSnoopingBindTable 1 }
+
+RcDhcpSnoopingBindEntry ::= SEQUENCE
+    {
+        rcDhcpSnoopingBindIp    IpAddress,
+        rcDhcpSnoopingBindMac   MacAddress,
+        rcDhcpSnoopingBindLease Unsigned32,
+        rcDhcpSnoopingBindVlan  INTEGER,
+        rcDhcpSnoopingBindPort  INTEGER
+    }
+
+rcDhcpSnoopingBindIp OBJECT-TYPE
+        SYNTAX IpAddress
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "Binding IP address, the index of this table"
+        ::= { rcDhcpSnoopingBindEntry 1}
+
+rcDhcpSnoopingBindMac OBJECT-TYPE
+        SYNTAX MacAddress
+        MAX-ACCESS read-only
+        STATUS current
+        DESCRIPTION
+            "Binding MAC address."
+        ::= { rcDhcpSnoopingBindEntry 2 }
+
+rcDhcpSnoopingBindLease OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Binding lease remaining time(sec)."
+        ::= { rcDhcpSnoopingBindEntry 3}
+
+rcDhcpSnoopingBindVlan OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Binding vlan."
+        ::= { rcDhcpSnoopingBindEntry 4}
+
+rcDhcpSnoopingBindPort OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Binding port."
+        ::= { rcDhcpSnoopingBindEntry 5}
+
+-- end--rcDhcpSnoopingGroup------------------------
+
+---------------------------------------------------
+-- begin--rcDhcpSnoopingInformationOptionGroup-----
+-- rcDhcpSnoopingInformationOptionGroup scale MIB--
+---------------------------------------------------
+rcDhcpSnoopingInformationOption OBJECT-TYPE
+        SYNTAX EnableVar
+        MAX-ACCESS read-write
+        STATUS current
+        DESCRIPTION
+            "The state of dhcp snooping option 82 supporting.
+            It has two values,one is enable(1),which indicates that the system support option 82;
+            the other is disable(2) that means the system is without option 82 supporting."
+        DEFVAL { disable }
+        ::= { rcDhcpSnoopingInformationOptionGroup 1 }
+
+-- end--rcDhcpSnoopingInformationOptionGroup-------
+------------------------------------------------------------------------------
+
+END

@@ -1,0 +1,1252 @@
+--MibName=raisecomQosMIB
+-- *****************************************************************
+-- RAISECOM-QOS-MIB.MIB:  Raisecom QOS MIB file
+--
+-- Mar. 2009, dongxiaogang
+--
+-- Copyright (c) 1994-2009 by Raisecom, Inc.
+-- All rights reserved.
+-- 
+-- *****************************************************************
+RAISECOM-QOS-MIB  DEFINITIONS ::= BEGIN
+
+IMPORTS                      
+	MODULE-IDENTITY, OBJECT-TYPE,
+        Integer32, Counter64                    FROM SNMPv2-SMI
+        
+        DisplayString, TruthValue ,RowStatus,MacAddress
+        					FROM SNMPv2-TC
+        PortList, EnableVar, Vlanset,ObjName
+        					FROM SWITCH-TC
+        MODULE-COMPLIANCE, OBJECT-GROUP         FROM SNMPv2-CONF
+        
+        iscomSwitch
+                FROM RAISECOM-BASE-MIB;  
+    
+	raisecomQosMIB MODULE-IDENTITY
+        LAST-UPDATED    "200903200000Z"
+        ORGANIZATION    "Raisecom, Inc."
+        CONTACT-INFO
+                "       Raise Systems
+                        
+                Postal: Beijing,
+                        China
+
+                   Tel: 86-010-82884499
+
+                E-mail: dongxiaogang@raisecom.com"
+        DESCRIPTION
+                "Description of QOS object."     
+                
+        REVISION   "200903200000Z"  
+        DESCRIPTION                       
+        "Qos modify project,modify queue scheduler mode £¬and cos,dscp,tos to priority mapping !
+          Add three new mib node in rcQosPortCfgTable.
+      	  rcQosPortCfgSmacPriorityOverride :
+      	  Indicates the source mac address priority override feature on the port.
+      	  rcQosPortCfgDmacPriorityOverride :
+      	  Indicates the source mac address priority override feature on the port.
+      	  rcQosPortCfgVlanPriorityOverride :
+      	  Indicates the source mac address priority override feature on the port."
+                ::= { iscomSwitch 46 }      
+------------------------------------------------------------------------------
+--  define groups in raisecomQosMIB
+------------------------------------------------------------------------------                   
+    raisecomQosCfg                    OBJECT IDENTIFIER ::={ raisecomQosMIB 1 }       
+    raisecomQosTrafficClass		OBJECT IDENTIFIER ::={ raisecomQosMIB 2 } 
+    raisecomQosStatistics       OBJECT IDENTIFIER ::={ raisecomQosMIB 3 } 
+------------------------------------------------------------------------------
+----raisecomQosCfg group------------
+----raisecomQosCfg group scale MIB--
+------------------------------------
+rcQosEnable OBJECT-TYPE
+        SYNTAX EnableVar
+        MAX-ACCESS read-write
+        STATUS current
+        DESCRIPTION
+            "Indicates whether the QoS feature is enabled on the device.
+            enable(1) means that the QoS feature is enabled on this device.
+            disable(2) means that the QoS feature is disabled. All the QoS
+            policy on the device will be ignored."
+        ::= { raisecomQosCfg 1 }
+rcQosTrust OBJECT-TYPE
+        SYNTAX INTEGER {port_prio(1),cos(2),tos(3),dscp(4)}
+        MAX-ACCESS read-write
+        STATUS current
+        DESCRIPTION
+            "globally set the port trust mode.Port_prio means set port-prioity trust mode;
+            cos means set port cos trust mode;dscp means set dscp trust mode;tos 
+            means set tos trust mode"
+        ::= { raisecomQosCfg 2 }
+     
+rcQosQueueScheduler OBJECT-TYPE
+        SYNTAX      INTEGER {sp(1),wrr(2),drr(3),wfq(4)}
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "the global mode queue scheduler mode on the port.
+             sp indicates strict priority queue mode.
+            wrr indicates Weighted Round Robin queue mode.
+            drr indicates Deficit Round Robin queue mode.
+            wfq indicates Weighted Fair Queuing queue mode."
+        ::= { raisecomQosCfg 3 }    
+
+----------------------------------------------
+----raisecomQosCfg group rcQosPortCfgTable----
+----------------------------------------------
+rcQosPortCfgTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF RcQosPortCfgEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "A configable table of QOS base on the port of switch."
+        ::= { raisecomQosCfg 4 }
+
+rcQosPortCfgEntry OBJECT-TYPE
+        SYNTAX RcQosPortCfgEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "Table entry for switch qos config based on the port."
+        INDEX { rcQosPortCfgPortId }
+        ::= { rcQosPortCfgTable 1 }
+
+RcQosPortCfgEntry ::= SEQUENCE {
+        rcQosPortCfgPortId     		    INTEGER,
+        rcQosPortCfgTrust	     	    INTEGER, 
+        rcQosPortCfgPriority           INTEGER,
+        rcQosPortCfgPriorityOverride   INTEGER,       
+        rcQosPortCfgQueueScheduler     INTEGER,  
+        rcQosPortCfgSmacPriorityOverride INTEGER,
+        rcQosPortCfgDmacPriorityOverride INTEGER,
+        rcQosPortCfgVlanPriorityOverride INTEGER
+}
+
+rcQosPortCfgPortId OBJECT-TYPE
+        SYNTAX INTEGER
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "An index that uniquely identifies a configuration about qos."
+        ::= { rcQosPortCfgEntry 1}
+
+rcQosPortCfgTrust OBJECT-TYPE
+        SYNTAX      INTEGER{port-priority(1),cos(2),tos(3),dscp(4)}
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The trust state of ports for which this qos will operates."
+        ::= { rcQosPortCfgEntry 2}   
+            
+rcQosPortCfgPriority OBJECT-TYPE
+        SYNTAX     INTEGER
+        MAX-ACCESS read-write
+        STATUS     current
+        DESCRIPTION
+            "The port's priority."
+        ::= { rcQosPortCfgEntry 3 }    
+    
+rcQosPortCfgPriorityOverride OBJECT-TYPE
+        SYNTAX      EnableVar
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "Is or not to override the port priority."
+        ::= { rcQosPortCfgEntry 4 }
+        
+rcQosPortCfgQueueScheduler OBJECT-TYPE
+        SYNTAX INTEGER {sp(1),wrr(2),drr(3),wfq(4)}
+        MAX-ACCESS read-write
+        STATUS current
+        DESCRIPTION
+            "The port scheduler mode.
+            sp indicates strict priority queue mode.
+            wrr indicates Weighted Round Robin queue mode.
+            drr indicates Deficit Round Robin queue mode.
+            wfq indicates Weighted Fair Queuing queue mode."
+        ::= { rcQosPortCfgEntry 5 }     
+       
+rcQosPortCfgSmacPriorityOverride OBJECT-TYPE
+        SYNTAX      INTEGER {null(0),frame-priority(1),queue-priority(2),both(3)}
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+			"Indicates the source mac address priority override feature on the port.
+			0 indicates that both frame priority and queue priority are not overrided;
+			1 indicates that only frame priority is overrided;
+			2 indicates that only queue priority is overrided;
+			3 indicates indicates that both frame priority and queue priority are overrided"
+        ::= { rcQosPortCfgEntry 6 }  
+        
+rcQosPortCfgDmacPriorityOverride OBJECT-TYPE
+        SYNTAX      INTEGER {null(0),frame-priority(1),queue-priority(2),both(3)}
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+			"Indicates the source mac address priority override feature on the port.
+			0 indicates that both frame priority and queue priority are not overrided;
+			1 indicates that only frame priority is overrided;
+			2 indicates that only queue priority is overrided;
+			3 indicates indicates that both frame priority and queue priority are overrided"
+        ::= { rcQosPortCfgEntry 7 }
+
+rcQosPortCfgVlanPriorityOverride OBJECT-TYPE
+        SYNTAX      INTEGER {null(0),frame-priority(1),queue-priority(2),both(3)}
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+			"Indicates the source mac address priority override feature on the port.
+			0 indicates that both frame priority and queue priority are not overrided;
+			1 indicates that only frame priority is overrided;
+			2 indicates that only queue priority is overrided;
+			3 indicates indicates that both frame priority and queue priority are overrided"
+        ::= { rcQosPortCfgEntry 8 }         
+
+rcQosPortSchedulerQueueTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF RcQosPortSchedulerQueueEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "A configable table of Scheduler Queue base on the port of switch."
+        ::= { raisecomQosCfg 5 }
+
+        
+rcQosPortSchedulerQueueEntry OBJECT-TYPE
+        SYNTAX RcQosPortSchedulerQueueEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "Table entry for the scheduler queue params"
+        INDEX { rcQosPortSchedulerPortId,rcQosPortSchedulerQueueId}
+        ::= { rcQosPortSchedulerQueueTable 1 }
+
+RcQosPortSchedulerQueueEntry ::= SEQUENCE 
+{ 
+        rcQosPortSchedulerPortId          INTEGER, 
+        rcQosPortSchedulerQueueId         INTEGER,
+        rcQosPortSchedulerWRR             INTEGER,
+        rcQosPortSchedulerDRR             INTEGER,
+        rcQosPortSchedulerWFQ             INTEGER
+}
+
+rcQosPortSchedulerPortId OBJECT-TYPE
+        SYNTAX INTEGER
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "An index that uniquely identifies a configuration about qos."
+        ::= { rcQosPortSchedulerQueueEntry 1}
+
+rcQosPortSchedulerQueueId OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "the scheduler queue's index."
+        ::= { rcQosPortSchedulerQueueEntry 2}
+        
+rcQosPortSchedulerWRR OBJECT-TYPE
+        SYNTAX 		INTEGER
+        MAX-ACCESS read-write
+        STATUS     current
+        DESCRIPTION
+            "The WRR queue scheduler weight value."
+        ::= { rcQosPortSchedulerQueueEntry 3}  
+         
+rcQosPortSchedulerDRR OBJECT-TYPE
+        SYNTAX 		INTEGER
+        MAX-ACCESS read-write
+        STATUS     current
+        DESCRIPTION
+            "The DRR queue scheduler weight value."
+        ::= { rcQosPortSchedulerQueueEntry 4 } 
+         
+rcQosPortSchedulerWFQ OBJECT-TYPE
+        SYNTAX 		INTEGER
+        MAX-ACCESS read-write
+        STATUS     current
+        DESCRIPTION
+            "The WFQ queue scheduler weight value."
+        ::= { rcQosPortSchedulerQueueEntry 5 } 
+        
+
+-----------------------------------------------------------   
+ ----raisecomQosCfg group rcQosLocalPrioMapingTable----
+-----------------------------------------------------------
+rcQosLocalPrioMappingTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF RcQosLocalPrioMappingEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "This table describes the mapping from the cos to the local priority."
+        ::= { raisecomQosCfg 6 }
+
+rcQosLocalPrioMappingEntry OBJECT-TYPE
+        SYNTAX RcQosLocalPrioMappingEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "Table entry for cos mapping to local priority"
+        INDEX { rcQosLocalPriority }
+        ::= { rcQosLocalPrioMappingTable 1 }           
+
+RcQosLocalPrioMappingEntry ::= SEQUENCE {
+        rcQosLocalPriority	    INTEGER,
+        rcQosQueueId            INTEGER
+    }
+
+rcQosLocalPriority OBJECT-TYPE
+        SYNTAX      INTEGER(0..7)
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "The local priority."
+        ::= { rcQosLocalPrioMappingEntry 1}
+        
+rcQosQueueId OBJECT-TYPE
+        SYNTAX 		INTEGER(0..7)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The queue's id."
+        ::= { rcQosLocalPrioMappingEntry 2 }    
+-----------------------------------------------------------   
+ ----raisecomQosCfg group rcQosCosMapingTable----
+-----------------------------------------------------------
+
+rcQosCosMappingTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF RcQosCosMappingEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "This table describes the mapping from the cos to the local priority."
+        ::= { raisecomQosCfg 7 }
+
+rcQosCosMappingEntry OBJECT-TYPE
+        SYNTAX RcQosCosMappingEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "Table entry for cos mapping to local priority"
+        INDEX { rcQosCosValue }
+        ::= { rcQosCosMappingTable 1 }
+
+RcQosCosMappingEntry ::= SEQUENCE {
+        rcQosCosValue	    INTEGER,
+        rcQosCosLocalPriority  INTEGER
+    }
+
+rcQosCosValue OBJECT-TYPE
+        SYNTAX      INTEGER(0..7)
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "Cos value,the index of rcQosCosMappingEntry."
+        ::= { rcQosCosMappingEntry 1}
+        
+rcQosCosLocalPriority OBJECT-TYPE
+        SYNTAX 		INTEGER
+        MAX-ACCESS read-write
+        STATUS     current
+        DESCRIPTION
+            "The local priority which the cos value mapped to."
+        ::= { rcQosCosMappingEntry 2 }    
+-----------------------------------------------------------
+ ----raisecomQosCfg group rcQosTosMapingTable----
+-----------------------------------------------------------   
+rcQosTosMappingTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF RcQosTosMappingEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "This table describes the mapping from the tos to the local priority."
+        ::= { raisecomQosCfg 8 }
+
+rcQosTosMappingEntry OBJECT-TYPE
+        SYNTAX RcQosTosMappingEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "Table entry for tos mapping to local priority"
+        INDEX { rcQosTosValue }
+        ::= { rcQosTosMappingTable 1 }
+
+RcQosTosMappingEntry ::= SEQUENCE {
+        rcQosTosValue	    INTEGER,
+        rcQosTosLocalPriority  INTEGER
+    }
+
+rcQosTosValue OBJECT-TYPE
+        SYNTAX      INTEGER (0..7)
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "Tos value,the index of rcQosTosMappingEntry."
+        ::= { rcQosTosMappingEntry 1}
+        
+rcQosTosLocalPriority OBJECT-TYPE
+        SYNTAX 		INTEGER
+        MAX-ACCESS read-write
+        STATUS     current
+        DESCRIPTION
+            "The local priority which the tos value mapped to."
+        ::= { rcQosTosMappingEntry 2 }   
+-----------------------------------------------------------
+ ----raisecomQosCfg group rcQosDSCPMapingTable----
+-----------------------------------------------------------   
+rcQosDscpMapingTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF RcQosDscpMapingEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "This table describes the mapping from the DSCP to the local priority."
+        ::= { raisecomQosCfg 9 }
+
+rcQosDscpMapingEntry OBJECT-TYPE
+        SYNTAX RcQosDscpMapingEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "Table entry for the DSCP mapping into local priority"
+        INDEX { rcQosDscpValue }
+        ::= { rcQosDscpMapingTable 1 }
+
+RcQosDscpMapingEntry ::= SEQUENCE {
+        rcQosDscpValue	    INTEGER,
+        rcQosDscpLocalPriority  INTEGER
+    }
+
+rcQosDscpValue OBJECT-TYPE
+        SYNTAX      INTEGER (0..63)
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION     
+            "DSCP value,the index of rcQosDSCPMapingEntry."
+        ::= { rcQosDscpMapingEntry 1}
+        
+rcQosDscpLocalPriority OBJECT-TYPE
+        SYNTAX 		INTEGER
+        MAX-ACCESS read-write
+        STATUS     current
+        DESCRIPTION
+            "The local priority which the DSCP value mapped into."
+        ::= { rcQosDscpMapingEntry 2 }       
+        
+-----------------------------------------------------------
+ ----raisecomQosCfg group rcQosSchedulerQueueTable----
+-----------------------------------------------------------   
+rcQosSchedulerQueueTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF RcQosSchedulerQueueEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "This table describes scheduler queue  params."
+        ::= { raisecomQosCfg 10 }
+
+rcQosSchedulerQueueEntry OBJECT-TYPE
+        SYNTAX RcQosSchedulerQueueEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "Table entry for the scheduler queue params"
+        INDEX { rcQosSchedulerQueueId }
+        ::= { rcQosSchedulerQueueTable 1 }
+
+RcQosSchedulerQueueEntry ::= SEQUENCE 
+{  
+        rcQosSchedulerQueueId         INTEGER,
+        rcQosSchedulerWRR             INTEGER,
+        rcQosSchedulerDRR             INTEGER,
+        rcQosSchedulerWFQ             INTEGER
+}
+
+rcQosSchedulerQueueId OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "the scheduler queue's index."
+        ::= { rcQosSchedulerQueueEntry 1}
+        
+rcQosSchedulerWRR OBJECT-TYPE
+        SYNTAX 		INTEGER
+        MAX-ACCESS read-write
+        STATUS     current
+        DESCRIPTION
+            "The WRR queue scheduler weight value."
+        ::= { rcQosSchedulerQueueEntry 2 }  
+         
+rcQosSchedulerDRR OBJECT-TYPE
+        SYNTAX 		INTEGER
+        MAX-ACCESS read-write
+        STATUS     current
+        DESCRIPTION
+            "The DRR queue scheduler weight value."
+        ::= { rcQosSchedulerQueueEntry 3 } 
+         
+rcQosSchedulerWFQ OBJECT-TYPE
+        SYNTAX 		INTEGER
+        MAX-ACCESS read-write
+        STATUS     current
+        DESCRIPTION
+            "The WFQ queue scheduler weight value."
+        ::= { rcQosSchedulerQueueEntry 4 } 
+        
+rcQosCosRemarkInner OBJECT-TYPE
+        SYNTAX EnableVar
+        MAX-ACCESS read-write
+        STATUS current
+        DESCRIPTION
+            "TPID of outer tag."
+        ::= { raisecomQosCfg 11 }  
+        
+rcQosLocalpriorityToDscpEnable OBJECT-TYPE
+        SYNTAX EnableVar
+        MAX-ACCESS read-write
+        STATUS current
+        DESCRIPTION
+            "globally set the Localpriority to Dscp Mapping;enable(1)means Localpriority to 
+            Dscp Mapping is enabled on this device; disable(2) means Localpriority to Dscp
+            Mapping is disable on this device."
+        ::= { raisecomQosCfg 12 }
+        
+rcQosModifyPortlist OBJECT-TYPE
+        SYNTAX PortList
+        MAX-ACCESS read-write
+        STATUS current
+        DESCRIPTION
+            "The Portlist on which is allowed to modify the specific date flow."
+        ::= { raisecomQosCfg 13 } 
+        
+-----------------------------------------------------------   
+ ----raisecomQosCfg group rcQosLocalPrioTodscpMappingTable----
+-----------------------------------------------------------
+rcQosLocalPrioTodscpMappingTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF RcQosLocalPrioTodscpMappingEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "This table describes the mapping from local priority to the dscp."
+        ::= { raisecomQosCfg 14 }
+
+rcQosLocalPrioTodscpMappingEntry OBJECT-TYPE
+        SYNTAX RcQosLocalPrioTodscpMappingEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "Table entry for the local priority to the dscp."
+        INDEX { rcQosLocalPriorityValue  }
+        ::= { rcQosLocalPrioTodscpMappingTable 1 }           
+
+RcQosLocalPrioTodscpMappingEntry ::= SEQUENCE {
+        rcQosLocalPriorityValue	    INTEGER,
+        rcQosLocalPriorityDscp      INTEGER
+    }
+
+rcQosLocalPriorityValue OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "The index of rcQosLocalPrioTodscpMappingEntry."
+        ::= { rcQosLocalPrioTodscpMappingEntry 1}
+        
+rcQosLocalPriorityDscp OBJECT-TYPE
+        SYNTAX 		INTEGER(0..63)
+        MAX-ACCESS read-write
+        STATUS     current
+        DESCRIPTION
+            "The Dscp which the LocalPriority value mapped to."
+        ::= { rcQosLocalPrioTodscpMappingEntry 2 }           
+             
+-----------------------------------------------------------
+----raisecomQosTrafficClass group--------------------------
+----raisecomQosTrafficClass group rcQosServicePolicyTable--
+-----------------------------------------------------------
+
+rcQosServicePolicyTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF RcQosServicePolicyEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "This table describes the interfaces/media types and the 
+            policymap that are attached to it."
+        ::= { raisecomQosTrafficClass 1 }
+
+rcQosServicePolicyEntry OBJECT-TYPE
+        SYNTAX RcQosServicePolicyEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "Table entry for QOS service policy. Each entry in this table
+            describes to which a port a given policymap is attached."
+        INDEX { rcQosServicePolicyIngress }
+        ::= { rcQosServicePolicyTable 1 }
+
+RcQosServicePolicyEntry ::= SEQUENCE {
+        rcQosServicePolicyIngress	INTEGER,
+        rcQosServicePolicyEgress	PortList,
+        rcQosServicePolicyMapName	ObjName,
+        rcQosServicePolicyStatus	RowStatus
+    }
+
+rcQosServicePolicyIngress OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "The ingress ports that the service policy will apply on."
+        ::= { rcQosServicePolicyEntry 1}
+        
+rcQosServicePolicyEgress OBJECT-TYPE
+        SYNTAX 		PortList
+        MAX-ACCESS read-create
+        STATUS current
+        DESCRIPTION
+            "The egress ports that the service policy will apply on."
+        ::= { rcQosServicePolicyEntry 2 }    
+
+rcQosServicePolicyMapName OBJECT-TYPE
+        SYNTAX      ObjName
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "the name of policy map."
+        ::= { rcQosServicePolicyEntry 3 }
+
+rcQosServicePolicyStatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "the status of policy map."
+        ::= { rcQosServicePolicyEntry 4 }
+
+
+-----------------------------------------------------------
+----raisecomQosTrafficClass group rcQosServicePolicyTable--
+-----------------------------------------------------------
+rcQosPolicyMapCfgTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF RcQosPolicyMapCfgEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "This table specifies Policymap configuration information."
+        ::= { raisecomQosTrafficClass 2 }
+
+rcQosPolicyMapCfgEntry OBJECT-TYPE
+        SYNTAX RcQosPolicyMapCfgEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "Table entry for QOS policy map."
+        INDEX { rcQosPolicyMapName }
+        ::= { rcQosPolicyMapCfgTable 1 }
+
+RcQosPolicyMapCfgEntry ::= SEQUENCE {
+        rcQosPolicyMapName     		ObjName,
+        rcQosPolicyMapDesc		OCTET STRING,
+        rcQosPolicyMapCfgStatus		RowStatus
+    }
+
+rcQosPolicyMapName OBJECT-TYPE
+        SYNTAX   ObjName
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "the name of policy map,which is the index of policy map entry."
+        ::= { rcQosPolicyMapCfgEntry 1}
+
+rcQosPolicyMapDesc OBJECT-TYPE
+        SYNTAX   OCTET STRING (SIZE (0..255))
+        MAX-ACCESS read-create
+        STATUS current
+        DESCRIPTION
+            "the description of policy map."
+        ::= { rcQosPolicyMapCfgEntry 2}
+
+rcQosPolicyMapCfgStatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This object indicates the status of this entry."
+        ::= { rcQosPolicyMapCfgEntry 3 }
+
+
+-----------------------------------------------------------
+----raisecomQosTrafficClass group rcQosCMCfgTable--
+-----------------------------------------------------------
+rcQosCMCfgTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF RcQosCMCfgEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "This table specifies ClassMap configuration information."
+        ::= { raisecomQosTrafficClass 3 }
+
+rcQosCMCfgEntry OBJECT-TYPE
+        SYNTAX RcQosCMCfgEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+           "Each entry in this table describes configuration information
+	   about a classmap. The information includes: Name, and it's
+	   description and whether it is a Mathc-All or Match-Any
+	   class,and so on."
+        INDEX { rcQosCMName }
+        ::= { rcQosCMCfgTable 1 }
+
+RcQosCMCfgEntry ::= SEQUENCE {
+        rcQosCMName     		ObjName,
+        rcQosCMDesc			OCTET STRING,
+        rcQosCMMatchType		INTEGER,
+        rcQosCMClassID			INTEGER,
+        rcQosCMStatus			RowStatus,
+        rcQosCMDoubleTagging		TruthValue
+    }
+
+rcQosCMName OBJECT-TYPE
+        SYNTAX   ObjName
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "the name of class map,which is the index of class map entry."
+        ::= { rcQosCMCfgEntry 1}
+
+rcQosCMDesc OBJECT-TYPE
+        SYNTAX   OCTET STRING (SIZE (0..255))
+        MAX-ACCESS read-create
+        STATUS current
+        DESCRIPTION
+            "the description of class map."
+        ::= { rcQosCMCfgEntry 2}
+        
+rcQosCMMatchType OBJECT-TYPE
+        SYNTAX   INTEGER {matchAll(1), matchAny(2)}
+        MAX-ACCESS read-create
+        STATUS current
+        DESCRIPTION
+            "Match all vs Match any in a given class.matchAll(1) indicates 
+            all match 'AND', matchAll(1) indicates all match 'OR'."
+        ::= { rcQosCMCfgEntry 3 }
+
+rcQosCMClassID OBJECT-TYPE
+        SYNTAX   INTEGER
+        MAX-ACCESS read-only
+        STATUS current
+        DESCRIPTION
+            "the class map id."
+        ::= { rcQosCMCfgEntry 4 }
+                
+rcQosCMStatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This object indicates the status of this entry."
+        ::= { rcQosCMCfgEntry 5 }
+
+rcQosCMDoubleTagging OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "Double tagging mode, true or false."
+        ::= { rcQosCMCfgEntry 6 }
+
+-----------------------------------------------------------
+----raisecomQosTrafficClass group rcQosMatchStmtTable--
+-----------------------------------------------------------
+rcQosMatchStmtTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF RcQosMatchStmtEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "A table of QOS match statement, which is attached to class map."
+        ::= { raisecomQosTrafficClass 4 }
+
+rcQosMatchStmtEntry OBJECT-TYPE
+        SYNTAX RcQosMatchStmtEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "Table entry for QOS match statement."
+        INDEX { rcQosMatchStmtClassName, rcQosMatchStmtType,rcQosMatchStmtId }
+        ::= { rcQosMatchStmtTable 1 }
+
+RcQosMatchStmtEntry ::= SEQUENCE {
+        rcQosMatchStmtClassName		ObjName, 
+        rcQosMatchStmtType		INTEGER,
+		rcQosMatchStmtId		INTEGER,
+        rcQosMatchStmtSubName		ObjName,
+        rcQosMatchStmtStatus		RowStatus
+    }
+
+rcQosMatchStmtClassName OBJECT-TYPE
+        SYNTAX   ObjName
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "the name of calss map."
+        ::= { rcQosMatchStmtEntry 1 } 
+        
+rcQosMatchStmtType OBJECT-TYPE
+        SYNTAX   INTEGER {ip-acl(1), mac-acl(2),user-acl(3),dscp(4),ipprecedence(5),class(6),vlan(7),vlan-inner(8)}
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "the type of the match statement,include ip acl,mac acl and user acl,
+            and dscp or ip precedence."
+        ::= { rcQosMatchStmtEntry 2 }
+        
+rcQosMatchStmtId OBJECT-TYPE
+        SYNTAX   INTEGER (0..4094)
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "the number of the ACL, or the value of dscp or ip precedence."
+        ::= { rcQosMatchStmtEntry 3 }
+        
+rcQosMatchStmtSubName OBJECT-TYPE
+        SYNTAX   ObjName
+        MAX-ACCESS read-only
+        STATUS current
+        DESCRIPTION
+            "the name of sub-calss map."
+        ::= { rcQosMatchStmtEntry 4 }          
+        
+rcQosMatchStmtStatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This object indicates the status of this entry."
+        ::= { rcQosMatchStmtEntry 5 }
+
+
+-----------------------------------------------------------
+----raisecomQosTrafficClass group rcQosPolicerCfgTable------
+-----------------------------------------------------------
+rcQosPolicerCfgTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF RcQosPolicerCfgEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "A class specifying policing parameters for both microflows
+            and aggregate flows.  This table is designed for policing
+            according to a token bucket scheme where an average rate and
+            burst size is specified."
+        ::= { raisecomQosTrafficClass 5 }
+
+rcQosPolicerCfgEntry OBJECT-TYPE
+        SYNTAX RcQosPolicerCfgEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "An instance of this class specifies a set of policing parameters."
+        INDEX { rcQosPolicerCfgName }
+        ::= { rcQosPolicerCfgTable 1 }
+
+RcQosPolicerCfgEntry ::= SEQUENCE {
+        rcQosPolicerCfgName     	ObjName,
+        rcQosPolicerCfgType		INTEGER,
+        rcQosPolicerCfgRate		Unsigned32,
+        rcQosPolicerCfgBurstSize	Unsigned32,
+        rcQosPolicerCfgExceedAction	INTEGER,
+        rcQosPolicerCfgMarkdown		INTEGER,
+        rcQosPolicerCfgStatus		RowStatus
+    }
+
+rcQosPolicerCfgName OBJECT-TYPE
+        SYNTAX   ObjName
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "the name of the policer,which is index of table."
+        ::= { rcQosPolicerCfgEntry 1 }
+
+rcQosPolicerCfgType OBJECT-TYPE
+        SYNTAX   INTEGER {singleflow(1),classflow(2),aggregate(3)}
+        MAX-ACCESS read-create
+        STATUS current
+        DESCRIPTION
+            "the policer type,microflow is used for only one class map,
+            aggregate for all class map in one policy."
+        ::= { rcQosPolicerCfgEntry 2 }
+                
+rcQosPolicerCfgRate OBJECT-TYPE
+        SYNTAX   Unsigned32 (1..1048576)
+        UNITS "Mbps"
+        MAX-ACCESS read-create
+        STATUS current
+        DESCRIPTION
+            "The token rate. It is specified in units of Mbps. 
+            A rate of zero means that all packets will be out of profile.
+            If the qosPolicerAction is set to drop then this effectively
+            denies any service to packets policed by this policer."
+        ::= { rcQosPolicerCfgEntry 3 }
+
+rcQosPolicerCfgBurstSize OBJECT-TYPE
+        SYNTAX   Unsigned32 (1..512)
+        UNITS "kB"
+        MAX-ACCESS read-create
+        STATUS current
+        DESCRIPTION
+            "The normal size of a burst in terms of kB."
+        ::= { rcQosPolicerCfgEntry 4 }
+        
+rcQosPolicerCfgExceedAction OBJECT-TYPE
+        SYNTAX   INTEGER {drop(1),policed-dscp(2)}
+        MAX-ACCESS read-create
+        STATUS current
+        DESCRIPTION
+            "An indication of how to handle out of profile packets. 
+            When the shape action is chosen then traffic is shaped 
+            to the rate specified by rcQosPolicerCfgRate."
+        ::= { rcQosPolicerCfgEntry 5 }
+
+rcQosPolicerCfgMarkdown OBJECT-TYPE
+        SYNTAX   INTEGER(0..63)
+        MAX-ACCESS read-create
+        STATUS current
+        DESCRIPTION
+            "the marked down dscp value of the policer when the traffic is out profile."
+        ::= { rcQosPolicerCfgEntry 6 }    
+
+rcQosPolicerCfgStatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This object indicates the status of this entry."
+        ::= { rcQosPolicerCfgEntry 7 }
+
+
+-----------------------------------------------------------
+----raisecomQosTrafficClass group rcQosActionCfgTable--
+-----------------------------------------------------------
+rcQosActionCfgTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF RcQosActionCfgEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "This table specifies ClassMap SET configuration information."
+        ::= { raisecomQosTrafficClass 6 }
+
+rcQosActionCfgEntry OBJECT-TYPE
+        SYNTAX RcQosActionCfgEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "An instance of this class specifies a set of policing parameters."
+        INDEX { rcQosActionPmapName, rcQosActionCmapName }
+        ::= { rcQosActionCfgTable 1 }
+
+RcQosActionCfgEntry ::= SEQUENCE {
+        rcQosActionPmapName     ObjName,
+        rcQosActionCmapName		ObjName,
+        rcQosActionType			INTEGER,
+        rcQosActionSetValue		INTEGER,
+        rcQosActionPoliceName	ObjName,
+        rcQosActionStatsEnable	EnableVar,
+        rcQosActionStatus		RowStatus,
+        rcQosActionRedirectPort	INTEGER,
+        rcQosActionSetVlan		INTEGER,
+        rcQosActionCopyToMirror	TruthValue, 
+        rcQosModifyEnable       EnableVar
+    }
+
+rcQosActionPmapName OBJECT-TYPE
+        SYNTAX   ObjName
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "the name of policy map."
+        ::= { rcQosActionCfgEntry 1 }
+
+rcQosActionCmapName OBJECT-TYPE
+        SYNTAX   ObjName
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "the name of class map."
+        ::= { rcQosActionCfgEntry 2 }
+                
+rcQosActionType OBJECT-TYPE
+        SYNTAX   INTEGER {none(0), cos(1), dscp(2), ip-precedence(3),set-dscp(4),set-cos(5),set-ipprec(6),localpriority (7),set-localpriority(8)}
+        MAX-ACCESS read-create
+        STATUS current
+        DESCRIPTION
+            "the trust or set type of traffic class."
+        ::= { rcQosActionCfgEntry 3 }
+
+rcQosActionSetValue OBJECT-TYPE
+        SYNTAX   INTEGER (0..63)
+        MAX-ACCESS read-create
+        STATUS current
+        DESCRIPTION
+            "the remarking cos ,ip precedence ,local-priority or dscp value in traffic class."
+        ::= { rcQosActionCfgEntry 4 }
+        
+rcQosActionPoliceName OBJECT-TYPE
+        SYNTAX   ObjName
+        MAX-ACCESS read-create
+        STATUS current
+        DESCRIPTION
+            "the name of policer,which is attached to the class map entry."
+        ::= { rcQosActionCfgEntry 5 }   
+
+rcQosActionStatsEnable OBJECT-TYPE
+        SYNTAX   EnableVar
+        MAX-ACCESS read-create
+        STATUS current
+        DESCRIPTION
+            "Indicates whether the QoS statistics is enabled on the calss map and policy map."
+        ::= { rcQosActionCfgEntry 6 }   
+
+rcQosActionStatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This object indicates the status of this entry."
+        ::= { rcQosActionCfgEntry 7 }
+
+rcQosActionRedirectPort OBJECT-TYPE
+		SYNTAX	INTEGER
+		ACCESS	read-create
+		STATUS	current
+		DESCRIPTION
+			"The egress port to which the packets are redirected to.
+			don't redirect to port when the port is zero."
+		::=	{ rcQosActionCfgEntry 8 }
+
+rcQosActionSetVlan OBJECT-TYPE
+		SYNTAX	INTEGER(0..4094)
+		ACCESS	read-create
+		STATUS	current
+		DESCRIPTION
+			"VLAN Rewrite. if the value is not zero,then the VID(12 bits) 
+			in the packet is replaced by this value."
+		::=	{ rcQosActionCfgEntry 9 }
+
+rcQosActionCopyToMirror OBJECT-TYPE
+       SYNTAX      TruthValue
+		ACCESS	read-create
+		STATUS	current
+		DESCRIPTION
+			"If the value is true and the mirror is enable,then the packet 
+			is copy to the mirror-to port."
+		::=	{ rcQosActionCfgEntry 10 }
+		 
+rcQosModifyEnable OBJECT-TYPE
+       SYNTAX      EnableVar
+		ACCESS	read-write
+		STATUS	current
+		DESCRIPTION
+			"If the value is true,then Qos Modify allowed."
+		::=	{ rcQosActionCfgEntry 11 } 
+
+-----------------------------------------------------------
+----raisecomQosTrafficClass group rcQosServicePolicyEgressTable--
+-----------------------------------------------------------
+rcQosServicePolicyEgressTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF RcQosServicePolicyEgressEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "This table describes the egress types and the 
+            policymap that are attached to it."
+        ::= { raisecomQosTrafficClass 7 }
+
+rcQosServicePolicyEgressEntry OBJECT-TYPE
+        SYNTAX RcQosServicePolicyEgressEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "Table entry for QOS service policy. Each entry in this table
+            describes to which an egress a given policymap is attached."
+        INDEX { rcQosServicePolicyEgressIndex }
+        ::= { rcQosServicePolicyEgressTable 1 }
+
+RcQosServicePolicyEgressEntry ::= SEQUENCE {
+        rcQosServicePolicyEgressIndex	INTEGER,
+        rcQosServicePolicyEgressMapName	ObjName,
+        rcQosServicePolicyEgressStatus	RowStatus
+    }
+
+rcQosServicePolicyEgressIndex OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "The egress ports that the service policy will apply on."
+        ::= { rcQosServicePolicyEgressEntry 1}  
+
+rcQosServicePolicyEgressMapName OBJECT-TYPE
+        SYNTAX      ObjName
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "the name of policy map."
+        ::= { rcQosServicePolicyEgressEntry 2 }
+
+rcQosServicePolicyEgressStatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "the status of policy map."
+        ::= { rcQosServicePolicyEgressEntry 3 }  
+------------------------------------------------------------
+----raisecomQosStatistics group ----------------------------
+----raisecomQosStatistics group rcTrafficStatisticsTable----
+------------------------------------------------------------
+rcQosTrafficStatsTable OBJECT-TYPE
+       SYNTAX SEQUENCE OF RcQosTrafficStatsEntry
+       MAX-ACCESS  not-accessible
+       STATUS      current
+       DESCRIPTION
+          "This table specifies ClassMap related Statistical information."
+       ::= { raisecomQosStatistics 1 }
+
+rcQosTrafficStatsEntry OBJECT-TYPE
+       SYNTAX      RcQosTrafficStatsEntry
+       MAX-ACCESS  not-accessible
+       STATUS      current
+       DESCRIPTION
+          "Each entry in this table describes the statistical information 
+           about ClassMap.ClassMap specific information are:the packets of 
+           in-profile or out-profile."
+       INDEX { rcQosTrafficStatsPortIndex,rcQosTrafficStatsDirection,rcQosTrafficStatsCmapName}
+       ::= { rcQosTrafficStatsTable 1 }
+
+RcQosTrafficStatsEntry ::= SEQUENCE 
+{
+       rcQosTrafficStatsPortIndex          INTEGER,
+       rcQosTrafficStatsDirection          INTEGER,    
+       rcQosTrafficStatsCmapName           ObjName,        
+       rcQosTrafficStatsPolicerType        INTEGER,
+       rcQosTrafficCounterReset            EnableVar,  
+       rcQosTrafficCounterInprofilePkt64   Counter64,
+       rcQosTrafficCounterInprofileByte64  Counter64,
+       rcQosTrafficCounterOutprofilePkt64  Counter64,
+       rcQosTrafficCounterOutprofileByte64 Counter64,
+       rcQosTrafficCounterHwStatus         EnableVar, 
+       rcQosTrafficPolicyName              ObjName,
+       rcQosTrafficPolicerName             ObjName, 
+       rcQosTrafficbStatistics             EnableVar,
+       rcQosTrafficStatisticsUnit          INTEGER
+}
+
+rcQosTrafficStatsPortIndex OBJECT-TYPE
+       SYNTAX      INTEGER
+       MAX-ACCESS  not-accessible
+       STATUS      current
+       DESCRIPTION
+           "the index of the port."
+       ::= { rcQosTrafficStatsEntry 1}   
+        
+rcQosTrafficStatsDirection OBJECT-TYPE
+       SYNTAX      INTEGER
+       MAX-ACCESS  not-accessible
+       STATUS      current
+       DESCRIPTION
+          "the Ingress or Egress of the policy applied."
+       ::= { rcQosTrafficStatsEntry 2}
+
+rcQosTrafficStatsCmapName OBJECT-TYPE
+       SYNTAX      ObjName
+       MAX-ACCESS  not-accessible
+       STATUS      current
+       DESCRIPTION
+          "the name of the class map."
+       ::= { rcQosTrafficStatsEntry 3}
+
+rcQosTrafficStatsPolicerType OBJECT-TYPE
+       SYNTAX      INTEGER
+       MAX-ACCESS  read-only
+       STATUS      current
+       DESCRIPTION
+          "the type of policer."
+       ::= { rcQosTrafficStatsEntry 4}
+
+rcQosTrafficCounterReset OBJECT-TYPE
+       SYNTAX      EnableVar
+       MAX-ACCESS  read-write
+       STATUS      current
+       DESCRIPTION
+          "clear the statistcs ."
+       ::= { rcQosTrafficStatsEntry 5}   
+        
+rcQosTrafficCounterInprofilePkt64 OBJECT-TYPE
+       SYNTAX      Counter64
+       ACCESS      read-only
+       STATUS      current
+       DESCRIPTION
+          "The pkt64 of the inprofile statistics."
+       ::= { rcQosTrafficStatsEntry 6 }
+    
+rcQosTrafficCounterInprofileByte64  OBJECT-TYPE
+       SYNTAX     Counter64
+       ACCESS     read-only
+       STATUS     current
+       DESCRIPTION
+          "The Byte64 of the inprofile statistics."
+       ::= { rcQosTrafficStatsEntry 7 }
+
+rcQosTrafficCounterOutprofilePkt64  OBJECT-TYPE
+       SYNTAX      Counter64
+       ACCESS      read-only
+       STATUS      current
+       DESCRIPTION
+         "The pkt64 of the outprofile statistics."
+       ::= { rcQosTrafficStatsEntry 8 }
+    
+rcQosTrafficCounterOutprofileByte64 OBJECT-TYPE
+       SYNTAX      Counter64
+       ACCESS      read-only
+       STATUS      current
+       DESCRIPTION
+         "The Byte64 of the outprofile statistics."
+       ::= { rcQosTrafficStatsEntry 9 }   
+             
+rcQosTrafficCounterHwStatus OBJECT-TYPE
+       SYNTAX      EnableVar
+       MAX-ACCESS  read-only
+       STATUS      current
+       DESCRIPTION
+         "in hardware or not."
+       ::= { rcQosTrafficStatsEntry 10}   
+rcQosTrafficPolicyName   OBJECT-TYPE
+       SYNTAX      ObjName
+       MAX-ACCESS  read-only
+       STATUS      current
+       DESCRIPTION
+         "the name of the policy map."
+       ::= { rcQosTrafficStatsEntry 11}
+rcQosTrafficPolicerName  OBJECT-TYPE
+       SYNTAX      ObjName
+       MAX-ACCESS  read-only
+       STATUS      current
+       DESCRIPTION
+         "the name of the policer."
+       ::= { rcQosTrafficStatsEntry 12}   
+rcQosTrafficbStatistics OBJECT-TYPE
+       SYNTAX      EnableVar
+       MAX-ACCESS  read-only
+       STATUS      current
+       DESCRIPTION
+         "statistics or not."
+       ::= { rcQosTrafficStatsEntry 13}  
+rcQosTrafficStatisticsUnit OBJECT-TYPE
+       SYNTAX      INTEGER
+       MAX-ACCESS  read-only
+       STATUS      current
+       DESCRIPTION
+         "statistics unit."
+       ::= { rcQosTrafficStatsEntry 14}  
+--end--raisecomQosStatistics group ----------------------------     
+END                                     
+

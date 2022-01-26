@@ -1,0 +1,72 @@
+BROADCOM-REF-MIB DEFINITIONS ::= BEGIN
+
+-- Qtech  Reference MIB
+-- Copyright Qtech Corporation (2001-2015) All rights reserved.
+
+-- This SNMP Management Information Specification
+-- embodies Qtech Corporation confidential and proprietary
+-- intellectual property.  Broadcom Corporation retains all title
+-- and ownership in the Specification including any revisions.
+
+-- This Specification is supplied "AS IS", Qtech Corporation
+-- makes no warranty, either expressed or implied,
+-- as to the use, operation, condition, or performance of the
+-- Specification.
+
+
+IMPORTS
+    MODULE-IDENTITY                     FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION                  FROM SNMPv2-TC
+    enterprises                         FROM RFC1155-SMI;
+    
+    qtech MODULE-IDENTITY
+        LAST-UPDATED "201504290000Z" -- 29 April 2015 12:00:00 GMT
+        ORGANIZATION "Broadcom Corporation"
+        CONTACT-INFO
+          "                      Customer Support
+          Postal:                Qtech Corporation
+				 26 Ryabinovaya street
+								Moscow, Russia, 121471
+          Tel:                   +7 495 797 3311"
+        DESCRIPTION
+          ""
+           
+        -- Revision history.	  
+        REVISION
+          "201504291200Z" -- 29 April 2015 12:00:00 GMT
+        DESCRIPTION
+          "Updated for release"
+          
+    ::= {  enterprises 27514 }
+
+    
+-- New definitions
+ qtechProducts            OBJECT IDENTIFIER ::= { qtech 1 }
+ fastPath                 OBJECT IDENTIFIER ::= { qtechProducts 1 }
+ 
+ 
+-- New Textual Conventions
+AgentPortMask ::= TEXTUAL-CONVENTION
+   STATUS  current
+   DESCRIPTION
+       "Each octet within this value specifies a set of eight
+        ports, with the first octet specifying ports 1 through
+        8, the second octet specifying ports 9 through 16, etc.
+        Within each octet, the most significant bit represents
+        the lowest numbered port, and the least significant bit
+        represents the highest numbered port.  Thus, each port
+        of the bridge is represented by a single bit within the
+        value of this object.  If that bit has a value of '1'
+        then that port is included in the set of ports; the port
+        is not included if its bit has a value of '0'
+             
+        When setting this value, the system will ignore 
+        configuration for ports not between the first and last 
+        valid ports.  Configuration of any port numbers between 
+        this range that are not valid ports return a failure 
+        message, but will still apply configuration for valid 
+        ports."
+   SYNTAX  OCTET STRING
+
+
+END

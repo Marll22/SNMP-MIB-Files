@@ -1,0 +1,186 @@
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+--
+--  File         : greennetMasterMib.mi2
+--  Description  : Sample GREENNET Master OID Definition MIB 
+--  Version      : 0.6 
+--  Date         : August 29, 2000     
+--
+--  Copyright (c) 2000 GreenNet Systems, Inc.  All Rights Reserved.
+--
+--  Reproduction of this document is authorized on condition that this
+--  copyright notice is included.  This sample GREENNET Master Enterprise MIB
+--  embodies proprietary intellectual property of GreenNet Systems (GREENNET). 
+--  GREENNET retains all title and ownership in the specification, including any
+--  revisions.
+--
+--  It is the intent of GREENNET to encourage the widespread use of this
+--  specification in connection with the management of GBN-based products.  
+--  GREENNET grants vendors, end-users, and other interested parties a
+--  non-exclusive license to use this specification in connection with the
+--  management of GBN products.
+--
+--  This specification is supplied "AS IS", and GREENNET makes no warranty,
+--  either express or implied, as to the use, operations, condition,
+--  or performance of this specification.
+--
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+--  Sample GREENNET Master Enterprise MIB
+--
+--  NOTES:
+--   1. This is a SMIv2 MIB - all definitions are automatically 'exported'.
+--
+--   2. This MIB:
+--        - defines the 'GREENNET Product' OIDs (used as IMPORTS)
+--        - defines the 'GBN Major Category' OIDs (used as IMPORTS)
+--        - defines the 'GBN Internal MIB Module' OIDs (used as IMPORTS)
+--        - defines/documents the 'GBN Generic' MIB OIDs
+--        - documents the 'GBN OEM swAPI' MIB OIDs
+--        - documents the 'GBN OEM Product' MIB OIDs
+--
+--   3. Note that the 'defined/documents' items provide a common place to
+--      define or document the required OIDs.  SMIv1 MIBs can be defined
+--      here and then imported into the corresponding MIB.  The SMIv2 
+--      'MODULE-IDENTITY' macro does not allow the second OID parameter to
+--      be imported from an external MIB file.  The authors of these
+--      'documented' MIBs must verify, by procedure, that the values used
+--      match the values in this document.
+--
+--   4. Note that some MIB compilers do not accept two sets of comments on the
+--      same line.  Consequently, for commented out document items, do not
+--      use a second comment on the same line.
+--
+--   5. Note that the GreenNet enterprise ID (13464) is used in the sample
+--      MIBs.  The customer "must" replace the GreenNet enterprise ID with
+--      the registered enterprise identifier for the specific company or
+--      product.  The customer must also replace the GREENNET information
+--      located in the 'MODULE-IDENTITY' in each sample MIB.
+--
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+GREENNET-MASTER-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, enterprises              FROM SNMPv2-SMI;
+
+    greennet MODULE-IDENTITY
+        LAST-UPDATED    "0008290000Z"  -- August 29, 2000
+        ORGANIZATION    "GreenNet Systems, Inc."
+        CONTACT-INFO    "GreenNet Systems, Inc.
+                         E-mail: support@green-net.com.cn"
+
+        DESCRIPTION     "GREENNET Master MIB OID defines and documentation."
+
+        REVISION        "0008290000Z"  -- August 29, 2000
+        DESCRIPTION     "Initial MIB creation."
+
+        ::= { enterprises 13464 }
+    
+-- GREENNET Products---------------------------------------------------
+dataCom           OBJECT IDENTIFIER ::= {greennet 1} 
+transmission      OBJECT IDENTIFIER ::= {greennet 2} 
+wireCom            OBJECT IDENTIFIER ::= {greennet 3} 
+
+
+-- DataCom Products-----------------------------------------------------    
+vdsl			OBJECT IDENTIFIER ::= {dataCom 1}
+gbn             OBJECT IDENTIFIER ::= {dataCom 2 } 
+switch			OBJECT IDENTIFIER ::= {dataCom 3}
+adsl			OBJECT IDENTIFIER ::= {dataCom 5}
+bas			OBJECT IDENTIFIER ::= {dataCom 6}
+voip			OBJECT IDENTIFIER ::= {dataCom 7}
+
+--VDSL Products---------------------------------------------------------
+tinetS3042V   OBJECT IDENTIFIER ::= {vdsl 1}   
+
+-- GBN Major MIB Categories
+    gbnPlatform     OBJECT IDENTIFIER ::= { gbn 1 }     
+    gbnDevice       OBJECT IDENTIFIER ::= { gbn 2 }     
+    gbnService      OBJECT IDENTIFIER ::= { gbn 3 }     
+    gbnL2           OBJECT IDENTIFIER ::= { gbn 4 }     
+    gbnL3           OBJECT IDENTIFIER ::= { gbn 5 } 
+    gbnLS           OBJECT IDENTIFIER ::= { gbn 6 } 
+
+    gbnServiceAAA      OBJECT IDENTIFIER ::= { gbnService 1 } 
+    rmonMib            OBJECT IDENTIFIER ::= { gbnService 2}--gbnServiceRMON
+    gbnServiceMACNotification            OBJECT IDENTIFIER ::= { gbnService 3}
+    
+-----Switch Products------------------------------------------------------
+tinetS2024          OBJECT IDENTIFIER ::= { switch 1 }   
+tinetS2926          OBJECT IDENTIFIER ::= { switch 2 }   
+tinetS3026E         OBJECT IDENTIFIER ::= { switch 3 }   
+tinetS3526          OBJECT IDENTIFIER ::= { switch 4 }   
+tinetS2008          OBJECT IDENTIFIER ::= { switch 5 } 
+tinetLS             OBJECT IDENTIFIER ::= { switch 6 }
+tinetS2008EI        OBJECT IDENTIFIER ::= { switch 7 }
+tinetS2024EI        OBJECT IDENTIFIER ::= { switch 8 }
+tinetS3750          OBJECT IDENTIFIER ::= { switch 9 }
+tinetS2008EI-S      OBJECT IDENTIFIER ::= { switch 10 }
+tinetS2926V         OBJECT IDENTIFIER ::= { switch 11 }
+tinetS2926S         OBJECT IDENTIFIER ::= { switch 12 }
+tinetS3026E-TF         OBJECT IDENTIFIER ::= { switch 13 }
+tinetS3026E-FM         OBJECT IDENTIFIER ::= { switch 14 }
+tinetS3650          OBJECT IDENTIFIER ::= { switch 15 }
+tinetS6808-4        OBJECT IDENTIFIER ::= { switch 16 }
+tinetS6808-10       OBJECT IDENTIFIER ::= { switch 17 }
+tinetS3750G-48S     OBJECT IDENTIFIER ::= { switch 18 }
+tinetS5100          OBJECT IDENTIFIER ::= { switch 24 }
+tinetS5750          OBJECT IDENTIFIER ::= { switch 25 }
+tinet_S3660          OBJECT IDENTIFIER ::= { switch 28 }
+tinetS2600          OBJECT IDENTIFIER ::= { switch 26 }
+tinetS5650          OBJECT IDENTIFIER ::= { switch 33 }
+tinetS5300          OBJECT IDENTIFIER ::= { switch 34 }
+
+----tinetS5100-----------------------------------------------------
+tinetS5100-28T      OBJECT IDENTIFIER ::= { tinetS5100 2 }
+
+----tinetS5750-----------------------------------------------------
+tinetS5750-48S      OBJECT IDENTIFIER ::= { tinetS5750 1 }
+tinetS5750-24S      OBJECT IDENTIFIER ::= { tinetS5750 2 }
+tinetS5750-48T      OBJECT IDENTIFIER ::= { tinetS5750 3 }
+tinetS5750-24T      OBJECT IDENTIFIER ::= { tinetS5750 4 }
+
+----tinetS3750-----------------------------------------------------
+tinetS3750-48S      OBJECT IDENTIFIER ::= { tinetS3750G-48S 1 }
+tinetS3750-24S      OBJECT IDENTIFIER ::= { tinetS3750G-48S 2 }
+tinetS3750-48T      OBJECT IDENTIFIER ::= { tinetS3750G-48S 3 }
+tinetS3750-24T      OBJECT IDENTIFIER ::= { tinetS3750G-48S 4 }
+
+----tinet_S3660-----------------------------------------------------
+tinetS3660          OBJECT IDENTIFIER ::= { tinet_S3660 1 }
+
+--------------------tinetS2600---------------------
+tinetS2600-52TS      OBJECT IDENTIFIER ::= { tinetS2600 5 }
+tinetS2600-28TC      OBJECT IDENTIFIER ::= { tinetS2600 6 }
+tinetS2600-28SC      OBJECT IDENTIFIER ::= { tinetS2600 7 }
+tinetS2600-28PC      OBJECT IDENTIFIER ::= { tinetS2600 8 }
+tinetS2600-09TC      OBJECT IDENTIFIER ::= { tinetS2600 9 }
+tinetS2600-08T      OBJECT IDENTIFIER ::= { tinetS2600 10 }
+tinetS2600-09PC      OBJECT IDENTIFIER ::= { tinetS2600 11 }
+tinetS2600-20PC      OBJECT IDENTIFIER ::= { tinetS2600 12 }
+
+----tinet_S5650-----------------------------------------------------
+tinetS5650-28TM          OBJECT IDENTIFIER ::= { tinetS5650 1 }
+tinetS5650-28SM          OBJECT IDENTIFIER ::= { tinetS5650 2 }
+tinetS5650-52TM          OBJECT IDENTIFIER ::= { tinetS5650 3 }
+
+----tinetS5300-----------------------------------------------------
+tinetS5300-28PC          OBJECT IDENTIFIER ::= { tinetS5300 1 }
+tinetS5300-28TC          OBJECT IDENTIFIER ::= { tinetS5300 2 }
+
+-----EZVoice Products----------------------------------------------
+tg                        OBJECT IDENTIFIER ::= { voip 1 }
+ag                        OBJECT IDENTIFIER ::= { voip 2 }
+ezv6001                   OBJECT IDENTIFIER ::= { voip 3 }
+ezv6002                   OBJECT IDENTIFIER ::= { voip 4 }
+ezv6004                   OBJECT IDENTIFIER ::= { voip 5 }
+ezv6008                   OBJECT IDENTIFIER ::= { voip 6 }
+ezv6016                   OBJECT IDENTIFIER ::= { voip 7 }
+ezv6032                   OBJECT IDENTIFIER ::= { voip 8 }
+--
+-- END of GREENNET-MASTER-MIB
+--
+
+END

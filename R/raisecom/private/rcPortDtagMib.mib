@@ -1,0 +1,78 @@
+--MibName=rcPortDtag
+-- *****************************************************************
+-- rcPortDTag:   Raisecom Port Double Tag MIB file 
+--
+-- Copyright (c) 1994-2004 by Raisecom, Inc.
+-- All rights reserved.
+--
+-- *****************************************************************
+RcPortDTag  DEFINITIONS ::= BEGIN
+
+IMPORTS
+        iscomSwitch                       FROM RAISECOM-BASE-MIB
+        RowStatus                         FROM SNMPv2-TC
+        Vlanset, EnableVar                FROM SWITCH-TC
+        rcPortIndex          		      FROM SWITCH-SYSTEM-MIB;
+
+rcPortDtagCfg          MODULE-IDENTITY
+    LAST-UPDATED   "200901190000Z"
+    ORGANIZATION   "Raisecom, Inc."
+    CONTACT-INFO  
+                "       Raise Systems
+                        
+                Postal: Beijing,
+                        China
+
+                   Tel: 86-010-82884499
+
+                E-mail: majing@raisecom.com"
+    DESCRIPTION
+        "This MIB module defines objects to QinQ "
+        REVISION   "200901190000Z"
+        DESCRIPTION
+            "The initial revision of this MIB."
+        ::={ iscomSwitch 60 } 
+
+-- -------------------------------------------------------------
+-- groups in the rcPortDtagCfg MIB       rcQinQVlanMap
+-- -------------------------------------------------------------
+rcPortDTagTable         OBJECT-TYPE
+        SYNTAX      SEQUENCE OF RcPortDTagEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "Vlan mapping table of port."
+        ::= { rcPortDtagCfg 1 }
+rcPortDTagEntry         OBJECT-TYPE
+        SYNTAX      RcPortDTagEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "An entry in the rcPortDTagTable. "
+    INDEX        { rcPortIndex}    
+        ::={ rcPortDTagTable 1 }
+    
+RcPortDTagEntry ::= SEQUENCE 
+{
+      rcPortDTagInnerVlan       Integer32,
+      rcPortDTagOuterVlan       Integer32
+}
+  
+rcPortDTagInnerVlan    OBJECT-TYPE
+        SYNTAX        Integer32 (0 | 1..4094)
+        MAX-ACCESS    read-write
+        STATUS        current
+        DESCRIPTION
+            "Inner vlan."
+        ::= { rcPortDTagEntry 1 }      
+  
+rcPortDTagOuterVlan    OBJECT-TYPE
+        SYNTAX        Integer32 (0 | 1..4094)
+        MAX-ACCESS    read-write
+        STATUS        current
+        DESCRIPTION
+            "Outer vlan."
+        ::= { rcPortDTagEntry 2 }     
+END
+
+ 

@@ -1,0 +1,389 @@
+--MibName=raisecomAcl
+-- *****************************************************************
+-- RAISECOM-ACL-MIB.MIB:	 Raisecom Acl MIB file
+--
+-- Sep 2004, liguanfeng
+--
+-- Copyright (c) 1994-2004,	2001 by	Raisecom, Inc.
+-- All rights reserved.
+--
+-- *****************************************************************
+
+RAISECOM-ACL-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+		raisecomAgent
+				FROM RAISECOM-BASE-MIB
+		MacAddress
+				FROM SNMPv2-TC
+        RowStatus
+        		FROM SNMPv2-TC
+		Gauge32
+				FROM SNMPv2-SMI;
+
+raisecomAcl MODULE-IDENTITY
+		LAST-UPDATED	"200409140000Z"
+		ORGANIZATION	"Raisecom, Inc."
+		CONTACT-INFO
+				"		Raise Systems
+
+				Postal:	Beijing, China
+
+				   Tel:	86-010-82884499
+
+				E-mail:	support@raisecom.com"
+		DESCRIPTION
+				"Modified description of access	list object."
+				::=	{ raisecomAgent	3 }
+
+
+------------------------------------------------------------------------------
+--	define groups in RAISECOM-ACCESSLIST-MIB
+------------------------------------------------------------------------------
+	raisecomIpAccessList		OBJECT IDENTIFIER ::= {	raisecomAcl 1 }
+	raisecomMacAccessList		OBJECT IDENTIFIER ::= {	raisecomAcl 2 }
+	raisecomUserAccessList	OBJECT IDENTIFIER ::= {	raisecomAcl 3 }
+------------------------------------------------------------------------------
+
+	--The ip access control list--
+          -- The ip access control list contains some rules that are 
+          -- associated with ip address, and will be bound to the ports
+          -- or vlans on device.
+
+	raisecomIpAclTable OBJECT-TYPE
+		SYNTAX		SEQUENCE OF	RaisecomIpAclEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"A table of	ip access list and associated properties.."
+		::=	{ raisecomIpAccessList 1}
+
+	raisecomIpAclEntry OBJECT-TYPE
+		SYNTAX		RaisecomIpAclEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"Table entry for ip	access list	and	status information."
+		INDEX {	raisecomIpAclNumber }
+		::=	{ raisecomIpAclTable 1 }
+
+	RaisecomIpAclEntry ::= SEQUENCE {
+		raisecomIpAclNumber					INTEGER	(0..399),
+		raisecomIpAclAccessType				INTEGER,
+		raisecomIpAclProtocol					INTEGER,
+		raisecomIpAclSourceAddress			IpAddress,
+		raisecomIpAclSourceMask				IpAddress,
+		raisecomIpAclSourceProtocolPort		INTEGER	(0..65535),
+		raisecomIpAclDestinationAddress		IpAddress,
+		raisecomIpAclDestinationMask			IpAddress,
+		raisecomIpAclDestinationProtocolPort	INTEGER	(0..65535),
+		raisecomIpAclRef						Gauge32,
+		raisecomIpAclStatus					RowStatus
+	}
+
+	raisecomIpAclNumber OBJECT-TYPE
+		SYNTAX	INTEGER	(0..399)
+		ACCESS	read-only
+		STATUS	current
+		DESCRIPTION
+			"An index that uniquely identifies an entry in
+             the ip access list table."
+		::=	{ raisecomIpAclEntry 1 }
+
+	raisecomIpAclAccessType OBJECT-TYPE
+		SYNTAX	 INTEGER
+        {
+        	permit(1),
+			deny(2)
+        }
+		ACCESS	read-create
+		STATUS	current
+		DESCRIPTION
+			"The access type of this entry, permit or deny."
+		::=	{ raisecomIpAclEntry 2 }
+
+	raisecomIpAclProtocol OBJECT-TYPE
+		SYNTAX	INTEGER	(0..255)
+		ACCESS	read-create
+		STATUS	current
+		DESCRIPTION
+			"The protocol of an IP protocol.
+			 To match any Internet protocol, use the ip(0)."
+		::=	{ raisecomIpAclEntry 3 }
+
+	raisecomIpAclSourceAddress OBJECT-TYPE
+		SYNTAX	IpAddress
+		ACCESS	read-create
+		STATUS	current
+		DESCRIPTION
+			"The source	ip address in the IP protocol."
+		::=	{ raisecomIpAclEntry 4 }
+
+	raisecomIpAclSourceMask OBJECT-TYPE
+		SYNTAX	IpAddress
+		ACCESS	read-create
+		STATUS	current
+		DESCRIPTION
+			"The address mask of the source ip address."
+		::=	{ raisecomIpAclEntry 5 }
+
+	raisecomIpAclSourceProtocolPort OBJECT-TYPE
+		SYNTAX	INTEGER	(0..65535)
+		ACCESS	read-create
+		STATUS	current
+		DESCRIPTION
+			"The source protocol port in the tcp or udp protocol."
+		::=	{ raisecomIpAclEntry 6 }
+
+	raisecomIpAclDestinationAddress OBJECT-TYPE
+		SYNTAX	IpAddress
+		ACCESS	read-create
+		STATUS	current
+		DESCRIPTION
+			"The destination ip address in the IP protocol."
+		::=	{ raisecomIpAclEntry 7 }
+
+	raisecomIpAclDestinationMask OBJECT-TYPE
+		SYNTAX	IpAddress
+		ACCESS	read-create
+		STATUS	current
+		DESCRIPTION
+			"The address mask of the destination ip address."
+	   ::= { raisecomIpAclEntry 8	}
+
+	raisecomIpAclDestinationProtocolPort OBJECT-TYPE
+		SYNTAX	INTEGER (0..65535)
+		ACCESS	read-create
+		STATUS	current
+		DESCRIPTION
+			"The destination protocol port in the tcp or udp protocol"
+		::=	{ raisecomIpAclEntry 9 }
+
+	raisecomIpAclRef OBJECT-TYPE
+		SYNTAX	Gauge32
+		ACCESS	read-only
+		STATUS	current
+		DESCRIPTION
+			"The value descrides how many the lists are using."
+		::=	{ raisecomIpAclEntry 10 }
+
+	raisecomIpAclStatus OBJECT-TYPE
+		SYNTAX  RowStatus
+		ACCESS  read-write
+		STATUS  current
+		DESCRIPTION
+			"The status	of this	entry."
+		::=	{ raisecomIpAclEntry 11 }
+
+
+	--The mac access control list--
+          -- The mac access control list contains some rules that are 
+          -- associated with ethernet address, and will be bound to the
+          -- ports or vlans on device.
+
+	raisecomMacAclTable OBJECT-TYPE
+		SYNTAX		  SEQUENCE OF RaisecomMacAclEntry
+		MAX-ACCESS	  not-accessible
+		STATUS		  current
+		DESCRIPTION
+			"A table of	mac	access list	and	associated properties.."
+		::=	{ raisecomMacAccessList 1	}
+
+	raisecomMacAclEntry OBJECT-TYPE
+		SYNTAX		  RaisecomMacAclEntry
+		MAX-ACCESS	  not-accessible
+		STATUS		  current
+		DESCRIPTION
+			"Table entry for mac access	list and status	information."
+		INDEX {	raisecomMacAclNumber }
+		::=	{ raisecomMacAclTable	1 }
+
+	RaisecomMacAclEntry ::= SEQUENCE {
+			raisecomMacAclNumber				INTEGER	(0..399),
+			raisecomMacAclAccessType			INTEGER,
+			raisecomMacAclProtocol			INTEGER,
+			raisecomMacAclSourceAddress		MacAddress,
+			raisecomMacAclDestinationAddress	MacAddress,
+			raisecomMacAclRef					Gauge32,
+			raisecomMacAclStatus				RowStatus,
+			raisecomMacAclSourceAddressMask		MacAddress,
+			raisecomMacAclDestinationAddressMask		MacAddress
+	}
+
+	raisecomMacAclNumber OBJECT-TYPE
+		SYNTAX	INTEGER	(0..399)
+		ACCESS	read-only
+		STATUS	current
+		DESCRIPTION
+			"An index that uniquely identifies an entry in
+             the mac access list table."
+		::=	{ raisecomMacAclEntry	1 }
+
+	raisecomMacAclAccessType OBJECT-TYPE
+		SYNTAX	INTEGER
+        {
+        	permit(1),
+			deny(2)
+        }
+		ACCESS	read-create
+		STATUS	current
+		DESCRIPTION
+			"The access type of this access list, permit or deny."
+		::=	{ raisecomMacAclEntry	2 }
+
+	raisecomMacAclProtocol OBJECT-TYPE
+		SYNTAX	INTEGER
+		ACCESS	read-create
+		STATUS	current
+		DESCRIPTION
+			"The type of protocol that contained in	the	ethernet frame.
+			 The value all(0) is used to all protocols."
+		::=	{ raisecomMacAclEntry	3 }
+
+	raisecomMacAclSourceAddress OBJECT-TYPE
+		SYNTAX	MacAddress
+		ACCESS	read-create
+		STATUS	current
+		DESCRIPTION
+			"The value of the source MAC address."
+		::=	{ raisecomMacAclEntry	4 }
+
+	raisecomMacAclDestinationAddress OBJECT-TYPE
+		SYNTAX	MacAddress
+		ACCESS	read-create
+		STATUS	current
+		DESCRIPTION
+			"The value of the destination MAC address."
+		::=	{ raisecomMacAclEntry	5 }
+
+	raisecomMacAclRef	OBJECT-TYPE
+		SYNTAX	Gauge32
+		ACCESS	read-only
+		STATUS	current
+		DESCRIPTION
+			"The value descrides how many the lists are using."
+		::=	{ raisecomMacAclEntry	6 }
+
+	raisecomMacAclStatus OBJECT-TYPE
+		SYNTAX  RowStatus
+		ACCESS  read-write
+		STATUS  current
+		DESCRIPTION
+			"The status	of this	entry."
+		::=	{ raisecomMacAclEntry	7 }  
+		
+	raisecomMacAclSourceAddressMask OBJECT-TYPE
+		SYNTAX	MacAddress
+		ACCESS	read-create
+		STATUS	current
+		DESCRIPTION
+			"The Mask value of the source MAC address."
+		::=	{ raisecomMacAclEntry	8 }    
+		
+	raisecomMacAclDestinationAddressMask OBJECT-TYPE
+		SYNTAX	MacAddress
+		ACCESS	read-create
+		STATUS	current
+		DESCRIPTION
+			"The Mask value of the destination MAC address."
+		::=	{ raisecomMacAclEntry	9 }
+
+
+	--The user access control list--
+      -- The user access control list contains some rules that are defined
+      -- by network administrator according to practical application.
+      -- Generally these rules are set based on the first 80 bytes of
+      -- the ethernet frame.
+
+	raisecomUserAclTable OBJECT-TYPE
+		SYNTAX		SEQUENCE OF	RaisecomUserAclEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"A list of user access control list entries."
+		::=	{ raisecomUserAccessList 1}
+
+	raisecomUserAclEntry OBJECT-TYPE
+		SYNTAX		RaisecomUserAclEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"A list of parameters that set up a rule
+			 about the user access control list."
+		INDEX {	raisecomUserAclNumber	}
+		::=	{ raisecomUserAclTable 1 }
+
+	RaisecomUserAclEntry ::= SEQUENCE	{
+		raisecomUserAclNumber			INTEGER	(0..399),
+		raisecomUserAclAccessType		INTEGER,
+		raisecomUserAclRuleString		OCTET STRING (SIZE(1..64)),
+		raisecomUserAclRuleMask		OCTET STRING (SIZE(1..64)),
+		raisecomUserAclOffset			INTEGER (0..63),
+		raisecomUserAclRef			Gauge32,
+		raisecomUserAclStatus			RowStatus
+	}
+
+	raisecomUserAclNumber	OBJECT-TYPE
+		SYNTAX	INTEGER (0..399)
+		ACCESS	read-only
+		STATUS	current
+		DESCRIPTION
+			"An index that uniquely identifies an entry in
+             the user access list table."
+		::=	{ raisecomUserAclEntry 1 }
+
+	raisecomUserAclAccessType OBJECT-TYPE
+		SYNTAX	INTEGER
+        {
+        	permit(1),
+			deny(2)
+        }
+		ACCESS	read-create
+		STATUS	current
+		DESCRIPTION
+			"The access type of this access list, permit or deny."
+		::=	{ raisecomUserAclEntry 2 }
+
+	raisecomUserAclRuleString OBJECT-TYPE
+		SYNTAX	OCTET STRING (SIZE(1..64))
+		ACCESS	read-create
+		STATUS	current
+		DESCRIPTION
+			"The value used to judge whether match the ethernet frame."
+		::=	{ raisecomUserAclEntry 3 }
+
+	raisecomUserAclRuleMask OBJECT-TYPE
+		SYNTAX	OCTET STRING (SIZE(1..64))
+		ACCESS	read-create
+		STATUS	current
+		DESCRIPTION
+			"The bitmap that used to AND with the ethernet frame
+			 in order to mask out the matching value."
+		::=	{ raisecomUserAclEntry 4 }
+
+	raisecomUserAclOffset OBJECT-TYPE
+		SYNTAX	INTEGER (0..63)
+		ACCESS	read-create
+		STATUS	current
+		DESCRIPTION
+			"The offset in the ethernet frame on which the raisecomUserAclRuleString
+			 locates. It is based on 0 at the start of the ethernet frame."
+		::=	{ raisecomUserAclEntry 5 }
+
+	raisecomUserAclRef OBJECT-TYPE
+		SYNTAX	Gauge32
+		ACCESS	read-only
+		STATUS	current
+		DESCRIPTION
+			"The value specifies how many the lists are using."
+		::=	{ raisecomUserAclEntry 6 }
+
+	raisecomUserAclStatus OBJECT-TYPE
+		SYNTAX  RowStatus
+		ACCESS  read-write
+		STATUS  current
+		DESCRIPTION
+			"The status	of this	entry."
+		::=	{ raisecomUserAclEntry 7 }
+
+END

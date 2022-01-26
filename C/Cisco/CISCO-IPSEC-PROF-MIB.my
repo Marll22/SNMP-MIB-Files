@@ -1,0 +1,392 @@
+-- *******************************************************************
+-- CISCO-IPSEC-PROF-MIB.my
+-- This MIB helps to manage the IPSEC profile parameters on the controller
+-- July 2016, Lakshmi Prasanna M S 
+--   
+-- Copyright (c) 2011, 2016 by Cisco Systems, Inc.
+-- All rights reserved.
+-- *******************************************************************
+
+CISCO-IPSEC-PROF-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY,
+    OBJECT-TYPE,
+    Unsigned32,
+    Integer32
+        FROM SNMPv2-SMI
+    MODULE-COMPLIANCE,
+    OBJECT-GROUP
+        FROM SNMPv2-CONF
+    TEXTUAL-CONVENTION,
+    RowStatus,
+    TruthValue,
+    StorageType
+        FROM SNMPv2-TC
+    SnmpAdminString
+        FROM SNMP-FRAMEWORK-MIB
+    CLApIfType
+        FROM CISCO-LWAPP-TC-MIB
+    cLAPGroupName
+        FROM CISCO-LWAPP-WLAN-MIB
+    ciscoMgmt
+        FROM CISCO-SMI;
+
+ciscoLwappIPSECPROFMIB MODULE-IDENTITY
+    LAST-UPDATED    "201111010000Z"
+    ORGANIZATION    "Cisco Systems Inc."
+    CONTACT-INFO
+            "Cisco Systems,
+            Customer Service
+            Postal: 170 West Tasman Drive
+            San Jose, CA  95134
+            USA
+            Tel: +1 800 553-NETS
+
+            Email: cs-wnbu-snmp@cisco.com"
+    DESCRIPTION
+        "This MIB is intended to be implemented on all those
+        devices operating as Central Controllers (CC)  that
+        terminate the Light Weight Access Point Protocol
+        tunnel from Cisco Light-weight LWAPP Access Points.
+
+        This MIB helps to manage the IPSEC profile 
+        parameters on the controller.
+
+        The relationship between CC and the LWAPP APs
+        can be depicted as follows:
+
+        +......+     +......+     +......+           +......+
+        +      +     +      +     +      +           +      +
+        +  CC  +     +  CC  +     +  CC  +           +  CC  +
+        +      +     +      +     +      +           +      +
+        +......+     +......+     +......+           +......+
+        ..            .             .                 .
+        ..            .             .                 .
+        .  .            .             .                 .
+        .    .            .             .                 .
+        .      .            .             .                 .
+        .        .            .             .                 .
+        +......+ +......+     +......+      +......+          +......+
+        +      + +      +     +      +      +      +          +      +
+        +  AP  + +  AP  +     +  AP  +      +  AP  +          +  AP  +
+        +      + +      +     +      +      +      +          +      +
+        +......+ +......+     +......+      +......+          +......+
+        .              .             .                 .
+        .  .              .             .                 .
+        .    .              .             .                 .
+        .      .              .             .                 .
+        .        .              .             .                 .
+        +......+ +......+     +......+      +......+          +......+
+        +      + +      +     +      +      +      +          +      +
+        +  MN  + +  MN  +     +  MN  +      +  MN  +          +  MN  +
+        +      + +      +     +      +      +      +          +      +
+        +......+ +......+     +......+      +......+          +......+
+
+        The LWAPP tunnel exists between the controller and
+        the APs.  The MNs communicate with the APs through
+        the protocol defined by the 802.11 standard.
+
+        LWAPP APs, upon bootup, discover and join one of the
+        controllers and the controller pushes the configuration,
+        that includes the WLAN parameters, to the LWAPP APs.
+        The APs then encapsulate all the 802.11 frames from
+        wireless clients inside LWAPP frames and forward
+        the LWAPP frames to the controller.
+
+                           GLOSSARY
+
+        Access Point ( AP )
+
+        An entity that contains an 802.11 medium access
+        control ( MAC ) and physical layer ( PHY ) interface
+        and provides access to the distribution services via
+        the wireless medium for associated clients.  
+
+        LWAPP APs encapsulate all the 802.11 frames in
+        LWAPP frames and sends it to the controller to which
+        it is logically connected to.
+
+        Central Controller ( CC )
+
+        The central entity that terminates the LWAPP protocol
+        tunnel from the LWAPP APs.  Throughout this MIB,
+        this entity also referred to as 'controller'.
+
+        Light Weight Access Point Protocol ( LWAPP ) 
+
+        This is a generic protocol that defines the
+        communication between the Access Points and the
+        controllers.
+
+        Mobile Node ( MN )
+
+        A roaming 802.11 wireless device in a wireless
+        network associated with an access point. 
+
+        802.1x
+
+        The IEEE ratified standard for enforcing port based
+        access control.  This was originally intended for
+        use on wired LANs and later extended for use in
+        802.11 WLAN environments.  This defines an
+        architecture with three main parts - a supplicant
+        (Ex. an 802.11 wireless client), an authenticator
+        (the AP) and an authentication server(a Radius
+        server).  The authenticator passes messages back
+        and forth between the supplicant and the
+        authentication server to enable the supplicant
+        get authenticated to the network.
+
+        Radio Frequency ( RF )
+               
+        Radio frequency (RF) is a rate of oscillation in the 
+        range of about 3 kHz to 300 GHz, which corresponds to 
+        the frequency of radio waves, and the 
+        alternating currents which carry radio signals.
+
+        Received Signal Strength Indicator ( RSSI )
+
+        A measure of the strength of the signal as
+        observed by the entity that received it,
+        expressed in 'dbm'.
+
+        Coverage Hole Detection ( CHD )
+
+        If clients on an Access Point are detected at low 
+        RSSI levels, it is considered a coverage hole  
+        by the Access Points. This indicates the existence 
+        of an area where clients are continually getting poor 
+        signal coverage, without having a viable location to 
+        roam to.
+ 
+
+        REFERENCE
+
+        [1] Wireless LAN Medium Access Control ( MAC ) and
+        Physical Layer ( PHY ) Specifications.
+
+        [2] Draft-obara-capwap-lwapp-00.txt, IETF Light 
+        Weight Access Point Protocol 
+
+        [3] IEEE 802.11 - The original 1 Mbit/s and 2 Mbit/s, 
+        2.4 GHz RF and IR standard."
+
+    REVISION        "201111010000Z"
+    DESCRIPTION
+        "Initial version of this MIB module."
+    ::= { ciscoMgmt 999998 }
+
+
+ciscoLwappIpsecProfMIBNotifs  OBJECT IDENTIFIER
+    ::= { ciscoLwappIPSECPROFMIB 0 }
+
+ciscoLwappIpsecProfMIBObjects  OBJECT IDENTIFIER
+    ::= { ciscoLwappIPSECPROFMIB 1 }
+
+ciscoLwappIpsecProfMIBConform  OBJECT IDENTIFIER
+    ::= { ciscoLwappIPSECPROFMIB 2 }
+
+ciscoLwappIpsecProfConfig OBJECT IDENTIFIER
+    ::= { ciscoLwappIpsecProfMIBObjects 1 }
+
+
+-- ********************************************************************
+-- *       IPSEC Profile Table
+-- ********************************************************************
+
+cLIpsecProfileTable OBJECT-TYPE
+    SYNTAX          SEQUENCE OF CLIpsecProfileEntry 
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION
+        "This table lists the configuration for each
+        RF profile."
+    ::= { ciscoLwappIpsecProfConfig 1 }
+
+cLIpsecProfileEntry OBJECT-TYPE
+    SYNTAX          CLIpsecProfileEntry
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION
+        "An entry containing the configuration attributes
+        of an IPSec profile that would be applied for 
+        RADIUS, SNMP and SYSLOG.
+
+        Entries can be added/deleted by explicit management 
+        action from NMS/EMS or through user console."
+    INDEX           { cLIpsecProfileName } 
+    ::= { cLIpsecProfileTable 1 }
+
+CLIpsecProfileEntry ::= SEQUENCE {
+        cLIpsecProfileName                       SnmpAdminString,
+        cLIpsecProfAuthType                      INTEGER,                                         
+        cLIpsecProfEncrType                      INTEGER,
+        cLIpsecProfIkeVersion                    INTEGER,
+        cLIpsecProfIkeLifetime                   Unsigned32,
+        cLIpsecProfPhase2Lifetime                Unsigned32,
+        cLIpsecProfIKEPhase1                     INTEGER,
+        cLIpsecProfIKEDHGroup                    INTEGER,
+        cLIpsecProfAuthMode                      INTEGER, 
+        cLIpsecProfAuthPSK                       OCTET STRING,
+        cLIpsecProfAuthModeKeyFormat             INTEGER,
+        cLIpsecProfPeerIdType                    INTEGER,
+        cLIpsecProfPeerIdValue                   OCTET STRING,
+        cLIpsecProfileRowStatus                  RowStatus
+}
+
+cLIpsecProfileName  OBJECT-TYPE
+    SYNTAX          SnmpAdminString (SIZE  (1..31))
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION
+        "This object uniquely identifies a IPSEC Profile."
+    ::= { cLIpsecProfileEntry 1 }
+
+cLIpsecProfAuthType OBJECT-TYPE
+    SYNTAX      INTEGER  {
+            none(0),
+            hmacMd5(1),
+            hmacsha1(2),
+            hmacsha256(3),
+            hmacsha384(4)
+        }   
+   MAX-ACCESS read-create
+   STATUS          current
+   DESCRIPTION
+    "This object defines the authentication 
+     type to be used for this ipsec profile."
+   ::= { cLIpsecProfileEntry 2 } 
+
+cLIpsecProfEncrType OBJECT-TYPE
+    SYNTAX              INTEGER  {
+                                    none(0),
+                         des (1),
+                         tripleDes (2),
+                         aesCbc (3),
+                         aes256Cbc(4),
+                         aes128gcm(5),
+                         aes256gcm(6)
+                       }
+        MAX-ACCESS read-create
+        STATUS current
+        DESCRIPTION
+                "The Encryption algorithm employed by this IpSec
+        profile."
+ ::= { cLIpsecProfileEntry 3}
+
+cLIpsecProfIkeVersion OBJECT-TYPE
+     SYNTAX       INTEGER {
+                    ike(0),
+                    v1(1),
+                    v2(2)
+                  }
+     MAX-ACCESS   read-create
+     STATUS       current
+     DESCRIPTION
+            "IKE version for the IPSec Connection."
+     ::= { cLIpsecProfileEntry 4}
+
+cLIpsecProfIkeLifetime OBJECT-TYPE
+     SYNTAX Unsigned32(1800..84600)
+     MAX-ACCESS read-create
+     STATUS current
+     DESCRIPTION
+               "IPSec IKE's Lifetime."
+     ::= { cLIpsecProfileEntry 5}
+
+cLIpsecProfPhase2Lifetime OBJECT-TYPE
+     SYNTAX Unsigned32(1800..84600)
+     MAX-ACCESS read-create
+     STATUS current
+     DESCRIPTION
+               "IPSec SA  Lifetime."
+     ::= { cLIpsecProfileEntry 6}
+
+cLIpsecProfIKEPhase1  OBJECT-TYPE
+    SYNTAX    INTEGER  {
+                 main(1),
+                 agressive(2)
+              }
+    MAX-ACCESS read-create
+    STATUS current
+    DESCRIPTION
+                "VPN IKE Phase 1 Mode type as per the IpSec standards."
+     ::= { cLIpsecProfileEntry 7}
+
+cLIpsecProfIKEDHGroup         OBJECT-TYPE
+    SYNTAX  INTEGER  {
+               group1(1),
+               group2(2),
+               group5(5),
+               group14(14),
+               group19(19),
+               group20(20)
+            }
+    MAX-ACCESS read-create
+    STATUS current
+    DESCRIPTION
+                "IKE's Diffie-Hellman Group."
+     ::= { cLIpsecProfileEntry 8}
+
+ cLIpsecProfAuthMode    OBJECT-TYPE
+    SYNTAX  INTEGER  {
+                        psk(1),
+                        cert(2)
+            }   
+    MAX-ACCESS read-create
+    STATUS current
+    DESCRIPTION
+            "IKE auth mode: pre shared key or cert."
+    ::= { cLIpsecProfileEntry 9}
+
+cLIpsecProfAuthPSK  OBJECT-TYPE
+    SYNTAX  OCTET STRING (SIZE(0..128))
+    MAX-ACCESS  read-create
+    STATUS current
+    DESCRIPTION
+         "Pre-shared key used for authentication."
+         ::= { cLIpsecProfileEntry 10}
+
+cLIpsecProfAuthModeKeyFormat OBJECT-TYPE
+    SYNTAX   INTEGER  {
+             hex(1),
+             ascii(2)
+         }
+    MAX-ACCESS  read-create
+    STATUS current
+    DESCRIPTION
+        " PSK key format: ASCII/HEX."
+         ::= { cLIpsecProfileEntry 11 }
+
+cLIpsecProfPeerIdType OBJECT-TYPE
+    SYNTAX  INTEGER {
+                none(0),
+                fqdn(1),
+                user-fqdn(2),
+                dn(3),
+                ip(4)
+            }
+    MAX-ACCESS  read-create
+    STATUS current
+    DESCRIPTION
+        " IKe peer identification type "
+        ::= { cLIpsecProfileEntry 12 }
+
+cLIpsecProfPeerIdValue  OBJECT-TYPE
+    SYNTAX  OCTET STRING (SIZE(0..255))
+    MAX-ACCESS  read-create
+    STATUS current
+    DESCRIPTION
+        "IKE peer identification value "
+    ::= { cLIpsecProfileEntry 13 }
+            
+cLIpsecProfileRowStatus OBJECT-TYPE
+     SYNTAX          RowStatus
+     MAX-ACCESS      read-create
+     STATUS          current
+     DESCRIPTION
+         "This is the status column for this row and used
+         to create and delete specific instances of rows
+         in this table."
+     ::= { cLIpsecProfileEntry 14 }
+END

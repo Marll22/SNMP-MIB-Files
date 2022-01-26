@@ -1,0 +1,131 @@
+--MibName=raisecom
+-- =======================================================================
+-- Version info 
+--
+-- Version 0.1 Created 2003.5.24 by GONGGUIDONG
+-- This version of MIB is created just for management of base and user. 
+-- 
+-- Copyright(c) 2000-2002 by Raisecom  Ltd. 
+
+-- add iscom2110A-MA-PWR4 by ljk 20100714
+-- add iscom2824G by zlw 20090917
+-- add iscom2009ama by ljk 20090901
+-- add iscom3026  iscom2826  			by gongguidong 20030819
+-- add iscom4124  iscom2126  metrocom3000     	by gongguidong 20040205
+-- merge iscom3526,iscom3026,iscom2826,iscom2126,iscom2016,iscom2008,iscom2026 to IscomSwitch by liqiong 20041218
+-- add iscom2852 by zhaohongce 20060517
+-- add iscom2926, iscom2926F, iscom2017A, iscom3012 liqiong 20061228      
+-- add iscom2016C, iscom3026E, iscom3028F ,iscom3052  liqiong 20070208
+-- modify iscom3012 to iscom3012GF  zhaohc 20070216   
+-- add iscom5124, rc3000-15,liqiong, 20070718 
+-- add iscom2250,lizhimin, 20080331    
+-- modify iscom2250 to iscom2150-MA,lizhimin, 20080416
+-- add iscom2109-MA, iscom2109A-MA,iscom2118-MA,iscom2126S-MA,chenjunyong, 20080515    
+-- add iscom2126E-MA, zhanxuecha0, 20080827    
+-- add iscom2126F-MA, zhanxuechao, 20080916
+-- add iscom2126FL-MA, zhanxuechao, 20081007
+-- add iscom2126EA-MA, zhanxuechao, 20081128
+-- add iscom2110a-ma, ljk, 20081217
+-- ===============================================================
+
+RAISECOM-BASE-ISCOM-MIB    DEFINITIONS ::= BEGIN
+
+IMPORTS
+  iscomSeries		FROM RAISECOM-BASE-MIB;
+
+-- =======================================================================
+--
+--  ISCOM
+-- =======================================================================	
+	iscom3026			OBJECT IDENTIFIER ::= { iscomSeries 2  }
+	iscom2826			OBJECT IDENTIFIER ::= { iscomSeries 3  }
+	iscom4124			OBJECT IDENTIFIER ::= { iscomSeries 4  }
+	iscom2126			OBJECT IDENTIFIER ::= { iscomSeries 5  }
+	iscom2016			OBJECT IDENTIFIER ::= { iscomSeries 6  }
+	iscom2008			OBJECT IDENTIFIER ::= { iscomSeries 7  }	
+	iscom4300			OBJECT IDENTIFIER ::= { iscomSeries 8  }	   
+	iscom2026B			OBJECT IDENTIFIER ::= { iscomSeries 9  } 
+	iscom2826E			OBJECT IDENTIFIER ::= { iscomSeries 10 }    
+	iscom2828F			OBJECT IDENTIFIER ::= { iscomSeries 11 } 
+	iscom2812GF			OBJECT IDENTIFIER ::= { iscomSeries 12 } 
+	iscom2109F			OBJECT IDENTIFIER ::= { iscomSeries 13 } 
+	iscom2026			OBJECT IDENTIFIER ::= { iscomSeries 14 } 
+	iscom2025			OBJECT IDENTIFIER ::= { iscomSeries 15 } 
+	iscom2017			OBJECT IDENTIFIER ::= { iscomSeries 16 } 
+	iscom2009			OBJECT IDENTIFIER ::= { iscomSeries 17 }  
+	iscom2125			OBJECT IDENTIFIER ::= { iscomSeries 18 } 
+	iscom2117			OBJECT IDENTIFIER ::= { iscomSeries 19 } 
+	iscom2109			OBJECT IDENTIFIER ::= { iscomSeries 20 }   
+	iscom2126e			OBJECT IDENTIFIER ::= { iscomSeries 21 }	
+	iscom2852			OBJECT IDENTIFIER ::= { iscomSeries 22 }	 
+	iscom2126F			OBJECT IDENTIFIER ::= { iscomSeries 23 }      	 
+	iscomEpon			OBJECT IDENTIFIER ::= { iscomSeries 24 }             	 
+	iscom2924GF			OBJECT IDENTIFIER ::= { iscomSeries 25 }     	 
+	iscom2126S			OBJECT IDENTIFIER ::= { iscomSeries 26 }        	 
+	iscom5504			OBJECT IDENTIFIER ::= { iscomSeries 27 }
+	iscom2009A			OBJECT IDENTIFIER ::= { iscomSeries 28 }     	 
+	iscom2109A			OBJECT IDENTIFIER ::= { iscomSeries 29 }       	 
+	iscom2926			OBJECT IDENTIFIER ::= { iscomSeries 30 }   	 
+	iscom2926F			OBJECT IDENTIFIER ::= { iscomSeries 31 }   	 
+	iscom2017A			OBJECT IDENTIFIER ::= { iscomSeries 32 }    	 
+	iscom3012GF			OBJECT IDENTIFIER ::= { iscomSeries 33 }      	 
+	iscom2016C			OBJECT IDENTIFIER ::= { iscomSeries 34 }  	 
+	iscom3026E			OBJECT IDENTIFIER ::= { iscomSeries 35 }  	 
+	iscom3028F			OBJECT IDENTIFIER ::= { iscomSeries 36 }    	 
+	iscom3052			OBJECT IDENTIFIER ::= { iscomSeries 37 }
+	iscom5124			OBJECT IDENTIFIER ::= { iscomSeries 38 }
+	iscom2150-MA		OBJECT IDENTIFIER ::= { iscomSeries 39 }
+	iscom2118			OBJECT IDENTIFIER ::= { iscomSeries 40 }
+	iscom2828			OBJECT IDENTIFIER ::= { iscomSeries 44 }
+	iscom2109-MA		OBJECT IDENTIFIER ::= { iscomSeries 45 }
+	iscom2109A-MA		OBJECT IDENTIFIER ::= { iscomSeries 46 }
+	iscom2118-MA		OBJECT IDENTIFIER ::= { iscomSeries 47 }
+	iscom2126S-MA		OBJECT IDENTIFIER ::= { iscomSeries 48 }
+	iscom2126E-MA		OBJECT IDENTIFIER ::= { iscomSeries 50 }
+	iscom2126F-MA		OBJECT IDENTIFIER ::= { iscomSeries 51 }
+	iscom2126FL-MA		OBJECT IDENTIFIER ::= { iscomSeries 52 }
+	iscom2017S			OBJECT IDENTIFIER ::= { iscomSeries 53 }
+	iscom2126EA-MA		OBJECT IDENTIFIER ::= { iscomSeries 54 }
+	iscom2110A-MA		OBJECT IDENTIFIER ::= { iscomSeries 55 }
+	iscom2009A-MA		OBJECT IDENTIFIER ::= { iscomSeries 56 }
+	iscom2824G			OBJECT IDENTIFIER ::= { iscomSeries 57 }
+	iscom2110A-MA-PWR4	OBJECT IDENTIFIER ::= { iscomSeries 58 }
+	iscom2828F-C		OBJECT IDENTIFIER ::= { iscomSeries 62 }
+	iscom2828-MA		OBJECT IDENTIFIER ::= { iscomSeries 63 }	
+	iscom4002-1RF		OBJECT IDENTIFIER ::= { iscomSeries 65 }	
+	iscom4012-1RF		OBJECT IDENTIFIER ::= { iscomSeries 67 }	
+	iscom2128-I			OBJECT IDENTIFIER ::= { iscomSeries 68 }	
+	iscom2118-I			OBJECT IDENTIFIER ::= { iscomSeries 69 }	
+	iscom2110-I			OBJECT IDENTIFIER ::= { iscomSeries 70 }	
+	iscom1000EM			OBJECT IDENTIFIER ::= { iscomSeries 71 }	
+	iscom2110A-MA-PWR-Y	OBJECT IDENTIFIER ::= { iscomSeries 72 }	
+	iscom3024-AC		OBJECT IDENTIFIER ::= { iscomSeries 73 }	
+	iscom3048-AC		OBJECT IDENTIFIER ::= { iscomSeries 74 }	
+	iscom2118EA-MA		OBJECT IDENTIFIER ::= { iscomSeries 75 }	
+	iscom2110EA-MA		OBJECT IDENTIFIER ::= { iscomSeries 76 }	
+	iscom2126EA-MA-PWR-AC	OBJECT IDENTIFIER ::= { iscomSeries 77 }	
+	iscom2128EA-MA		OBJECT IDENTIFIER ::= { iscomSeries 78 }	
+	iscom2126EA-MA-B	OBJECT IDENTIFIER ::= { iscomSeries 79 }	
+	iscom2126EA-MA-PWR	OBJECT IDENTIFIER ::= { iscomSeries 80 }	
+	iscom2026F			OBJECT IDENTIFIER ::= { iscomSeries 81 }	
+	iscom2118EA-MA-PWR	OBJECT IDENTIFIER ::= { iscomSeries 82 }	
+	iscom2110EA-MA-PWR	OBJECT IDENTIFIER ::= { iscomSeries 83 }	
+	iscom2110A-MA-PWR-Z	OBJECT IDENTIFIER ::= { iscomSeries 84 }	
+	iscom2126EA-MA-PWR-Z	OBJECT IDENTIFIER ::= { iscomSeries 85 }	
+	iscom2118-MA-S		OBJECT IDENTIFIER ::= { iscomSeries 86 }
+	rcls3210		OBJECT IDENTIFIER ::= { iscomSeries 87 } 
+	rcls3218		OBJECT IDENTIFIER ::= { iscomSeries 88 }
+	rcls3226		OBJECT IDENTIFIER ::= { iscomSeries 89 }
+	rcls3950		OBJECT IDENTIFIER ::= { iscomSeries 90 }
+	rcls3928		OBJECT IDENTIFIER ::= { iscomSeries 91 }
+	rcls3952		OBJECT IDENTIFIER ::= { iscomSeries 92 }
+	rcls3928F		OBJECT IDENTIFIER ::= { iscomSeries 93 } 
+	rcls3912GF		OBJECT IDENTIFIER ::= { iscomSeries 94 }  
+	rcls3924GF		OBJECT IDENTIFIER ::= { iscomSeries 95 } 
+	iscom3924GF-4c		OBJECT IDENTIFIER ::= { iscomSeries 96 }
+	iscom3924GF-4GE		OBJECT IDENTIFIER ::= { iscomSeries 97 }
+	iscom2016F		OBJECT IDENTIFIER ::= { iscomSeries 98 }
+	
+
+	
+END	

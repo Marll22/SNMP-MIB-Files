@@ -1,0 +1,44 @@
+--MibName=raisecom
+-- =======================================================================
+-- Version info 
+--
+-- Version 0.1 Created 2003.5.24 by GONGGUIDONG
+-- This version of MIB is created just for management of base and user. 
+-- 
+-- Copyright(c) 2000-2002 by Raisecom  Ltd. 
+
+-- add  opcom100-2c by liujunfu  20060914
+-- add  opcom3500e liujunfu  20061025    {8}
+-- add opcom3500e-6, liqiong, 20071217
+-- add opcom3105 , liqiong, 20080303 
+-- add opcom3107, liqiong, 20080701
+-- add opcom3109, liqiong, 20081125    
+-- add opcom-100-oau, lq, 20090220      
+-- add  opcom3500e-c , hxz,20100824
+-- ===============================================================
+
+RAISECOM-BASE-OPCOM-MIB    DEFINITIONS ::= BEGIN
+
+IMPORTS
+        opcomSeries		FROM RAISECOM-BASE-MIB;
+
+-- =======================================================================
+--
+--  OPCOM
+-- =======================================================================	
+  opcom3100			OBJECT IDENTIFIER ::= { opcomSeries 1 }
+	opcom100-4		OBJECT IDENTIFIER ::= { opcomSeries 2 }
+	opcom3500			OBJECT IDENTIFIER ::= { opcomSeries 3 }
+	opcom3101			OBJECT IDENTIFIER ::= { opcomSeries 4 }
+	opcom3102			OBJECT IDENTIFIER ::= { opcomSeries 5 }
+	opcom3103			OBJECT IDENTIFIER ::= { opcomSeries 6 }
+	opcom100-2c		OBJECT IDENTIFIER ::= { opcomSeries 7 }
+  opcom3500e    OBJECT IDENTIFIER ::= { opcomSeries 8 } 
+	opcom3500e-6  OBJECT IDENTIFIER ::= { opcomSeries 9 }     
+	opcom3105     OBJECT IDENTIFIER ::= { opcomSeries 10 }    
+	opcom3107     OBJECT IDENTIFIER ::= { opcomSeries 11 }     
+	opcom3109     OBJECT IDENTIFIER ::= { opcomSeries 12 }
+	opcom-100-oau OBJECT IDENTIFIER ::= { opcomSeries 15 }
+	opcom3500e-c  OBJECT IDENTIFIER ::= { opcomSeries 16 }
+
+END

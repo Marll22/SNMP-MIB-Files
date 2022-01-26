@@ -1,0 +1,159 @@
+	QTECH-QINQ-MIB DEFINITIONS ::= BEGIN
+ 
+		IMPORTS
+			Unsigned32, OBJECT-TYPE ,NOTIFICATION-TYPE				FROM SNMPv2-SMI	
+			TEXTUAL-CONVENTION	FROM SNMPv2-TC
+			qtechProtocol	FROM QTECH-SMI;
+
+    EntryStatus ::= TEXTUAL-CONVENTION
+		STATUS current
+		DESCRIPTION
+				"entry status."
+		SYNTAX INTEGER 
+			{
+				valid(1),
+				createRequest(2),
+				underCreation(3),
+				invalid(4)
+			}
+
+		wriQinq OBJECT IDENTIFIER ::= { qtechProtocol 1707 }
+
+		qinqComm OBJECT IDENTIFIER ::= { wriQinq 1 } 
+				
+		qinqMaxIfNum OBJECT-TYPE
+			SYNTAX Unsigned32
+			MAX-ACCESS read-only
+			STATUS current
+			DESCRIPTION
+				""
+			::= { qinqComm 1 }
+		
+		qinqMaxNumPerIf OBJECT-TYPE
+			SYNTAX Unsigned32
+			MAX-ACCESS read-only
+			STATUS current
+			DESCRIPTION
+				""
+			::= { qinqComm 2 }
+		
+		qinqCurrNum OBJECT-TYPE
+			SYNTAX Unsigned32
+			MAX-ACCESS read-only
+			STATUS current
+			DESCRIPTION
+				""
+			::= { qinqComm 3 }
+
+		qinqSwVersion OBJECT-TYPE
+			SYNTAX OCTET STRING(SIZE(255))
+			MAX-ACCESS read-only
+			STATUS current
+			DESCRIPTION
+				""
+			::= { qinqComm 4 }
+		
+		qinqIfTable OBJECT-TYPE
+			SYNTAX  SEQUENCE OF QinqIfEntry
+			MAX-ACCESS  not-accessible
+			STATUS  current
+			DESCRIPTION
+				""
+			::= { wriQinq 2 }
+	
+		qinqIfEntry OBJECT-TYPE
+			SYNTAX  QinqIfEntry
+			MAX-ACCESS  not-accessible
+			STATUS  current
+			DESCRIPTION
+					""
+			INDEX   { qinqIfIndex,qinqIfStartOuterVid,qinqIfStartOuterPri }
+			::= { qinqIfTable 1 }
+
+		QinqIfEntry ::=
+			SEQUENCE {
+				qinqIfIndex			          Unsigned32,
+				qinqIfStartOuterVid				Unsigned32,
+				qinqIfStartOuterPri		    Unsigned32,
+				qinqIfEndOuterVid				  Unsigned32,
+				qinqIfEndOuterPri     		Unsigned32,
+				qinqIfMappedOuterVid			Unsigned32,
+				qinqIfMappedOuterPri			Unsigned32,
+				qinqIfMappedInnerVid			Unsigned32,
+				qinqIfStatus			        EntryStatus
+				}
+				
+			qinqIfIndex OBJECT-TYPE
+		    	SYNTAX  Unsigned32
+		    	MAX-ACCESS  read-only
+		    	STATUS  current
+		    	DESCRIPTION
+					""
+		    	::= { qinqIfEntry 1 }
+		  
+		  qinqIfStartOuterVid OBJECT-TYPE
+		    	SYNTAX  Unsigned32
+		    	MAX-ACCESS  read-only
+		    	STATUS  current
+		    	DESCRIPTION
+					""
+		    	::= { qinqIfEntry 2 }
+		  
+		  qinqIfStartOuterPri OBJECT-TYPE
+		    	SYNTAX  Unsigned32
+		    	MAX-ACCESS  read-only
+		    	STATUS  current
+		    	DESCRIPTION
+					""
+		    	::= { qinqIfEntry 3 }
+		  
+		  qinqIfEndOuterVid OBJECT-TYPE
+		    	SYNTAX  Unsigned32
+		    	MAX-ACCESS  read-write
+		    	STATUS  current
+		    	DESCRIPTION
+					"Matching outer vlan id,should be a legal value of vlan."
+		    	::= { qinqIfEntry 4 }
+		  
+		  qinqIfEndOuterPri OBJECT-TYPE
+		    	SYNTAX  Unsigned32
+		    	MAX-ACCESS  read-write
+		    	STATUS  current
+		    	DESCRIPTION
+					"Matching outer 8021p priority,should be a legal value of priority."
+		    	::= { qinqIfEntry 5 }
+		  
+		  qinqIfMappedOuterVid OBJECT-TYPE
+		    	SYNTAX  Unsigned32
+		    	MAX-ACCESS  read-write
+		    	STATUS  current
+		    	DESCRIPTION
+					"Adding outer vlan id,should be a legal value of vlan."
+		    	::= { qinqIfEntry 6 }
+		  
+		  qinqIfMappedOuterPri OBJECT-TYPE
+		    	SYNTAX  Unsigned32
+		    	MAX-ACCESS  read-write
+		    	STATUS  current
+		    	DESCRIPTION
+					"Adding outer 8021p priority,should be a legal value of priority."
+		    	::= { qinqIfEntry 7 }
+		  
+		  qinqIfMappedInnerVid OBJECT-TYPE
+		    	SYNTAX  Unsigned32(1..4094)
+		    	MAX-ACCESS  read-write
+		    	STATUS  current
+		    	DESCRIPTION
+					"Adding inner vlan id,should be a legal value of vlan."
+		    	::= { qinqIfEntry 8 }
+
+			qinqIfStatus OBJECT-TYPE
+				SYNTAX  EntryStatus
+		    MAX-ACCESS  read-write
+				STATUS  current
+				DESCRIPTION
+		            ""
+		    	::= { qinqIfEntry 9 }
+					
+		
+		END

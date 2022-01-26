@@ -1,0 +1,38 @@
+--MibName=raisecom
+-- =======================================================================
+-- Version info 
+--
+-- Version 0.1 Created 2003.5.24 by GONGGUIDONG
+-- This version of MIB is created just for management of base and user. 
+-- 
+-- Copyright(c) 2000-2002 by Raisecom  Ltd. 
+
+-- modify ros-lite OID from 12 to 16             
+-- ===============================================================
+
+RAISECOM-BASE-ROSLITE-MIB    DEFINITIONS ::= BEGIN
+
+IMPORTS
+        rosliteSeries		FROM RAISECOM-BASE-MIB;
+
+-- =======================================================================
+--
+--  ROSLITE
+-- =======================================================================
+	iscomMediaConvertor			OBJECT IDENTIFIER ::= { rosliteSeries 1 }
+	rc581FE			  OBJECT IDENTIFIER ::= { rosliteSeries 2 }	 
+	rc581GE		  	OBJECT IDENTIFIER ::= { rosliteSeries 3 }             
+	rc551-FE			OBJECT IDENTIFIER ::= { rosliteSeries 4 }	 
+	rc551-GE			OBJECT IDENTIFIER ::= { rosliteSeries 5 }            
+	rc551-4FE	    OBJECT IDENTIFIER ::= { rosliteSeries 6 }
+	rc551B-FE	    OBJECT IDENTIFIER ::= { rosliteSeries 7 }	 
+	rc551B-GE	    OBJECT IDENTIFIER ::= { rosliteSeries 8 }            
+	rc551B-4FE		OBJECT IDENTIFIER ::= { rosliteSeries 9 }
+	rc551B-GE4FE	OBJECT IDENTIFIER ::= { rosliteSeries 10 }
+	rc551E-4GE		OBJECT IDENTIFIER ::= { rosliteSeries 11 }
+	rc551E-GE	    OBJECT IDENTIFIER ::= { rosliteSeries 12 }
+	rc551E-4GEF	    OBJECT IDENTIFIER ::= { rosliteSeries 13 }  
+	rc551ES-4GE     OBJECT IDENTIFIER ::= { rosliteSeries 14 }  
+
+	
+END

@@ -1,0 +1,33 @@
+--MibName=raisecom
+-- =======================================================================
+-- Version info 
+--
+-- Version 0.1 Created 2003.5.24 by GONGGUIDONG
+-- This version of MIB is created just for management of base and user. 
+-- 
+-- Copyright(c) 2000-2002 by Raisecom  Ltd. 
+
+-- add  iPN,huxz,2010.12.31
+-- rename iPN to iTN, szf, 2011.11.7
+-- add iTN163, szf, 2011.11.7 
+-- ===============================================================
+
+RAISECOM-PRODUCT-ITN-MIB    DEFINITIONS ::= BEGIN
+
+IMPORTS
+        iTNSeries		FROM RAISECOM-BASE-MIB;
+
+-- =======================================================================
+--
+-- 	iTN Series 
+-- =======================================================================	
+	iTN201                    OBJECT IDENTIFIER ::=  { iTNSeries 1 }
+	iTN2100                   OBJECT IDENTIFIER ::=  { iTNSeries 2 }
+	iMS100                    OBJECT IDENTIFIER ::=  { iTNSeries 3 }     
+	iTN125-4FE                OBJECT IDENTIFIER ::=  { iTNSeries 4 }     
+	iTN161-GE                 OBJECT IDENTIFIER ::=  { iTNSeries 5 }     
+	iTN161-4GE                OBJECT IDENTIFIER ::=  { iTNSeries 6 }     
+	iTN161-4GEF               OBJECT IDENTIFIER ::=  { iTNSeries 7 }     
+	iTN163                    OBJECT IDENTIFIER ::=  { iTNSeries 8 }     
+
+END

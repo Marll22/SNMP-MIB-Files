@@ -1,0 +1,1247 @@
+ 
+STPU-MIB DEFINITIONS ::= BEGIN
+
+    IMPORTS
+      MODULE-IDENTITY, OBJECT-TYPE, Counter32, 
+      TimeTicks ,Integer32 ,Unsigned32, NOTIFICATION-TYPE    FROM SNMPv2-SMI
+      TEXTUAL-CONVENTION, RowStatus, DisplayString, TruthValue,MacAddress FROM SNMPv2-TC
+      mib-2                                                    FROM RFC1213-MIB
+      VlanId                                                   FROM Q-BRIDGE-MIB 
+      Timeout, BridgeId, dot1dBridge                           FROM BRIDGE-MIB
+      qtech,qtechProtocol,qtechProducts							   FROM QTECH-SMI;
+   
+
+stpu  MODULE-IDENTITY
+      LAST-UPDATED "200107130000Z"
+      ORGANIZATION "MRV Communications, Inc."
+      CONTACT-INFO
+        "Alex Rozin
+         MRV Communication, Inc
+         http://www.mrv.com
+         Email:  ARozin@mrv.com"
+
+      DESCRIPTION
+         "The MIB module for managing devices that support Multiple &
+          Rapid Spanning Trees Protocol and algorith. It is dedicated
+          to reflect IEEE Std 802.1s"
+      ::= { qtechProtocol 1908 } -- to be selected or moved into other place of the tree
+    
+--
+-- Textual Conventions
+--
+
+-- VlanId    ::= TEXTUAL-CONVENTION
+--     DISPLAY-HINT "d"
+--     STATUS  current
+--     DESCRIPTION
+--             "."
+--     SYNTAX  INTEGER (1..4094)
+ 
+PortIndex ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS  current
+    DESCRIPTION
+            "A unique value, greater than zero, for each Port
+            in the managed Bridge.
+            The value for each PortIndex remain
+            constant at least from one re-initialization of the entity's
+            network management system to the next re-initialization."
+    SYNTAX  INTEGER (1..4094)
+
+PortIndexOrZero ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS  current
+    DESCRIPTION
+            "This textual convention is an extension of the
+            PortIndex convention.  The latter defines a greater
+            than zero value used to identify a Port in the managed Bridge.
+            This extension permits the additional value of zero.  the
+            value zero is object-specific and must therefore be defined as
+            part of the description of any object which uses this syntax.
+            Examples of the usage of zero might include situations where
+            Port was unknown, or when none or all Ports need to be referenced."
+    SYNTAX  Integer32 (0..2147483647)
+
+MstiInstanceIndex ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS       current
+    DESCRIPTION
+            "A unique value, greater than zero, for each Multiple Spanning
+            Tree Instance (MSTI) in the managed Bridge.
+            The value for each MstiInstanceIndex remains constant for the
+            instance. The "
+    SYNTAX  Integer32 (1..64)
+
+BpduCounter ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS       current
+    DESCRIPTION
+            "An optional counter of received or transmitted Bridge Protocol
+            Data Units of different types on/from a Port. If the agent does not
+            support these counter, it returns the value 0. These counters are
+            reset when the protocol starts to operate and when the value of
+            stpuPortOperMACEnable changes from false(2) to true(1)."
+    SYNTAX  Counter32
+
+MstiOrCistInstanceIndex ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS       current
+    DESCRIPTION
+            "This textual convention is an extension of the
+            MstiInstanceIndex convention.  This extension permits the
+            additional value of zero, which means Common and Internal
+            Spanning Tree (CIST)."
+    SYNTAX      Integer32 (0..64)
+
+PortId ::= TEXTUAL-CONVENTION
+ 
+    STATUS       current
+    DESCRIPTION
+            "The Port Identifier of the Port, the unique Port identifier
+            comprising two parts, the Port Number and the Port Priority
+            field (13.24.8 of IEEE Std 802.1s, 8.5.5.1 and 17.18.16 of
+            IEEE Std 802.1D, 1998 Edition)."
+    SYNTAX       OCTET STRING (SIZE (2))
+
+	
+	
+stpuGen            OBJECT IDENTIFIER ::= { stpu 10 }
+-- stpuGen group reflects configurations/statuses
+-- the Bridge as a unit
+
+stpuGenBridgeMaxAge  OBJECT-TYPE
+                SYNTAX  Timeout (6..40)
+                MAX-ACCESS  read-write
+                STATUS  current
+                DESCRIPTION
+                  "12.8.1.3.a)"
+                ::= { stpuGen 1 }
+
+stpuGenBridgeHelloTime    OBJECT-TYPE
+                SYNTAX  Timeout (1..10)
+                MAX-ACCESS  read-write
+                STATUS  current
+                DESCRIPTION
+                  "12.8.1.3.b)"
+                ::= { stpuGen 2 }
+
+stpuGenBridgeForwardDelay OBJECT-TYPE
+                SYNTAX  Timeout (4..30)
+                MAX-ACCESS  read-write
+                STATUS  current
+                DESCRIPTION
+                  "12.8.1.3.c)"
+                ::= { stpuGen 3 }
+  
+stpuGenBridgeMaxHops      OBJECT-TYPE
+                SYNTAX  Integer32
+                MAX-ACCESS  read-write
+                STATUS  current
+                DESCRIPTION
+                  "13.22.f)"
+                ::= { stpuGen 4 }
+  
+stpuGenMaxAge  OBJECT-TYPE
+                SYNTAX  Integer32 (6..40)
+                MAX-ACCESS  read-only
+                STATUS  current
+                DESCRIPTION
+                  "12.8.1.3.a)"
+                ::= { stpuGen 5 }
+
+stpuGenHelloTime    OBJECT-TYPE
+                SYNTAX  Timeout (1..10)
+                MAX-ACCESS  read-only
+                STATUS  current
+                DESCRIPTION
+                  "12.8.1.3.b)"
+                ::= { stpuGen 6 }
+
+stpuGenForwardDelay OBJECT-TYPE
+                SYNTAX  Timeout (4..30)
+                MAX-ACCESS  read-only
+                STATUS  current
+                DESCRIPTION
+                  "12.8.1.3.c)"
+                ::= { stpuGen 7 }   
+             
+stpuGenRemainingHops OBJECT-TYPE
+                SYNTAX  Integer32
+                MAX-ACCESS  read-only
+                STATUS  current
+                DESCRIPTION
+                  "12.8.1.3.c)"
+                ::= { stpuGen 8 }
+
+stpuGenHoldTime     OBJECT-TYPE
+                SYNTAX  Timeout (1..255)
+                MAX-ACCESS  read-write
+                STATUS  current
+                DESCRIPTION
+                  "."
+                ::= { stpuGen 9 }
+
+stpuGenMigrateTime  OBJECT-TYPE
+                SYNTAX  Timeout (1..10)
+                MAX-ACCESS  read-write
+                STATUS  current
+                DESCRIPTION
+                  "13.22.d)"
+                ::= { stpuGen 10 }
+
+stpuGenPathCostDefault OBJECT-TYPE
+                SYNTAX      INTEGER {
+                  pathCostDefault8021d1998(1),
+                  pathCostDefault8021t2001(2)
+                }
+                MAX-ACCESS  read-write
+                STATUS      current
+                DESCRIPTION
+                  "(Copied from draft-ietf-bridge-rstpmib-02.txt).
+                   The version of the Spanning Tree default Path Costs that
+                   are to be used by this Bridge.  A value of pathCostDefault8021d1998(1)
+                   uses the 16-bit default Path Costs from IEEE Std. 802.1D-1998.
+                   A value of pathCostDefault8021t2001(2) uses the 32-bit default Path
+                   Costs from IEEE Std. 802.1t."
+                 REFERENCE
+                   "IEEE Std 802.1D & 802.1t Table 8-5"
+                 ::= { stpuGen 11 }
+
+stpuGenCapable   OBJECT-TYPE
+                 SYNTAX  INTEGER {
+                  nonStp(0),
+                  dot1d1998(1),
+                  dot1w(2),
+                  dot1d2004(3),
+                  dot1s(4),
+                  dot1q(5),
+                  unknown(6)
+                 }
+                 MAX-ACCESS  read-write
+                 STATUS  current
+                 DESCRIPTION
+                  "An indication of wheter the Bridge supports
+                   'maximum' level Spanning Tree Protocol.
+                   The value nonStp(0) indicates, the Bridge doesn't
+                   support any Spanning Tree Protocol.
+                   The value 'dot1d1998(1)' indicates the Spanning Tree Protocol
+                   specified in EEE 802.1D-1998, 'dot1w(2)' indicates the Rapid
+                   Spanning Tree Protocol specified in IEEE Std 802.1w,
+                   'dot1d2004' indicates IEEE Std 802.1D-2004 and
+                   'dot1s(4) means stpu IEEE Std 802.1s."
+                 ::= { stpuGen 12 }
+
+
+stpuGenForceVersion OBJECT-TYPE
+                SYNTAX  INTEGER {
+                  forceNonStp(0),
+                  forceLegacyDot1d(1),
+                  forceDot1w(2),
+                  autoDot1s(3),
+                  unknown(4)
+                }
+                MAX-ACCESS  read-write
+                STATUS  current
+                DESCRIPTION
+                  "The value forceNonStp(0) indicates, the Spanning Tree Protocol
+                  is disabled on the Bridge (or the Spanning Tree Protocol
+                  Emulation operates). Other possible values are described
+                  in IEEE Std 802.1s clause 12.8.1.3.e)"
+                DEFVAL      { autoDot1s }
+                ::= { stpuGen 13 }
+
+stpuGenCfgIdFmtSel OBJECT-TYPE
+                   SYNTAX  Integer32
+                   MAX-ACCESS  read-write
+                   STATUS  current
+                   DESCRIPTION
+                     "Configuration Identificator Format Selector."
+                   REFERENCE
+                      "12.12.3.4.2.a)"
+                   ::= { stpuGen 14 }
+
+stpuGenCfgIdName   OBJECT-TYPE
+                   SYNTAX  DisplayString (SIZE (32))
+                   MAX-ACCESS  read-write
+                   STATUS  current
+                   DESCRIPTION
+                     "The configuration name that identifies the MST
+                      region and is used as one of the inputs in the 
+                      computation of the MST Configuration Identifier."
+                   REFERENCE
+                     "12.12.3.4.2.b)"
+                   ::= { stpuGen 15 }
+
+
+stpuGenCfgIdDigest OBJECT-TYPE
+                   SYNTAX  OCTET STRING(SIZE(16))
+                   MAX-ACCESS  read-only
+                   STATUS  current
+                   DESCRIPTION
+                     "Configuration Digest."
+                   REFERENCE
+                      "12.12.3.3.3.a.4"
+                   ::= { stpuGen 16 }     
+                   
+                   
+stpuGenCfgIdRevLevel OBJECT-TYPE
+                   SYNTAX  Integer32
+                   MAX-ACCESS  read-write
+                   STATUS  current
+                   DESCRIPTION
+                     "This object identifies the MST revision that 
+                      identifies the MST region and is used as one
+                      of the inputs in the computation of the MST 
+                     configuration Identifier."
+                   REFERENCE
+                     "12.12.3.4.2.c)"
+                   ::= { stpuGen 17 }
+				   
+stpuGenMaxMstNum OBJECT-TYPE
+					SYNTAX      Integer32 
+					MAX-ACCESS  read-only
+					STATUS      current
+					DESCRIPTION
+						"."
+					::= { stpuGen 18 } 
+		
+stpuGenMaxMstID OBJECT-TYPE
+		SYNTAX      Integer32
+		MAX-ACCESS  read-only
+		STATUS      current
+		DESCRIPTION
+			"."
+		::= { stpuGen 19 } 
+		
+stpuGenCurrentMstNum OBJECT-TYPE
+		SYNTAX      Integer32
+		MAX-ACCESS  read-only
+		STATUS      current
+		DESCRIPTION
+			"."
+		::= { stpuGen 20 }
+		
+stpuGenCurrentMaxMstID OBJECT-TYPE
+		SYNTAX      Integer32
+		MAX-ACCESS  read-only
+		STATUS      current
+		DESCRIPTION
+			"."
+		::= { stpuGen 21 }  
+		
+stpuGenBridgeType OBJECT-TYPE
+		SYNTAX      Integer32
+		MAX-ACCESS  read-write
+		STATUS      current
+		DESCRIPTION
+			"."
+		::= { stpuGen 22 }  		
+	 
+stpuGenBridgeMac OBJECT-TYPE
+		SYNTAX      MacAddress
+		MAX-ACCESS  read-write
+		STATUS      current
+		DESCRIPTION
+			"."
+		REFERENCE
+			"IEEE 802.1s clause 13.7"
+		::= { stpuGen 23 }   
+		
+stpuGenTrap OBJECT-TYPE
+		SYNTAX      TruthValue
+		MAX-ACCESS  read-write
+		STATUS      current
+		DESCRIPTION
+			"."
+		::= { stpuGen 24 }
+		
+stpuGenBpduGuard OBJECT-TYPE
+		SYNTAX      TruthValue
+		MAX-ACCESS  read-write
+		STATUS      current
+		DESCRIPTION
+			"."
+		::= { stpuGen 25 }   
+		
+stpuGenLoopProtection OBJECT-TYPE
+		SYNTAX      TruthValue
+		MAX-ACCESS  read-write
+		STATUS      current
+		DESCRIPTION
+			"."
+		::= { stpuGen 26 }  
+		
+stpuGenTcProtection OBJECT-TYPE
+		SYNTAX      TruthValue
+		MAX-ACCESS  read-write
+		STATUS      current
+		DESCRIPTION
+			"."
+		::= { stpuGen 27 } 
+		
+stpuGenTcHoldOffTime OBJECT-TYPE
+		SYNTAX      Integer32
+		MAX-ACCESS  read-write
+		STATUS      current
+		DESCRIPTION
+			"."
+		::= { stpuGen 28 } 	 		
+
+stpuGenP2PDection OBJECT-TYPE
+		SYNTAX      Integer32
+		MAX-ACCESS  read-write
+		STATUS      current
+		DESCRIPTION
+			"."
+		::= { stpuGen 29 }  
+		
+stpuGenUnknownRootProtecton OBJECT-TYPE
+		SYNTAX      Integer32
+		MAX-ACCESS  read-write
+		STATUS      current
+		DESCRIPTION
+			"."
+		::= { stpuGen 30 } 
+
+
+stpuGenReginalRoot OBJECT-TYPE
+                SYNTAX  BridgeId
+                MAX-ACCESS  read-only
+                STATUS  current
+                DESCRIPTION
+                  "... of CIST."
+                ::= { stpuGen 31 }
+
+stpuGenExternalRootCost OBJECT-TYPE
+                SYNTAX  Integer32
+                MAX-ACCESS  read-only
+                STATUS  current
+                DESCRIPTION
+                  "... of CIST."
+                ::= { stpuGen 32 } 
+                
+stpuGenMaxHops      OBJECT-TYPE
+                SYNTAX  Integer32 (4..30)
+                MAX-ACCESS  read-write
+                STATUS  current
+                DESCRIPTION
+                  "13.22.f)"
+                ::= { stpuGen 33 }
+
+
+		stpRevFlushArp OBJECT-TYPE
+			SYNTAX INTEGER
+				{
+				enable(1),
+				disable(2)
+				}
+			MAX-ACCESS read-write
+			STATUS current
+			DESCRIPTION
+				"Description."
+			::= { stpuGen 34 }
+
+             stpuGenSwVersion OBJECT-TYPE
+                   SYNTAX  OCTET STRING(SIZE(255))
+                   MAX-ACCESS  read-only
+                   STATUS  current
+                   DESCRIPTION
+                     "Softeware version."
+                   REFERENCE
+                      ""
+                   ::= { stpuGen 35 }     
+
+stpuPortTable OBJECT-TYPE
+              SYNTAX  SEQUENCE OF StpuPortEntry
+              MAX-ACCESS  not-accessible
+              STATUS  current
+              DESCRIPTION
+                 "A table that contains generic information about
+                 every port that is associated with this bridge."
+              ::= { stpu 11 }
+
+stpuPortEntry OBJECT-TYPE
+              SYNTAX  StpuPortEntry
+              MAX-ACCESS  not-accessible
+              STATUS  current
+              DESCRIPTION
+                 "A list of information for each port of the
+                 bridge."
+              INDEX  { stpuPortIndex }
+              ::= { stpuPortTable 1 }
+
+StpuPortEntry ::= SEQUENCE {
+                  stpuPortIndex                    PortIndex,
+                  stpuPortAdminMACEnable           TruthValue,
+                  stpuPortOperMACEnable            TruthValue,
+                  stpuPortUpTime                   TimeTicks,
+                  stpuPortAdminExternalPathCost    Integer32,
+                  stpuPortOperExternalPathCost     Integer32,
+                  stpuPortAdminEdge                TruthValue,
+                  stpuPortOperEdge                 TruthValue,
+                  stpuPortAutoEdge                 TruthValue,
+                  stpuPortAdminPointToPoint        INTEGER,
+                  stpuPortOperPointToPoint         TruthValue,
+                  stpuPortHelloTime                Timeout,
+                  stpuPortAdminNonStp              TruthValue,
+                  stpuPortProtocolMigration        TruthValue, -- mcheck
+                  stpuPortRxTcnBpduCounter         Counter32,
+                  stpuPortRxCfgBpduCounter         Counter32,
+                  stpuPortRxRstBpduCounter         Counter32,
+                  stpuPortRxMstBpduCounter         Counter32,
+                  stpuPortTxTcnBpduCounter         Counter32,
+                  stpuPortTxCfgBpduCounter         Counter32,
+                  stpuPortTxRstBpduCounter         Counter32,
+                  stpuPortTxMstBpduCounter         Counter32,    
+                  stpuPortProtection			   Integer32,
+                  stpuPortGuardForward   		   Integer32,
+                  stpuPortBpduSnooping             TruthValue
+                }
+
+
+stpuPortIndex                 OBJECT-TYPE
+                              SYNTAX      PortIndex
+                              MAX-ACCESS  read-only
+                              STATUS      current
+                              DESCRIPTION
+                                 "A unique value, greater than zero, for each Port.
+                                 The value for each interface sub-layer
+                                 must remain constant at least from one re-initialization
+                                 of the entity's network management system to the next re-
+                                 initialization."
+                              ::= { stpuPortEntry 1 }
+
+stpuPortAdminMACEnable        OBJECT-TYPE 
+                              SYNTAX      TruthValue
+                              MAX-ACCESS  read-write
+                              STATUS      current
+                              DESCRIPTION
+                                 "."
+                              REFERENCE   "IEEE Std 802.1s Clause 12.8.2.5.2"
+                              ::= { stpuPortEntry 2 }
+
+stpuPortOperMACEnable         OBJECT-TYPE 
+                              SYNTAX      TruthValue
+                              MAX-ACCESS  read-only
+                              STATUS      current
+                              DESCRIPTION
+                                 "."
+                              REFERENCE   "IEEE Std 802.1s Clause 12.8.2.5.2"
+                              ::= { stpuPortEntry 3 }
+
+stpuPortUpTime                OBJECT-TYPE 
+                              SYNTAX      TimeTicks
+                              MAX-ACCESS  read-only
+                              STATUS      current
+                              DESCRIPTION
+                                "The value of sysUpTime at the time when the Port
+                                 has been enabled by stpuPortAdminMACEnable or linked
+                                 last time."
+                              ::= { stpuPortEntry 4 }
+
+stpuPortAdminExternalPathCost OBJECT-TYPE
+                              SYNTAX      Integer32 (0..200000000)
+                              MAX-ACCESS  read-write
+                              STATUS      current
+                              DESCRIPTION
+                                "The administrative value of the External Port Cost parameter.
+                                 The value 0 means, that Port Cost will be selected
+                                 automatically in correspondence with the speed of
+                                 the attached LAN."
+                              REFERENCE   "IEEE Std 802.1s Clause "
+                              ::= { stpuPortEntry 5 }
+
+stpuPortOperExternalPathCost  OBJECT-TYPE
+                              SYNTAX      Integer32
+                              MAX-ACCESS  read-only
+                              STATUS      current
+                              DESCRIPTION
+                                "."
+                              REFERENCE   "IEEE Std 802.1s Clause "
+                              ::= { stpuPortEntry 6 }
+
+stpuPortAdminEdge             OBJECT-TYPE
+                              SYNTAX      TruthValue
+                              MAX-ACCESS  read-write
+                              STATUS      current
+                              DESCRIPTION
+                                "."
+                              REFERENCE   "IEEE Std 802.1s Clause "
+                              ::= { stpuPortEntry 7 }
+
+stpuPortOperEdge              OBJECT-TYPE
+                              SYNTAX      TruthValue
+                              MAX-ACCESS  read-only
+                              STATUS      current
+                              DESCRIPTION
+                                "."
+                              REFERENCE   "IEEE Std 802.1s Clause "
+                              ::= { stpuPortEntry 8 }
+
+stpuPortAutoEdge              OBJECT-TYPE
+                              SYNTAX      TruthValue
+                              MAX-ACCESS  read-only
+                              STATUS      current
+                              DESCRIPTION
+                                "(From IEEE Std 8021D). Optional."
+                              REFERENCE   "IEEE Std 802.1s Clause "
+                              ::= { stpuPortEntry 9 }
+
+stpuPortAdminPointToPoint     OBJECT-TYPE
+                              SYNTAX      INTEGER {
+                                forceTrue(0),
+                                forceFalse(1),
+                                auto(2)
+                              }
+                              MAX-ACCESS  read-write
+                              STATUS      current
+                              DESCRIPTION
+                                "."
+                              REFERENCE   "IEEE Std 802.1s Clause "
+                              ::= { stpuPortEntry 10 }
+
+stpuPortOperPointToPoint      OBJECT-TYPE
+                              SYNTAX      TruthValue
+                              MAX-ACCESS  read-only
+                              STATUS      current
+                              DESCRIPTION
+                                "."
+                              REFERENCE   "IEEE Std 802.1s Clause "
+                              ::= { stpuPortEntry 11 }
+
+stpuPortHelloTime             OBJECT-TYPE
+                              SYNTAX      Timeout (100..1000)
+                              MAX-ACCESS  read-only
+                              STATUS      current
+                              DESCRIPTION
+                                "."
+                              REFERENCE   "IEEE Std 802.1s Clause "
+                              ::= { stpuPortEntry 12 }
+
+stpuPortAdminNonStp           OBJECT-TYPE
+                              SYNTAX      TruthValue
+                              MAX-ACCESS  read-write
+                              STATUS      current
+                              DESCRIPTION
+                                "Ports with this object set to true(1) do not participate
+                                in any STP computation; they are always in Forwarding state,
+                                do not send BPDU and all received on these Ports BPDU must
+                                be discarded. Such Ports are used to define the STP termination
+                                point of the LAN."
+                              REFERENCE   "."
+                              ::= { stpuPortEntry 13 }
+
+stpuPortProtocolMigration     OBJECT-TYPE
+                              SYNTAX      TruthValue
+                              MAX-ACCESS  read-write
+                              STATUS      current
+                              DESCRIPTION
+                                "Reflects 'mcheck' - 'Force BPDU Migration Check' management
+                                operation, which is executes, when this object is being set
+                                to true(1). The value false(2) in SET operation has to be
+                                ignored. The operation GET must always return value false(2)."
+                              REFERENCE   "IEEE Std 802.1s Clause 12.8.2.7"
+                              ::= { stpuPortEntry 14 }
+
+stpuPortRxTcnBpduCounter      OBJECT-TYPE
+                              SYNTAX      Counter32
+                              MAX-ACCESS  read-only
+                              STATUS      current
+                              DESCRIPTION
+                                "Received Topology Change Notification (TCN) Messages."
+                              ::= { stpuPortEntry 15 }
+
+stpuPortRxCfgBpduCounter      OBJECT-TYPE
+                              SYNTAX      Counter32
+                              MAX-ACCESS  read-only
+                              STATUS      current
+                              DESCRIPTION
+                                "Received Configuration BPDUs (IEEE Std 802.1d-1998)."
+                              ::= { stpuPortEntry 16 }
+
+stpuPortRxRstBpduCounter      OBJECT-TYPE
+                              SYNTAX      Counter32
+                              MAX-ACCESS  read-only
+                              STATUS      current
+                              DESCRIPTION
+                                "Received RST BPDUs IEEE Std 802.1w-2001."
+                              ::= { stpuPortEntry 17 }
+
+stpuPortRxMstBpduCounter      OBJECT-TYPE
+                              SYNTAX      Counter32
+                              MAX-ACCESS  read-only
+                              STATUS      current
+                              DESCRIPTION
+                                "Received MST BPDUs IEEE Std 802.1s."
+                              ::= { stpuPortEntry 18 }
+
+stpuPortTxTcnBpduCounter      OBJECT-TYPE
+                              SYNTAX      Counter32
+                              MAX-ACCESS  read-only
+                              STATUS      current
+                              DESCRIPTION
+                                "Transmitted Topology Change Notification (TCN) Messages."
+                              ::= { stpuPortEntry 19 }
+
+stpuPortTxCfgBpduCounter      OBJECT-TYPE
+                              SYNTAX      Counter32
+                              MAX-ACCESS  read-only
+                              STATUS      current
+                              DESCRIPTION
+                                "Transmitted Configuration BPDUs (IEEE Std 802.1d-1998)."
+                              ::= { stpuPortEntry 20 }
+
+stpuPortTxRstBpduCounter      OBJECT-TYPE
+                              SYNTAX    Counter32
+                              MAX-ACCESS  read-only
+                              STATUS      current
+                              DESCRIPTION
+                                "Transmitted RST BPDUs IEEE Std 802.1w-2001."
+                              ::= { stpuPortEntry 21 }
+
+stpuPortTxMstBpduCounter      OBJECT-TYPE
+                              SYNTAX    Counter32
+                              MAX-ACCESS  read-only
+                              STATUS      current
+                              DESCRIPTION
+                                "Transmitted MST BPDUs IEEE Std 802.1s."
+                              ::= { stpuPortEntry 22 }   
+     
+stpuPortProtection	      	  OBJECT-TYPE
+                              SYNTAX    Integer32
+                              MAX-ACCESS  read-only
+                              STATUS      current
+                              DESCRIPTION
+                                "  ."
+                              ::= { stpuPortEntry 23 }
+
+stpuPortGuardForward      	  OBJECT-TYPE
+                              SYNTAX    Integer32
+                              MAX-ACCESS  read-write
+                              STATUS      current
+                              DESCRIPTION
+                                " ."
+                              ::= { stpuPortEntry 24 }   
+      
+stpuPortBpduSnooping          OBJECT-TYPE
+                              SYNTAX    TruthValue
+                              MAX-ACCESS  read-write
+                              STATUS      current
+                              DESCRIPTION
+                                " ."
+                              ::= { stpuPortEntry 25 }                                                       
+
+stpuMapTable OBJECT-TYPE
+              SYNTAX      SEQUENCE OF StpuMapEntry
+              MAX-ACCESS  not-accessible
+              STATUS      current
+              DESCRIPTION
+                "MST Configuration table (VID=>MSTID translation): allocates
+                 each and every possible VLAN to CST or a specific MSTI."
+              ::= { stpu 12 }
+
+stpuMapEntry OBJECT-TYPE
+              SYNTAX      StpuMapEntry
+              MAX-ACCESS  not-accessible
+              STATUS      current
+              DESCRIPTION
+                "MST Configuration table (VID=>MSTID translation): allocates
+                 each and every possible VLAN to CST or a specific MSTI."
+              INDEX { stpuMapMSTiID, stpuMapVlanRangeIndex }
+              ::= { stpuMapTable 1 }
+
+StpuMapEntry ::= SEQUENCE {
+       stpuMapMSTiID            MstiInstanceIndex,
+       stpuMapVlanRangeIndex    Integer32,
+       stpuMapVlanMin           VlanId,
+       stpuMapVlanMax           VlanId,
+       stpuMapRowStatus         RowStatus
+    }
+
+stpuMapMSTiID         OBJECT-TYPE
+                      SYNTAX      MstiInstanceIndex
+                      MAX-ACCESS  read-only
+                      STATUS      current
+                      DESCRIPTION
+                        "."
+                      ::= { stpuMapEntry 1 }
+
+stpuMapVlanRangeIndex OBJECT-TYPE
+                      SYNTAX      Integer32 (1..4094)
+                      MAX-ACCESS  read-only
+                      STATUS      current
+                      DESCRIPTION
+                        "Signifies the index to the VLAN range entry in the table."
+                      ::= { stpuMapEntry 2 }
+
+stpuMapVlanMin        OBJECT-TYPE
+                      SYNTAX      VlanId
+                      MAX-ACCESS  read-create
+                      STATUS      current
+                      DESCRIPTION
+                        "."
+                      ::= { stpuMapEntry 3 }
+
+stpuMapVlanMax        OBJECT-TYPE
+                      SYNTAX      VlanId
+                      MAX-ACCESS  read-create
+                      STATUS      current
+                      DESCRIPTION
+                        "."
+                      ::= { stpuMapEntry 4 }
+
+stpuMapRowStatus      OBJECT-TYPE
+                      SYNTAX      RowStatus
+                      MAX-ACCESS  read-create
+                      STATUS      current
+                      DESCRIPTION
+                        "The status of the row as per SNMP-v2."
+                      ::= { stpuMapEntry 5 }
+
+			  
+					  
+stpuXstTable  OBJECT-TYPE
+              SYNTAX      SEQUENCE OF StpuXstEntry
+              MAX-ACCESS  not-accessible
+              STATUS      current
+              DESCRIPTION
+                "."
+              ::= { stpu 13 }
+
+stpuXstEntry OBJECT-TYPE
+              SYNTAX      StpuXstEntry
+              MAX-ACCESS  not-accessible
+              STATUS      current
+              DESCRIPTION
+                "."
+              INDEX { stpuXstId }
+              ::= { stpuXstTable 1 }
+
+StpuXstEntry ::= SEQUENCE {
+       stpuXstId                      MstiOrCistInstanceIndex,
+       stpuXstBridgePriority          Integer32,
+       stpuXstBridgeId                BridgeId,
+       stpuXstDesignatedRoot          BridgeId,  
+       stpuXstExternalRootCost		  Integer32, 
+       stpuXstRegionalRoot			  BridgeId,   
+       stpuXstRootPort                PortIndexOrZero,
+       stpuXstMasterPort              PortIndexOrZero,   
+       stpuXstDesignatedBridge        BridgeId,   
+       stpuXstDesignatedPort		  PortIndexOrZero,	
+       stpuXstTimeSinceTopologyChange TimeTicks,
+       stpuXstTopologyChangesCount    Counter32,
+       stpuXstTopologyChangeFlag      TruthValue,
+       stpuXstVlanList                OCTET STRING,
+       stpuXstVlanListDel             OCTET STRING,
+       stpuXstRowStatus               Integer32,
+       stpuXstRootProtection          Integer32,
+	   stpuXstInternalRootCost        Integer32,
+	   stpuXstRemainingHops			  Integer32
+    }
+
+stpuXstId                       OBJECT-TYPE
+                                SYNTAX      MstiOrCistInstanceIndex
+                                MAX-ACCESS  read-only
+                                STATUS      current
+                                DESCRIPTION
+                                  "0 means CIST."
+                                ::= { stpuXstEntry 1 }
+
+
+stpuXstBridgePriority           OBJECT-TYPE
+                                SYNTAX      Integer32 (0..61440)
+                                MAX-ACCESS  read-write
+                                STATUS      current
+                                DESCRIPTION
+                                   "Bridge priority, in steps of 4096."
+                                DEFVAL       { 32768 }
+                                ::= { stpuXstEntry 2 }
+
+stpuXstBridgeId                 OBJECT-TYPE
+                                SYNTAX      BridgeId
+                                MAX-ACCESS  read-only
+                                STATUS      current
+                                DESCRIPTION
+                                  "."
+                                ::= { stpuXstEntry 3 }
+
+stpuXstDesignatedRoot           OBJECT-TYPE
+                                SYNTAX      BridgeId
+                                MAX-ACCESS  read-only
+                                STATUS      current
+                                DESCRIPTION
+                                  "."
+                                ::= { stpuXstEntry 4 }
+
+stpuXstExternalRootCost         OBJECT-TYPE
+                                SYNTAX      Integer32
+                                MAX-ACCESS  read-only
+                                STATUS      current
+                                DESCRIPTION
+                                  "."
+                                ::= { stpuXstEntry 5 }
+ 	
+stpuXstRegionalRoot                OBJECT-TYPE
+                                SYNTAX      BridgeId
+                                MAX-ACCESS  read-only
+                                STATUS      current
+                                DESCRIPTION
+                                  "."
+                                ::= { stpuXstEntry 6 }
+
+stpuXstRootPort                 OBJECT-TYPE
+                                SYNTAX      PortIndexOrZero
+                                MAX-ACCESS  read-only
+                                STATUS      current
+                                DESCRIPTION
+                                  "."
+                                ::= { stpuXstEntry 7 }
+
+stpuXstMasterPort               OBJECT-TYPE
+                                SYNTAX      PortIndexOrZero
+                                MAX-ACCESS  read-only
+                                STATUS      current
+                                DESCRIPTION
+                                  "Non zero value may not be in CIST."
+                                ::= { stpuXstEntry 8 }
+ 
+ 
+stpuXstDesignatedBridge         OBJECT-TYPE
+                                SYNTAX      BridgeId
+                                MAX-ACCESS  read-only
+                                STATUS      current
+                                DESCRIPTION
+                                  "."
+                                ::= { stpuXstEntry 9 }    
+                                
+stpuXstDesignatedPort         OBJECT-TYPE
+                                SYNTAX      PortIndexOrZero
+                                MAX-ACCESS  read-only
+                                STATUS      current
+                                DESCRIPTION
+                                  "."
+                                ::= { stpuXstEntry 10 }
+                               
+stpuXstTimeSinceTopologyChange  OBJECT-TYPE
+                                SYNTAX      TimeTicks
+                                MAX-ACCESS  read-only
+                                STATUS      current
+                                DESCRIPTION
+                                  "."
+                                ::= { stpuXstEntry 11 }
+
+stpuXstTopologyChangesCount     OBJECT-TYPE
+                                SYNTAX      Counter32
+                                MAX-ACCESS  read-only
+                                STATUS      current
+                                DESCRIPTION
+                                  "."
+                                ::= { stpuXstEntry 12 }
+
+stpuXstTopologyChangeFlag       OBJECT-TYPE
+                                SYNTAX      TruthValue
+                                MAX-ACCESS  read-only
+                                STATUS      current
+                                DESCRIPTION
+                                  "."
+                                ::= { stpuXstEntry 13 }
+
+ 
+stpuXstVlanList         OBJECT-TYPE
+                                SYNTAX      OCTET STRING
+                                MAX-ACCESS  read-write
+                                STATUS      current
+                                DESCRIPTION
+                                  "."
+                                ::= { stpuXstEntry 14 }   
+                                
+                                
+stpuXstVlanListDel         OBJECT-TYPE
+                                SYNTAX      OCTET STRING
+                                MAX-ACCESS  read-write
+                                STATUS      current
+                                DESCRIPTION
+                                  "."
+                                ::= { stpuXstEntry 15 }    
+                                
+stpuXstRowStatus         OBJECT-TYPE
+                                SYNTAX      Integer32
+                                MAX-ACCESS  read-write
+                                STATUS      current
+                                DESCRIPTION
+                                  "."
+                                ::= { stpuXstEntry 16 }   
+                                
+stpuXstRootProtection         OBJECT-TYPE
+                                SYNTAX      Integer32
+                                MAX-ACCESS  read-write
+                                STATUS      current
+                                DESCRIPTION
+                                  "."
+                                ::= { stpuXstEntry 17}
+                       
+                                
+stpuXstInternalRootCost         OBJECT-TYPE
+                                SYNTAX      Integer32
+                                MAX-ACCESS  read-only
+                                STATUS      current
+                                DESCRIPTION
+                                  "."
+                                ::= { stpuXstEntry 18 }  
+                                
+stpuXstRemainingHops    		OBJECT-TYPE
+                                SYNTAX      Integer32
+                                MAX-ACCESS  read-only
+                                STATUS      current
+                                DESCRIPTION
+                                  "."
+                                ::= { stpuXstEntry 19 }
+                                                            
+                                                            
+
+stpuXstPortTable    OBJECT-TYPE
+                    SYNTAX  SEQUENCE OF StpuXstPortEntry
+                    MAX-ACCESS  not-accessible
+                    STATUS  current
+                    DESCRIPTION
+                      "."
+                    ::= { stpu 14 }
+
+stpuXstPortEntry    OBJECT-TYPE
+                    SYNTAX  StpuXstPortEntry
+                    MAX-ACCESS  not-accessible
+                    STATUS  current
+                    DESCRIPTION
+                      "."
+                    REFERENCE
+                      "."
+                    INDEX  { stpuXstPortXstId, stpuXstPortIndex }
+                    ::= { stpuXstPortTable 1 }
+
+
+StpuXstPortEntry ::=
+              SEQUENCE {
+                stpuXstPortXstId                 MstiOrCistInstanceIndex,
+                stpuXstPortIndex                 PortIndex,
+                stpuXstPortState                 INTEGER, 
+                stpuXstPortRole                  INTEGER, 
+                stpuXstPortDesignatedRoot        BridgeId,
+                stpuXstPortExternalRootCost      Integer32,
+                stpuXstPortRegionalBridge        BridgeId,
+                stpuXstPortInternalRootCost      Integer32,
+                stpuXstPortDesignatedBridge      BridgeId,
+                stpuXstPortDesignatedPort        PortId,
+                stpuXstPortPriority              Integer32,
+                stpuXstPortAdminInternalPathCost Integer32,
+                stpuXstPortOperInternalPathCost  Integer32,
+                stpuXstPortProtection			 Integer32,
+				stpuXstPortFromSameRegion		 Integer32
+              }
+
+stpuXstPortXstId                  OBJECT-TYPE
+                                  SYNTAX      MstiOrCistInstanceIndex
+                                  MAX-ACCESS  read-only
+                                  STATUS      current
+                                  DESCRIPTION
+                                    "0 means CIST."
+                                  ::= { stpuXstPortEntry 1 }
+
+stpuXstPortIndex                 OBJECT-TYPE
+                                 SYNTAX      PortIndex
+                                 MAX-ACCESS  read-only
+                                 STATUS      current
+                                 DESCRIPTION
+                                   "The value of stpuPortIndex of the Port
+                                   in stpuPortTable."
+                                 ::= { stpuXstPortEntry 2 }
+
+stpuXstPortState                 OBJECT-TYPE 
+                                 SYNTAX      INTEGER {
+                                   disabled(0),
+                                   discarding(1),
+                                   learning(2),
+                                   forwarding(3),
+                                   unknown(4)
+                                 }
+
+                                 MAX-ACCESS  read-only
+                                 STATUS      current
+                                 DESCRIPTION
+                                   "."
+                                 ::= { stpuXstPortEntry 3 }
+
+stpuXstPortRole                  OBJECT-TYPE 
+                                 SYNTAX      INTEGER {
+                                   disabled(1),
+                                   alternate(2),
+                                   backup(3),   
+                                   root(4),
+                                   designated(5),
+                                   master(6),
+                                   nonStp(7),
+                                   unknown(8)
+                                 }
+                                 MAX-ACCESS  read-only
+                                 STATUS      current
+                                 DESCRIPTION
+                                   "."
+                                 ::= { stpuXstPortEntry 4 }
+
+stpuXstPortDesignatedRoot        OBJECT-TYPE 
+                                 SYNTAX      BridgeId
+                                 MAX-ACCESS  read-only
+                                 STATUS      current
+                                 DESCRIPTION
+                                   "."
+                                 ::= { stpuXstPortEntry 5 }
+
+stpuXstPortExternalRootCost      OBJECT-TYPE 
+                                 SYNTAX      Integer32
+                                 MAX-ACCESS  read-only
+                                 STATUS      current
+                                 DESCRIPTION
+                                   "."
+                                 ::= { stpuXstPortEntry 6 }
+
+stpuXstPortRegionalBridge        OBJECT-TYPE 
+                                 SYNTAX      BridgeId
+                                 MAX-ACCESS  read-only
+                                 STATUS      current
+                                 DESCRIPTION
+                                   "."
+                                 ::= { stpuXstPortEntry 7 }
+
+stpuXstPortInternalRootCost      OBJECT-TYPE 
+                                 SYNTAX      Integer32
+                                 MAX-ACCESS  read-only
+                                 STATUS      current
+                                 DESCRIPTION
+                                   "."
+                                 ::= { stpuXstPortEntry 8 }
+
+stpuXstPortDesignatedBridge      OBJECT-TYPE 
+                                 SYNTAX      BridgeId
+                                 MAX-ACCESS  read-only
+                                 STATUS      current
+                                 DESCRIPTION
+                                   "."
+                                 ::= { stpuXstPortEntry 9 }
+
+stpuXstPortDesignatedPort        OBJECT-TYPE 
+                                 SYNTAX      PortId
+                                 MAX-ACCESS  read-only
+                                 STATUS      current
+                                 DESCRIPTION
+                                    "."
+                                 ::= { stpuXstPortEntry 10 }
+
+stpuXstPortPriority              OBJECT-TYPE 
+                                 SYNTAX      Integer32 (0..255)
+                                 MAX-ACCESS  read-write
+                                 STATUS      current
+                                 DESCRIPTION
+                                   "Port priority, in steps of 16."
+                                 DEFVAL       { 128 }
+                                 ::= { stpuXstPortEntry 11 }
+
+stpuXstPortAdminInternalPathCost OBJECT-TYPE 
+                                 SYNTAX      Integer32 (0..200000000)
+                                 MAX-ACCESS  read-write
+                                 STATUS      current
+                                 DESCRIPTION
+                                   "The value 0 means, that the cost will be selected
+                                   automatically."
+                                 ::= { stpuXstPortEntry 12 }
+
+stpuXstPortOperInternalPathCost  OBJECT-TYPE
+                                 SYNTAX      Integer32
+                                 MAX-ACCESS  read-only
+                                 STATUS      current
+                                 DESCRIPTION
+                                   "."
+                                 ::= { stpuXstPortEntry 13 }
+
+								 
+stpuXstPortProtection   		 OBJECT-TYPE
+                                 SYNTAX      Integer32
+                                 MAX-ACCESS  read-only
+                                 STATUS      current
+                                 DESCRIPTION
+                                   "."
+                                 ::= { stpuXstPortEntry 14 }
+								 
+stpuXstPortFromSameRegion   	OBJECT-TYPE
+                                 SYNTAX      Integer32
+                                 MAX-ACCESS  read-only
+                                 STATUS      current
+                                 DESCRIPTION
+                                   "."
+                                 ::= { stpuXstPortEntry 15 }
+								 
+								 
+								 
+								 
+        -- Traps
+
+stpuTraps   OBJECT IDENTIFIER ::= { stpu 0 }
+
+stpuNewRootBridge NOTIFICATION-TYPE
+             OBJECTS { stpuXstId }
+             STATUS  current
+             DESCRIPTION
+               "The stpuNewRootBridge trap indicates that the
+               sending agent has become the new root of the
+               Spanning Tree in the CIST or in any MSTI; the
+               trap is sent by a bridge soon after its election
+               as the new root, e.g., upon expiration of the
+               Topology Change Timer immediately subsequent to
+               its election.  Implementation of this trap is
+               optional."
+            ::= { stpuTraps 1 }
+
+stpuNewRootPort NOTIFICATION-TYPE
+             OBJECTS { stpuXstId, stpuXstPortIndex }
+             STATUS  current
+             DESCRIPTION
+               "The stpuNewRootPort trap indicates that the
+               sending agent has changed the root Port of the
+               Spanning Tree in the CIST or in any MSTI. If the instance
+               has become a root one, the sending value of the
+               parameter stpuXstPortIndex is equal to zero. The
+               trap is sent by a bridge soon after its election
+               as the new root Port, e.g., upon expiration of the
+               Topology Change Timer immediately subsequent to
+               its election.  Implementation of this trap is
+               optional."
+            ::= { stpuTraps 2 }
+
+stpuTopologyChange NOTIFICATION-TYPE
+             OBJECTS { stpuXstId, stpuXstPortIndex, stpuXstPortState }
+             STATUS  current
+             DESCRIPTION
+               "A stpuTopologyChange trap is sent by a bridge when
+               any of its configured ports n any instance (CIST or MSTI)
+               transitions from the Learning state to the Forwarding
+               state, or from the Forwarding state to the Blocking
+               state.  The trap is not sent if a stpuNewRootBridge trap
+               is sent for the same transition.  Implementation of this
+               trap is optional."
+            ::= { stpuTraps 3 }   
+   
+-- -------------------------------------------------------------
+-- stpu - Conformance Information
+-- -------------------------------------------------------------
+--- T.B.D.
+
+-- -------------------------------------------------------------
+-- Units of conformance
+-- -------------------------------------------------------------
+--- T.B.D.
+
+-- -------------------------------------------------------------
+-- Compliance statements
+-- -------------------------------------------------------------
+--- T.B.D.
+
+END     
+            

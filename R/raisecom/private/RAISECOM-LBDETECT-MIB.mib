@@ -1,0 +1,304 @@
+--MibName=rcLbDetect
+-- *****************************************************************
+-- RAISECOM-LBDETECT-MIB.MIB:  Raisecom PPPoEAgent MIB file
+-- APR 2009, Huangxiyuan
+--
+-- Copyright (c) 2009 by Raisecom, Inc.
+-- All rights reserved.
+-- 01, 20120613, yangzhonghong, ESW00002116,trap defines wrong
+-- *****************************************************************
+RAISECOM-LBDETECT-MIB  DEFINITIONS ::= BEGIN
+
+IMPORTS
+        ifIndex        FROM IF-MIB  
+        iscomSwitch	   FROM RAISECOM-BASE-MIB;
+        
+	    rcLbDetect MODULE-IDENTITY
+        LAST-UPDATED    "200904220000Z"
+        ORGANIZATION    "Raisecom, Inc."
+        CONTACT-INFO
+                "       Raise Systems
+
+                Postal: Beijing, China
+
+                   Tel: 86-010-82884499
+
+                E-mail: support@raisecom.com"
+        DESCRIPTION
+                "description of rcLbDetect object."
+                ::= { iscomSwitch 50}
+
+-- -------------------------------------------------------------
+-- scalar in the MIB
+-- -------------------------------------------------------------
+
+rcLbDetectPktConfig         OBJECT IDENTIFIER ::={ rcLbDetect 1 }
+rcLbDetectTrap              OBJECT IDENTIFIER ::={ rcLbDetect 4 }
+  
+rcLbDetectDestAddr  OBJECT-TYPE 
+        SYNTAX   OCTET STRING(SIZE(6))
+        ACCESS	 read-write
+        STATUS   current
+        DESCRIPTION
+                 "Destinate mac address of loopbackdetect packet"
+        ::= { rcLbDetectPktConfig 1}    
+         
+rcLbDetectVlan  OBJECT-TYPE 
+        SYNTAX   INTEGER(1..4094)
+        ACCESS	 read-write
+        STATUS   current
+        DESCRIPTION
+                 "vlan id of loopbackdetect packet"
+        ::= { rcLbDetectPktConfig 2}      
+
+rcLbDetectInterval OBJECT-TYPE 
+        SYNTAX   INTEGER(1..65535)
+        ACCESS	 read-write
+        STATUS   current
+        DESCRIPTION
+                 "Period of loopback detection"
+        ::= { rcLbDetectPktConfig 3}
+
+rcLbDetectRestoreTime  OBJECT-TYPE
+        SYNTAX   INTEGER(0..65535)
+        ACCESS   read-write
+        STATUS   current
+        DESCRIPTION
+                 "Restore time for blocking port"
+        ::= { rcLbDetectPktConfig 4 }
+
+------------------------------------------------------------------
+--table in the mib
+------------------------------------------------------------------
+
+--rcLbDetectPortTable
+
+rcLbDetectPortTable  OBJECT-TYPE 
+        SYNTAX   SEQUENCE OF rcLbDetectPortEntry
+        ACCESS	 not-accessible
+        STATUS   current
+        DESCRIPTION
+                 "Port infomation of loopbackdetection"
+        ::= { rcLbDetect 2 }
+        
+rcLbDetectPortEntry  OBJECT-TYPE
+        SYNTAX   rcLbDetectPortEntry
+        ACCESS   not-accessible
+        STATUS   current
+        DESCRIPTION
+                 "An entry in rcLbDetectPortTable"
+        INDEX { ifIndex }
+        ::= { rcLbDetectPortTable 1 } 
+      
+rcLbDetectPortEntry ::= SEQUENCE {
+		rcPortLbDetectEnable	       INTEGER,
+		rcPortLbDetectExloopAction     INTEGER,
+		rcPortLbDetectManualRestore	   INTEGER,
+		rcPortLbDetectStatus           INTEGER,
+		rcPortLbDetectBlockCount	   INTEGER,
+		rcPortLbDetectLastOccur	       INTEGER,
+		rcPortLbDetectLastDuration	   INTEGER,  
+		rcPortLbDetectLastSrcMac	   OCTET STRING,
+		rcPortLbDetectLastSrcPort	   INTEGER,
+		rcPortLbDetectLastVlan  	   INTEGER,
+		rcPortLbDetectSendPkts	       INTEGER,
+		rcPortLbDetectRecvPkts	       INTEGER,
+		rcPortLbDetectStatsClear	   INTEGER
+}
+
+rcPortLbDetectEnable  OBJECT-TYPE
+        SYNTAX   INTEGER{enable(1), disable(2)}
+        ACCESS   read-write
+        STATUS   current
+        DESCRIPTION
+                 "Enable or disable loopbackdetection for special port"
+        ::= { rcLbDetectPortEntry 1 }
+
+rcPortLbDetectExloopAction  OBJECT-TYPE
+        SYNTAX   INTEGER{discarding(1), trap-only(2)}
+        ACCESS   read-write
+        STATUS   current
+        DESCRIPTION
+                 "Action when received a packet form other bridge"
+        ::= { rcLbDetectPortEntry 2 }
+
+rcPortLbDetectManualRestore  OBJECT-TYPE
+        SYNTAX   INTEGER{restore(1)}
+        ACCESS   read-write
+        STATUS   current
+        DESCRIPTION
+                 "Set the port non-block manualy"
+        ::= { rcLbDetectPortEntry 3 }
+
+rcPortLbDetectStatus  OBJECT-TYPE
+        SYNTAX   INTEGER{loopyes(1), loopno(2)}
+        ACCESS   read-only
+        STATUS   current
+        DESCRIPTION
+                 "The status of this port"
+        ::= { rcLbDetectPortEntry 4 }
+
+rcPortLbDetectBlockCount  OBJECT-TYPE
+        SYNTAX   INTEGER
+        ACCESS   read-only
+        STATUS   current
+        DESCRIPTION
+                 "How many times this port was blocked"
+        ::= { rcLbDetectPortEntry 5 }
+
+rcPortLbDetectLastOccur  OBJECT-TYPE
+        SYNTAX   INTEGER
+        ACCESS   read-only
+        STATUS   current
+        DESCRIPTION
+                 "The moment of last loop happen"
+        ::= { rcLbDetectPortEntry 6 }
+
+rcPortLbDetectLastDuration  OBJECT-TYPE
+        SYNTAX   INTEGER
+        ACCESS   read-only
+        STATUS   current
+        DESCRIPTION
+                 "The duration of last loop"
+        ::= { rcLbDetectPortEntry 7 }
+
+rcPortLbDetectLastSrcMac  OBJECT-TYPE
+        SYNTAX   OCTET STRING(SIZE(6))
+        ACCESS   read-only
+        STATUS   current
+        DESCRIPTION
+                 "The source mac address of last loop"
+        ::= { rcLbDetectPortEntry 8 }
+
+rcPortLbDetectLastSrcPort  OBJECT-TYPE
+        SYNTAX   INTEGER
+        ACCESS   read-only
+        STATUS   current
+        DESCRIPTION
+                 "The source port of last loop"
+        ::= { rcLbDetectPortEntry 9 } 
+
+rcPortLbDetectLastVlan  OBJECT-TYPE
+        SYNTAX   INTEGER
+        ACCESS   read-only
+        STATUS   current
+        DESCRIPTION
+                 "The vlan of last loop"
+        ::= { rcLbDetectPortEntry 10 }
+
+rcPortLbDetectSendPkts  OBJECT-TYPE
+        SYNTAX   INTEGER
+        ACCESS   read-only
+        STATUS   current
+        DESCRIPTION
+                 "How many loopbackdetect packets this port send"
+        ::= { rcLbDetectPortEntry 11 }
+
+rcPortLbDetectRecvPkts  OBJECT-TYPE
+        SYNTAX   INTEGER
+        ACCESS   read-only
+        STATUS   current
+        DESCRIPTION
+                 "How many loopbackdetect packets this port received"
+        ::= { rcLbDetectPortEntry 12 }
+
+rcPortLbDetectStatsClear  OBJECT-TYPE
+        SYNTAX   INTEGER{clear(1)}
+        ACCESS   read-write
+        STATUS   current
+        DESCRIPTION
+                 "Clear statistic of loopbackdetection packets"
+        ::= { rcLbDetectPortEntry 13 }
+         
+--rcLbDetectErrorTable
+
+rcLbDetectErrorDeviceTable  OBJECT-TYPE 
+        SYNTAX   SEQUENCE OF rcLbDetectErrorDeviceEntry
+        ACCESS	 not-accessible
+        STATUS   current
+        DESCRIPTION
+                 "Error infomation of loopbackdetection"
+        ::= { rcLbDetect 3 }
+        
+rcLbDetectErrorDeviceEntry  OBJECT-TYPE
+        SYNTAX   rcLbDetectErrorDeviceEntry
+        ACCESS   not-accessible
+        STATUS   current
+        DESCRIPTION
+                 "An entry in rcLbDetectErrorDeviceTable"
+        INDEX { ifIndex, rcLbDetectErrorDeviceIndex }
+        ::= { rcLbDetectErrorDeviceTable 1 } 
+      
+rcLbDetectErrorDeviceEntry ::= SEQUENCE {
+		rcLbDetectErrorDeviceIndex	      INTEGER,
+		rcLbDetectErrorDeviceMac          OCTET STRING,
+		rcLbDetectErrorDevicePeerPort     INTEGER,
+		rcLbDetectErrorDeviceCounts	      INTEGER,
+		rcLbDetectErrorDeviceLastOccur    INTEGER
+		}
+
+rcLbDetectErrorDeviceIndex  OBJECT-TYPE
+        SYNTAX   INTEGER(1..5)
+        ACCESS   not-accessible
+        STATUS   current
+        DESCRIPTION
+                 "Error number"
+        ::= { rcLbDetectErrorDeviceEntry 1 }
+
+rcLbDetectErrorDeviceMac  OBJECT-TYPE
+        SYNTAX   OCTET STRING(SIZE(0..6))
+        ACCESS   read-only
+        STATUS   current
+        DESCRIPTION
+                 "Mac address of received packet"
+        ::= { rcLbDetectErrorDeviceEntry 2 }
+
+rcLbDetectErrorDevicePeerPort  OBJECT-TYPE
+        SYNTAX   INTEGER
+        ACCESS   read-only
+        STATUS   current
+        DESCRIPTION
+                 "Peer port of received packet"
+        ::= { rcLbDetectErrorDeviceEntry 3 }
+
+rcLbDetectErrorDeviceCounts  OBJECT-TYPE
+        SYNTAX   INTEGER
+        ACCESS   read-only
+        STATUS   current
+        DESCRIPTION
+                 "How many times this port have receive a loopbackdetect packet from same mac and same port"
+        ::= { rcLbDetectErrorDeviceEntry 4 }
+
+rcLbDetectErrorDeviceLastOccur  OBJECT-TYPE
+        SYNTAX   INTEGER
+        ACCESS   read-only
+        STATUS   current
+        DESCRIPTION
+                 "The moment of last error happen"
+        ::= { rcLbDetectErrorDeviceEntry 5 } 
+
+--traps
+rcLbDetectLoopTrap NOTIFICATION-TYPE
+        OBJECTS{   
+            rcPortLbDetectStatus,    
+            rcPortLbDetectLastSrcMac,
+            rcPortLbDetectLastSrcPort,
+            rcPortLbDetectLastVlan
+            }
+        STATUS      current
+        DESCRIPTION 
+        "Port's state change"
+        ::= { rcLbDetectTrap 1 }
+
+rcLbDetectErrorDeviceTrap NOTIFICATION-TYPE
+        OBJECTS{   
+            rcLbDetectErrorDeviceMac,    
+            rcLbDetectErrorDevicePeerPort,
+            rcLbDetectErrorDeviceCounts
+            }
+        STATUS      current
+        DESCRIPTION 
+        "Receive a loopback detection packet"
+        ::= { rcLbDetectTrap 2 }
+		
+END

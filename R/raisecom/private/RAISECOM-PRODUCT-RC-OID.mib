@@ -1,0 +1,86 @@
+--MibName=raisecom
+-- =======================================================================
+-- Version info 
+--
+-- Version 0.1 Created 2003.5.24 by GONGGUIDONG
+-- This version of MIB is created just for management of base and user. 
+-- 
+-- Copyright(c) 2000-2002 by Raisecom  Ltd. 
+
+-- update rcft to rc002  , fiber to rc003 , transmiter to rc004 by gongguidong 20040205
+-- add rc702c by sunzhanfeng 20060413
+-- add  rc953-gestm1 by liujunfu  20060928    {9} 
+-- add rc953e-gestm1 ,liqiong, 20071015    
+-- add rc959-4fe16e1, liqiong, 20071204   
+-- add rc702-gestm4, liqiong, 20080125         
+-- add rc702gestm4, liqiong, 20080508   
+-- add rc702d, liqiong, 20080613    
+-- add rc006-6, liqiong, 20080807         
+-- add rc959-gestm1, liqiong, 20080811       
+-- add rc551B-GE4FE, zhanxuechao, 20090204
+-- add rc3000-6, liqiong, 20080922        
+-- add rc1201-4fe4e1t1, liqiong, 20081118     
+-- add rc006-3m-s, liqiong, 20081226     
+-- delete  rc1201-4fe4e1t1, lq, 20081229      
+-- add rc552-ge, lq, 20090601    
+-- modify RC551B-GE4FE 16 to 10, zq, 20090724  
+-- add rc3000e , lq, 20090818           
+-- add rc953-4fexe1t1, lq, 20090901    
+-- add rc905g-4fe16e1, rc905g-gestm1, lq, 20090904    
+--- add rc953eb-gestm1, lq, 20100104        
+-- add  rc953-4fe8e1t1bl,rc953-4fe4e1t1bl,rc953-4fe8e1 ,rc953-4fe4e1 ,rc951e-4fee1,lq, 20100308
+-- add  rc1106e-fe-2wx4 ,rc1106e-fe-2wx8, hxz,20100604 
+-- add rc959b-4fe16e1, szf, 20110830
+-- ===============================================================
+
+RAISECOM-BASE-RC-MIB    DEFINITIONS ::= BEGIN
+
+IMPORTS
+  rcSeries		FROM RAISECOM-BASE-MIB;
+
+-- =======================================================================
+--
+--  RC
+-- =======================================================================          
+  rc951			          OBJECT IDENTIFIER ::= { rcSeries 1 }
+  rc957			          OBJECT IDENTIFIER ::= { rcSeries 2 }
+	rc952			          OBJECT IDENTIFIER ::= { rcSeries 3 }
+	opticaltransceiver	OBJECT IDENTIFIER ::= { rcSeries 4 }
+	rc006			          OBJECT IDENTIFIER ::= { rcSeries 5 }
+	rc702               OBJECT IDENTIFIER ::= { rcSeries 6 }
+	rc702c              OBJECT IDENTIFIER ::= { rcSeries 7 }  
+	rc006-1             OBJECT IDENTIFIER ::= { rcSeries 8 }   
+	rc953-gestm1        OBJECT IDENTIFIER ::= { rcSeries 9 }   
+	rc953e-3fe16e1      OBJECT IDENTIFIER ::= { rcSeries 10 }
+	rc3000-15           OBJECT IDENTIFIER ::= { rcSeries 11 }
+	rc953e-gestm1	      OBJECT IDENTIFIER ::= { rcSeries 12 }
+	rc959-4fe16e1	      OBJECT IDENTIFIER ::= { rcSeries 13 } 
+	rc702-gestm4	      OBJECT IDENTIFIER ::= { rcSeries 14 }	   
+	rc702gestm4         OBJECT IDENTIFIER ::= { rcSeries 15 }    
+	rc702d    		      OBJECT IDENTIFIER ::= { rcSeries 16 }  
+	rc006-6             OBJECT IDENTIFIER ::= { rcSeries 17 }    	
+	rc959-gestm1	      OBJECT IDENTIFIER ::= { rcSeries 18 } 	
+	rc3000-6            OBJECT IDENTIFIER ::= { rcSeries 19 }
+	rc552-ge            OBJECT IDENTIFIER ::= { rcSeries 20 } 
+	rc006-3m-s          OBJECT IDENTIFIER ::= { rcSeries 21 }
+	rc3000e			        OBJECT IDENTIFIER ::= { rcSeries 22 }
+	rc953-4fexe1t1    	OBJECT IDENTIFIER ::= { rcSeries 23 } 
+	rc905g-4fe16e1	    OBJECT IDENTIFIER ::= { rcSeries 24 }   
+	rc905g-gestm1	      OBJECT IDENTIFIER ::= { rcSeries 25 } 
+ 	rc953eb-gestm1	    OBJECT IDENTIFIER ::= { rcSeries 26 } 
+ 	rc953-4fe8e1t1bl    OBJECT IDENTIFIER ::= { rcSeries 27 } 
+ 	rc953-4fe4e1t1bl    OBJECT IDENTIFIER ::= { rcSeries 28 } 
+ 	rc953-4fe8e1        OBJECT IDENTIFIER ::= { rcSeries 29 } 
+ 	rc953-4fe4e1        OBJECT IDENTIFIER ::= { rcSeries 30 }  
+ 	rc951e-4fee1        OBJECT IDENTIFIER ::= { rcSeries 31 } 
+	rc1106e-fe-2wx4     OBJECT IDENTIFIER ::= { rcSeries 32 }
+	rc1106e-fe-2wx8     OBJECT IDENTIFIER ::= { rcSeries 33 }
+	rc953-8fe16e1	OBJECT IDENTIFIER ::=  { rcSeries 34 }
+	rc953-8fe8e1	OBJECT IDENTIFIER ::=  { rcSeries 35 }
+	rc951_2fe2e8rs232h OBJECT IDENTIFIER ::=  { rcSeries 36 }
+	rc3000-15h OBJECT IDENTIFIER ::=  { rcSeries 37 }
+	rcma5106 OBJECT IDENTIFIER ::=  { rcSeries 38 }
+	rcma5115 OBJECT IDENTIFIER ::=  { rcSeries 39 }      
+	rc959b-4fe16e1 OBJECT IDENTIFIER ::=  { rcSeries 40 }      
+	
+END

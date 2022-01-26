@@ -1,0 +1,110 @@
+--MibName=rcLldpPrivate
+   LLDP-PRI-MIB DEFINITIONS ::= BEGIN 
+   
+IMPORTS         
+      MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE
+        									FROM SNMPv2-SMI
+      	TruthValue				FROM SNMPv2-TC 
+        ifIndex   			  FROM IF-MIB
+        iscomSwitch       FROM RAISECOM-BASE-MIB;
+
+rcLldp 			 OBJECT IDENTIFIER ::= { iscomSwitch 57 }
+
+rcLldpPrivate MODULE-IDENTITY 
+        LAST-UPDATED "201001040000Z"  -- Jan 4,2010"
+        ORGANIZATION 
+          "raisecom"
+        CONTACT-INFO 
+          "          "
+        DESCRIPTION
+          "The MIB module for private canfiguration of lldp."
+   
+        REVISION    "201001040000Z"  -- Jan 4, 2010"
+        DESCRIPTION ""
+     
+         ::= { rcLldp 2 }
+      
+      -- 
+      -- Sections of the raisecom LLDP MIB
+      --
+
+rcLldpConfig 			   OBJECT IDENTIFIER ::= { rcLldpPrivate 1 }
+rcLldpPortConfig		 OBJECT IDENTIFIER ::= { rcLldpPrivate 2 }
+
+        
+-- ***************************************************************
+--
+-- private LLDP objectes group
+--
+
+
+rcLldpEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            ""
+    DEFVAL     { FALSE }
+    ::= { rcLldpConfig 1 }
+
+rcLldpNotificationEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            ""
+    DEFVAL     { TRUE }
+    ::= { rcLldpConfig 2 }
+    
+rcLldpPortConfigTable OBJECT-TYPE
+	SYNTAX      SEQUENCE OF rcLldpPortConfigEntry
+	MAX-ACCESS  not-accessible
+	STATUS      current
+	DESCRIPTION 
+	  "A table of LLDP port configuration. "   
+	::= { rcLldpPortConfig 1 }
+
+rcLldpPortConfigEntry OBJECT-TYPE
+	SYNTAX     rcLldpPortConfigEntry
+	MAX-ACCESS not-accessible
+	STATUS     current
+	DESCRIPTION 
+	  "Table entry for LLDP port configuration."
+	INDEX       { ifIndex }
+	::= { rcLldpPortConfigTable 1 }
+
+rcLldpPortConfigEntry ::=
+	SEQUENCE {
+	  rcLldpPortEnable			TruthValue,
+	  rcLldpClearPortStatistic TruthValue,
+	  rcLldpClearPortRemTablesEntries TruthValue
+}
+      
+rcLldpPortEnable OBJECT-TYPE
+	SYNTAX      TruthValue
+	MAX-ACCESS  read-write
+	STATUS      current
+	DESCRIPTION 
+	  "Enable or disable port lldp function." 
+	DEFVAL     { TRUE }
+	 ::= { rcLldpPortConfigEntry 1 }
+
+rcLldpClearPortStatistic OBJECT-TYPE
+	SYNTAX      TruthValue
+	MAX-ACCESS  read-write
+	STATUS      current
+	DESCRIPTION 
+	  "Clear port statistic information." 
+	DEFVAL     { FALSE }
+	 ::= { rcLldpPortConfigEntry 2 }
+	 
+rcLldpClearPortRemTablesEntries OBJECT-TYPE
+	SYNTAX      TruthValue
+	MAX-ACCESS  read-write
+	STATUS      current
+	DESCRIPTION 
+	  "Clear port remote information."
+	DEFVAL     { FALSE }
+	 ::= { rcLldpPortConfigEntry 3 }	 
+
+END

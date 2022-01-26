@@ -1,0 +1,876 @@
+-- *****************************************************************
+-- CISCO-LWAPP-AP-TELEMETRY-MIB.my
+-- May 2018, Mike Hamada
+--
+-- Copyright (c) 2018-2019 by Cisco Systems, Inc.
+-- All rights reserved.
+-- *****************************************************************
+
+CISCO-LWAPP-AP-TELEMETRY-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY,
+    OBJECT-TYPE,
+    Unsigned32
+        FROM SNMPv2-SMI
+    MODULE-COMPLIANCE,
+    OBJECT-GROUP
+        FROM SNMPv2-CONF
+    DisplayString,
+    RowStatus,
+    MacAddress,
+    TruthValue
+        FROM SNMPv2-TC
+    ciscoMgmt
+        FROM CISCO-SMI;
+
+
+ciscoLwappApTelemetryMIB MODULE-IDENTITY
+    LAST-UPDATED    "201805140000Z"
+    ORGANIZATION    "Cisco Systems, Inc."
+    CONTACT-INFO
+            "Cisco Systems
+            Customer Service
+
+            Postal: 170 W Tasman Drive
+            San Jose, CA  95134
+            USA
+
+            Tel: +1 800 553-NETS
+
+            E-mail: cs-snmp@cisco.com"
+    DESCRIPTION
+        "This MIB is intended to be implemented on all devices operating
+        as Wireless LAN Ccontrollers (WLC) which terminate Light Weight
+        Access Point Protocol (LWAPP) tunnels from Cisco LWAPP Access
+        Points (AP) and externalize telemetry data to a central server.
+
+        This MIB facilitates configuration and monitoring of telemetry
+        features on Access Points from a Wireless LAN Controller.
+        Telemetry features will typically externalize & push/stream data
+        to a central server. Data could include configuration
+        information, operational data (either summarized or raw), and/or
+        data from edge analytics. Telemetry features should always have
+        the ability to be subscribed to (enabled) and unsubscribed from
+        (disabled).
+
+        The relationship between WLC, LWAPP APs, and central server (CS)
+        can be depicted as follows:
+
+                 +......+         +......+     +......+
+                 +      +         +      +     +      +
+                 + WLC1 +         + WLC2 +.....+  CS  +
+                 +      +         +      +     +      +
+                 +......+         +......+     +......+
+                    ..                .  .          .
+                    ..                .   .        .
+                   .  .               .    .      .
+                  .    .              .     .    .
+                 .      .             .      .  .
+                .        .            .       ..
+            +......+ +......+     +......+  +......+
+            +      + +      +     +      +  +      +
+            + AP1a + + AP1b +     + AP2a +  + AP2b +
+            +      + +      +     +      +  +      +
+            +......+ +......+     +......+  +......+
+                       .             .         .
+                     .  .             .         .
+                    .    .             .         .
+                   .      .             .         .
+                  .        .             .         .
+               +......+ +......+     +......+  +......+
+               +      + +      +     +      +  +      +
+               +  MN  + +  MN  +     +  MN  +  +  MN  +
+               +      + +      +     +      +  +      +
+               +......+ +......+     +......+  +......+
+
+        An LWAPP tunnel exists between the WLC and all APs. The MNs
+        communicate with an AP through the protocol defined by the
+        802.11 standard and other configuration pushed to the AP from
+        the WLC. LWAPP APs, upon bootup, discover and join one of the
+        WLCs, after which the WLC pushes configuration to the LWAPP
+        APs.
+
+        In the figure above, WLC1 and associated APs do not have any
+        central server configured and continue to operate normally
+        without externalizing any telemetry data.
+
+        WLC2 and associated APs have a central server configured. Also,
+        WLC2 has subscribed to some telemetry features on AP2b, so that
+        AP2b has established communication with the central server & is
+        sending/streaming telemetry data directly to it as defined by
+        its subscription configurations. AP2a does not communicate with
+        the central server as it has no telemetry subscriptions. WLC2
+        can also communicate with the same central server via a
+        different collector (e.g. Network Assurance as defined in the
+        CISCO-LWAPP-CLOUD-SERVICES-MIB), but is beyond the scope of this
+        MIB definition.
+
+        Currently defined AP telemetry features include:
+
+        Intelligent Capture (ICapture or ICap)
+        APs externalize various telemetry data based on configured
+        subscription topics & options which include:
+
+            Client Full Packet Trace
+            Client Partial Packet Trace
+            Client Anomaly Detection (Events & Packet Trace)
+            Client Statistics
+            AP Statistics
+            AP RF Spectrum
+
+        ICapture is currently intended to be used in conjunction with
+        Network Assurance (NA) as defined in the
+        CISCO-LWAPP-CLOUD-SERVICES-MIB. The ICapture
+        server/consumer/collector is currently the same as the NA server
+        (which is currently Cisco DNAC NDP/Assurance), but could be
+        extended in the future to other endpoints.
+
+                               GLOSSARY
+
+        Access Point ( AP )
+
+        An entity that contains an 802.11 medium access control ( MAC )
+        and physical layer ( PHY ) interface and provides access to the
+        distribution services via the wireless medium for associated
+        clients.  
+
+        LWAPP APs encapsulate all the 802.11 frames in LWAPP frames and
+        sends them to the controller to which it is logically
+        connected.
+
+        Light Weight Access Point Protocol ( LWAPP )
+
+        This is a generic protocol that defines the  communication
+        between the Access Points and the Wireless LAN Controller.
+
+        Mobile Node ( MN )
+
+        A roaming 802.11 wireless device in a wireless network
+        associated with an access point. Mobile Node and Client are
+        used interchangeably."
+    REVISION        "201805140000Z"
+    DESCRIPTION
+        "Initial version of AP Telemetry MIB"
+    ::= { ciscoMgmt 855 }
+
+
+cLApTelemetryMIBNotifs  OBJECT IDENTIFIER
+    ::= { ciscoLwappApTelemetryMIB 0 }
+
+cLApTelemetryMIBObjects  OBJECT IDENTIFIER
+    ::= { ciscoLwappApTelemetryMIB 1 }
+
+cLApTelemetryMIBConform  OBJECT IDENTIFIER
+    ::= { ciscoLwappApTelemetryMIB 2 }
+
+-- Conformance Information Definition
+
+cLApTelemetryMIBCompliances  OBJECT IDENTIFIER
+    ::= { cLApTelemetryMIBConform 1 }
+
+cLApTelemetryMIBGroups  OBJECT IDENTIFIER
+    ::= { cLApTelemetryMIBConform 2 }
+
+
+cLApTelemetryMIBModuleCompliance MODULE-COMPLIANCE
+    STATUS          current
+    DESCRIPTION
+        "The compliance statement for SNMP entities that implement this
+        MIB for Cisco LWAPP AP Telemetry."
+    MODULE          -- this module
+    MANDATORY-GROUPS {
+                        cLApTeleMIBICapServerConfigGroup,
+                        cLApTeleMIBICapSubscriptionConfigGroup
+                    }
+
+    GROUP           cLApTeleMIBICapSubFullPacketTraceGroup
+    DESCRIPTION
+        "Support for ICapture Subscription: Full Packet-Trace"
+
+    GROUP           cLApTeleMIBICapSubPartialPacketTraceGroup
+    DESCRIPTION
+        "Support for ICapture Subscription: Partial Packet-Trace"
+
+    GROUP           cLApTeleMIBICapSubAnomalyDetectionGroup
+    DESCRIPTION
+        "Support for ICapture Subscription: Client Anomaly Detection"
+
+    GROUP           cLApTeleMIBICapSubClientStatsGroup
+    DESCRIPTION
+        "Support for ICapture Subscription: Client Statistics"
+
+    GROUP           cLApTeleMIBICapSubApStatsGroup
+    DESCRIPTION
+        "Support for ICapture Subscriptions: AP Statistics"
+
+    GROUP           cLApTeleMIBICapSubApRfSpectrumGroup
+    DESCRIPTION
+        "Support for ICapture Subscription: AP RF Spectrum"
+    ::= { cLApTelemetryMIBCompliances 1 }
+
+cLApTeleMIBICapServerConfigGroup OBJECT-GROUP
+    OBJECTS         {
+                        cLATICapServerPort,
+                        cLATICapServerURL,
+                        cLATICapServerConfigRowStatus
+                    }
+    STATUS          current
+    DESCRIPTION
+        "A collection of objects representing global Intelligent Capture
+        (ICapture) server configuration."
+    ::= { cLApTelemetryMIBGroups 1 }
+
+cLApTeleMIBICapSubscriptionConfigGroup OBJECT-GROUP
+    OBJECTS         {
+                        cLATICapSubEnabled,
+                        cLATICapSubRowStatus
+                    }
+    STATUS          current
+    DESCRIPTION
+        "A collection of objects representing Intelligent Capture
+        (ICapture) subscription configuration."
+    ::= { cLApTelemetryMIBGroups 2 }
+
+cLApTeleMIBICapSubFullPacketTraceGroup OBJECT-GROUP
+    OBJECTS         { cLATICapClientFilterRowStatus }
+    STATUS          current
+    DESCRIPTION
+        "A collection of objects representing Intelligent Capture
+        (ICapture) Client Full Packet-Trace subscription configuration."
+    ::= { cLApTelemetryMIBGroups 3 }
+
+cLApTeleMIBICapSubPartialPacketTraceGroup OBJECT-GROUP
+    OBJECTS         {
+                        cLATICapClientFilterRowStatus,
+                        cLATICapProtocolFilterRowStatus
+                    }
+    STATUS          current
+    DESCRIPTION
+        "A collection of objects representing Intelligent Capture
+        (ICapture) Client Partial Packet-Trace subscription
+        configuration."
+    ::= { cLApTelemetryMIBGroups 4 }
+
+cLApTeleMIBICapSubAnomalyDetectionGroup OBJECT-GROUP
+    OBJECTS         {
+                        cLATICapClientFilterRowStatus,
+                        cLATICapAnomalyDetectionTimeoutDhcp,
+                        cLATICapAnomalyDetectionTimeoutDot1x,
+                        cLATICapAnomalyDetectionPktTraceAp,
+                        cLATICapAnomalyDetectionRowStatus
+                    }
+    STATUS          current
+    DESCRIPTION
+        "A collection of objects representing Intelligent Capture
+        (ICapture) Client Anomaly Detection subscription configuration."
+    ::= { cLApTelemetryMIBGroups 5 }
+
+cLApTeleMIBICapSubClientStatsGroup OBJECT-GROUP
+    OBJECTS         {
+                        cLATICapClientFilterRowStatus,
+                        cLATICapStatsFrequency,
+                        cLATICapStatsFrequencyRowStatus
+                    }
+    STATUS          current
+    DESCRIPTION
+        "A collection of objects representing Intelligent Capture
+        (ICapture) Client Statistics subscription configuration."
+    ::= { cLApTelemetryMIBGroups 6 }
+
+cLApTeleMIBICapSubApStatsGroup OBJECT-GROUP
+    OBJECTS         {
+                        cLATICapStatsFrequency,
+                        cLATICapStatsFrequencyRowStatus
+                    }
+    STATUS          current
+    DESCRIPTION
+        "A collection of objects representing Intelligent Capture
+        (ICapture) AP Statistics subscriptions configurations."
+    ::= { cLApTelemetryMIBGroups 7 }
+
+cLApTeleMIBICapSubApRfSpectrumGroup OBJECT-GROUP
+    OBJECTS         { cLATICapRadioSlotRowStatus }
+    STATUS          current
+    DESCRIPTION
+        "A collection of objects representing Intelligent Capture
+        (ICapture) AP RF Spectrum subscription configuration."
+    ::= { cLApTelemetryMIBGroups 8 }
+cLATIntelligentCaptureMIBObjects  OBJECT IDENTIFIER
+    ::= { cLApTelemetryMIBObjects 1 }
+
+
+cLATICapServerConfigTable OBJECT-TYPE
+    SYNTAX          SEQUENCE OF CLATICapServerConfigEntry
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION
+        "This table represents global ICapture server configurations."
+    ::= { cLATIntelligentCaptureMIBObjects 1 }
+
+cLATICapServerConfigEntry OBJECT-TYPE
+    SYNTAX          CLATICapServerConfigEntry
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION
+        "An entry (conceptual row) in the cLATICapServerConfigTable."
+    INDEX           { cLATICapServerIndex }
+    ::= { cLATICapServerConfigTable 1 }
+
+CLATICapServerConfigEntry ::= SEQUENCE {
+        cLATICapServerIndex           Unsigned32,
+        cLATICapServerPort            Unsigned32,
+        cLATICapServerURL             DisplayString,
+        cLATICapServerConfigRowStatus RowStatus
+}
+
+cLATICapServerIndex OBJECT-TYPE
+    SYNTAX          Unsigned32 (1..128)
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION
+        "Index of ICapture server to send ICapture telemetry data to.
+        Implementations will dictate the number of servers supported,
+        and may only support one server."
+    ::= { cLATICapServerConfigEntry 1 }
+
+cLATICapServerPort OBJECT-TYPE
+    SYNTAX          Unsigned32 (1..65535)
+    MAX-ACCESS      read-create
+    STATUS          current
+    DESCRIPTION
+        "The destination port to send ICapture telemetry data to on the
+        ICapture server."
+    ::= { cLATICapServerConfigEntry 2 }
+
+cLATICapServerURL OBJECT-TYPE
+    SYNTAX          DisplayString (SIZE  (1..512))
+    MAX-ACCESS      read-create
+    STATUS          current
+    DESCRIPTION
+        "The ICapture server URL of the form http(s)://<IP or FQDN> to
+        send ICapture telemetry data to."
+    ::= { cLATICapServerConfigEntry 3 }
+
+cLATICapServerConfigRowStatus OBJECT-TYPE
+    SYNTAX          RowStatus
+    MAX-ACCESS      read-create
+    STATUS          current
+    DESCRIPTION
+        "The status of this conceptual row. To create a row in this
+        table, a manager must set this object to either createAndGo(4)
+        or createAndWait(5). Until instances of all corresponding
+        columns are appropriately configured, the value of the
+        corresponding instance of the RowStatus column is 'notReady'.
+        In particular, a newly created row cannot be made active until
+        the cLATICapServerIndex, cLATICapServerPort, & CLATICapServerURL
+        has been set. cLATICapServerIndex may not be modified while the
+        value of this object is active(1): An attempt to set this object
+        while the value of RowStatus is active(1) will result in an
+        inconsistentValue error."
+    ::= { cLATICapServerConfigEntry 4 }
+
+
+cLATIcapSubscriptionConfig  OBJECT IDENTIFIER
+    ::= { cLATIntelligentCaptureMIBObjects 2 }
+
+
+cLATICapSubscriptionTable OBJECT-TYPE
+    SYNTAX          SEQUENCE OF CLATICapSubscriptionEntry
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION
+        "This table represents all ICapture subscriptions currently
+        subscribed to based on Type, Mode, & Mode ID."
+    ::= { cLATIcapSubscriptionConfig 1 }
+
+cLATICapSubscriptionEntry OBJECT-TYPE
+    SYNTAX          CLATICapSubscriptionEntry
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION
+        "An entry (conceptual row) in the cLATICapSubscriptionTable."
+    INDEX           {
+                        cLATICapSubMode,
+                        cLATICapSubModeId,
+                        cLATICapSubType
+                    }
+    ::= { cLATICapSubscriptionTable 1 }
+
+CLATICapSubscriptionEntry ::= SEQUENCE {
+        cLATICapSubMode      INTEGER,
+        cLATICapSubModeId    DisplayString,
+        cLATICapSubType      INTEGER,
+        cLATICapSubEnabled   TruthValue,
+        cLATICapSubRowStatus RowStatus
+}
+
+cLATICapSubMode OBJECT-TYPE
+    SYNTAX          INTEGER  {
+                        global(1),
+                        apGroup(2), -- AP Group (all APs in a given AP
+                                    -- group)
+                        ap(3)
+                    }
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION
+        "ICapture configuration mode for this subscription. The mode
+        specifies which APs have a subscription applied: Global (all APs
+        joined to this WLC), AP Group (all APs in a particular AP
+        group), or AP (a particular AP joined to this WLC). Only
+        subscriptions in Global or AP Group modes are saved in
+        persistent storage. AP-specific subscriptions are lost over
+        reboots of either WLC or AP." 
+    ::= { cLATICapSubscriptionEntry 1 }
+
+cLATICapSubModeId OBJECT-TYPE
+    SYNTAX          DisplayString (SIZE  (1..32))
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION
+        "ICapture configuration mode identifier for this subscription
+        mode. The mode ID applies to AP Group and AP modes. For global
+        (1) mode, any ID can be used to create the subscription, but
+        will always be read back as 'global' when queried. For apGroup
+        (2), the mode ID is the name of the AP Group to apply the
+        subscription to. For ap (3), the mode ID is the MAC of the AP
+        for GET/WALK operations & the name of the AP for SET/TEST
+        operations."
+    ::= { cLATICapSubscriptionEntry 2 }
+
+cLATICapSubType OBJECT-TYPE
+    SYNTAX          INTEGER {
+                        fullPacketTrace(1), -- Client Full Packet-Trace
+                        partPacketTrace(2), -- Client Partial
+                                            -- Packet-Trace
+                        anomalyDetection(3), -- Client Anomaly Detection
+                                             -- (Events & Packet-Trace)
+                        clientStats(4), -- Client Statistics
+                        apSystemStats(5), -- AP System Statistics
+                        apMemoryStats(6), -- AP Memory Statistics
+                        apInterfaceStats(7), -- AP Interface Statistics
+                        apRoutingStats(8), -- AP Routing Statistics
+                        apRadioStats(9), -- AP Radio Statistics
+                        apWlanStats(10), -- AP WLAN Statistics
+                        apDnsStats(11), -- AP DNS Statistics
+                        apRfSpectrum(12), -- AP RF Spectrum
+                        adIndividualReport(13), -- Anomaly Detection
+                                                -- Individual Report
+                        adSummaryReport(14), -- Anomaly Detection
+                                             -- Summary Report
+                        clientStatsFilter(15) -- Client Stats Filter
+                    }
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION
+        "ICapture Subscription Type of data to send to ICapture
+        server(s)."
+    ::= { cLATICapSubscriptionEntry 3 }
+
+cLATICapSubEnabled OBJECT-TYPE
+    SYNTAX          TruthValue
+    MAX-ACCESS      read-create
+    STATUS          current
+    DESCRIPTION
+        "Set to true when this ICapture Subscription Type is enabled /
+        subscribed for this Mode & ModeId, false if disabled /
+        unsubscribed for this Mode & ModeId."
+    DEFVAL          { false }
+    ::= { cLATICapSubscriptionEntry 4 }
+
+cLATICapSubRowStatus OBJECT-TYPE
+    SYNTAX          RowStatus
+    MAX-ACCESS      read-create
+    STATUS          current
+    DESCRIPTION
+        "The status of this conceptual row. To create a row in this
+        table, a manager must set this object to either createAndGo(4)
+        or createAndWait(5). Until instances of all corresponding
+        columns are appropriately configured, the value of the
+        corresponding instance of the RowStatus column is 'notReady'.
+        In particular, a newly created row cannot be made active until
+        the cLATICapSubMode, cLATICapSubModeId, & cLATICapSubType has
+        been set. cLATICapSubMode, cLATICapSubModeId, & cLATICapSubType
+        may not be modified while the value of this object is active(1):
+        An attempt to set this object while the value of RowStatus is
+        active(1) will result in an inconsistentValue error."
+    ::= { cLATICapSubscriptionEntry 5 }
+
+
+
+cLATICapClientFilterTable OBJECT-TYPE
+    SYNTAX          SEQUENCE OF CLATICapClientFilterEntry
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION
+        "This table represents Client MAC filters configured for Client
+        ICapture Subscription Types, namely: fullPacketTrace (1),
+        partPacketTrace (2), anomalyDetection (3), & clientStats (4).
+        Client MAC filters cannot be applied to any other ICapture
+        Subscription Types. fullPacketTrace (1) can only create 1 Client
+        MAC filter at a time (and no Client MAC filter means no packets
+        will be captured). All other subscriptions supporting Client MAC
+        filters (partPacketTrace, anomalyDetection, clientStats) can
+        create up to 16 Client MAC filters at a time (and no Client MAC
+        filter means telemetry data for all Clients will be sent)."
+    ::= { cLATIcapSubscriptionConfig 2 }
+
+cLATICapClientFilterEntry OBJECT-TYPE
+    SYNTAX          CLATICapClientFilterEntry
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION
+        "An entry (conceptual row) in the cLATICapClientFilterTable."
+    INDEX           {
+                        cLATICapSubMode,
+                        cLATICapSubModeId,
+                        cLATICapSubType,
+                        cLATICapClientFilter
+                    }
+    ::= { cLATICapClientFilterTable 1 }
+
+CLATICapClientFilterEntry ::= SEQUENCE {
+        cLATICapClientFilter          MacAddress,
+        cLATICapClientFilterRowStatus RowStatus
+}
+
+cLATICapClientFilter OBJECT-TYPE
+    SYNTAX          MacAddress
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION
+        "A Client MAC address to filter on for the given ICapture
+        Subscription Type."
+    ::= { cLATICapClientFilterEntry 1 }
+
+cLATICapClientFilterRowStatus OBJECT-TYPE
+    SYNTAX          RowStatus
+    MAX-ACCESS      read-create
+    STATUS          current
+    DESCRIPTION
+        "The status of this conceptual row. To create a row in this
+        table, a manager must set this object to either createAndGo(4)
+        or createAndWait(5). Until instances of all corresponding
+        columns are appropriately configured, the value of the
+        corresponding instance of the RowStatus column is 'notReady'.
+        In particular, a newly created row cannot be made active until
+        the cLATICapSubMode, cLATICapSubModeId, cLATICapSubType, &
+        cLATICapClientFilter has been set. cLATICapSubMode,
+        cLATICapSubModeId, cLATICapSubType, & cLATICapClientFilter may
+        not be modified while the value of this object is active(1): An
+        attempt to set this object while the value of RowStatus is
+        active(1) will result in an inconsistentValue error."
+    ::= { cLATICapClientFilterEntry 2 }
+
+
+
+cLATICapProtocolFilterTable OBJECT-TYPE
+    SYNTAX          SEQUENCE OF CLATICapProtocolFilterEntry
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION
+        "This table represents protocol filters configured for Client
+        Partial Packet-Trace ICapture Subscription Types:
+        partPacketTrace (2). Protocol filters cannot be applied to any
+        other ICapture Subscription Types."
+    ::= { cLATIcapSubscriptionConfig 3 }
+
+cLATICapProtocolFilterEntry OBJECT-TYPE
+    SYNTAX          CLATICapProtocolFilterEntry
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION
+        "An entry (conceptual row) in the cLATICapProtocolFilterTable."
+    INDEX           {
+                        cLATICapSubMode,
+                        cLATICapSubModeId,
+                        cLATICapSubType,
+                        cLATICapProtocolFilterType
+                    }
+    ::= { cLATICapProtocolFilterTable 1 }
+
+CLATICapProtocolFilterEntry ::= SEQUENCE {
+        cLATICapProtocolFilterType      INTEGER,
+        cLATICapProtocolFilterSubtype   Unsigned32,
+        cLATICapProtocolFilterRowStatus RowStatus
+}
+
+cLATICapProtocolFilterType OBJECT-TYPE
+    SYNTAX          INTEGER  {
+                        management(1),
+                        data(3),
+                        cisco(4)
+                    }
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION
+        "A protocol type to filter on & capture packets for an ICapture
+        Subscription."
+    ::= { cLATICapProtocolFilterEntry 1 }
+
+cLATICapProtocolFilterSubtype OBJECT-TYPE
+    SYNTAX          Unsigned32 (0..65535)
+    MAX-ACCESS      read-create
+    STATUS          current
+    DESCRIPTION
+        "A 16-bit protocol subtype bitmask to filter on & capture
+        packets for an ICapture Subscription. For all types, 0xFFFF
+        means ALL subtypes.
+
+          management(1):
+            0x0001 - Association Frames
+            0x0002 - Authentication Frames
+
+          data(3):
+            0x0001 - ARP
+            0x0002 - DHCP
+            0x0004 - EAP
+            0x0008 - ICMP
+            0x0010 - DHCPv6
+            0x0020 - ICMPv6
+            0x0040 - DNS
+
+          cisco(4):
+            0x0001 - NDP"
+    DEFVAL          { 0 }
+    ::= { cLATICapProtocolFilterEntry 2 }
+
+cLATICapProtocolFilterRowStatus OBJECT-TYPE
+    SYNTAX          RowStatus
+    MAX-ACCESS      read-create
+    STATUS          current
+    DESCRIPTION
+        "The status of this conceptual row. To create a row in this
+        table, a manager must set this object to either createAndGo(4)
+        or createAndWait(5). Until instances of all corresponding
+        columns are appropriately configured, the value of the
+        corresponding instance of the RowStatus column is 'notReady'.
+        In particular, a newly created row cannot be made active until
+        the cLATICapSubMode, cLATICapSubModeId, cLATICapSubType,
+        cLATICapProtocolFilterType, & cLATICapProtocolFilterSubtype has
+        been set. cLATICapSubMode, cLATICapSubModeId, cLATICapSubType,
+        cLATICapProtocolFilterType, & cLATICapProtocolFilterSubtype may
+        not be modified while the value of this object is active(1): An
+        attempt to set this object while the value of RowStatus is
+        active(1) will result in an inconsistentValue error."
+    ::= { cLATICapProtocolFilterEntry 3 }
+
+
+
+cLATICapStatsFrequencyTable OBJECT-TYPE
+    SYNTAX          SEQUENCE OF CLATICapStatsFrequencyEntry
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION
+        "This table represents frequencies configured for ICapture
+        Subscription Types requiring a frequency / periodicity to report
+        statistics at, including: clientStats (4), apSystemStats (5),
+        apMemoryStats (6), apInterfaceStats (7), apRoutingStats (8),
+        apRadioStats (9), apWlanStats (10), apDnsStats (11),
+        adSummaryReport (14), & clientStatsFilter (15).
+        All frequencies are in seconds, execpt for adSummaryReport (14)
+        which is in minutes (default 5 minutes).
+        Frequencies cannot be configured for any other ICapture
+        Subscription Types."
+    ::= { cLATIcapSubscriptionConfig 4 }
+
+cLATICapStatsFrequencyEntry OBJECT-TYPE
+    SYNTAX          CLATICapStatsFrequencyEntry
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION
+        "An entry (conceptual row) in the cLATICapStatsFrequencyTable."
+    INDEX           {
+                        cLATICapSubMode,
+                        cLATICapSubModeId,
+                        cLATICapSubType
+                    }
+    ::= { cLATICapStatsFrequencyTable 1 }
+
+CLATICapStatsFrequencyEntry ::= SEQUENCE {
+        cLATICapStatsFrequency          Unsigned32,
+        cLATICapStatsFrequencyRowStatus RowStatus
+}
+
+cLATICapStatsFrequency OBJECT-TYPE
+    SYNTAX          Unsigned32 (1..3600)
+    UNITS           "seconds or minutes"
+    MAX-ACCESS      read-create
+    STATUS          current
+    DESCRIPTION
+        "The frequency / periodicity at which to send ICapture
+        statistics. All frequencies are in seconds other than
+        for adSummaryReport (14) which is in minutes (default
+        of 5 minutes)."
+    DEFVAL          { 30 }
+    ::= { cLATICapStatsFrequencyEntry 1 }
+
+cLATICapStatsFrequencyRowStatus OBJECT-TYPE
+    SYNTAX          RowStatus
+    MAX-ACCESS      read-create
+    STATUS          current
+    DESCRIPTION
+        "The status of this conceptual row. To create a row in this
+        table, a manager must set this object to either createAndGo(4)
+        or createAndWait(5). Until instances of all corresponding
+        columns are appropriately configured, the value of the
+        corresponding instance of the RowStatus column is 'notReady'.
+        In particular, a newly created row cannot be made active until
+        the cLATICapSubMode, cLATICapSubModeId, & cLATICapSubType, has
+        been set. cLATICapSubMode, cLATICapSubModeId, & cLATICapSubType
+        may not be modified while the value of this object is active(1):
+        An attempt to set this object while the value of RowStatus is
+        active(1) will result in an inconsistentValue error."
+    ::= { cLATICapStatsFrequencyEntry 2 }
+
+
+
+cLATICapRadioSlotTable OBJECT-TYPE
+    SYNTAX          SEQUENCE OF CLATICapRadioSlotEntry
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION
+        "This table represents AP Radio Slots configured for AP
+        ICapture Subscription Types requiring a radio slot: apRfSpectrum
+        (12). AP Radio Slots cannot be configured for any other
+        ICapture Subscription Types."
+    ::= { cLATIcapSubscriptionConfig 5 }
+
+cLATICapRadioSlotEntry OBJECT-TYPE
+    SYNTAX          CLATICapRadioSlotEntry
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION
+        "An entry (conceptual row) in the cLATICapRadioSlotTable."
+    INDEX           {
+                        cLATICapSubMode,
+                        cLATICapSubModeId,
+                        cLATICapSubType,
+                        cLATICapRadioSlot
+                    }
+    ::= { cLATICapRadioSlotTable 1 }
+
+CLATICapRadioSlotEntry ::= SEQUENCE {
+        cLATICapRadioSlot          Unsigned32,
+        cLATICapRadioSlotRowStatus RowStatus
+}
+
+cLATICapRadioSlot OBJECT-TYPE
+    SYNTAX          Unsigned32 (0..1024)
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION
+        "An AP Radio Slot to configure for the given ICapture
+        Subscription Type. Valid radio slots are dependent upon
+        implementation and platform."
+    ::= { cLATICapRadioSlotEntry 1 }
+
+cLATICapRadioSlotRowStatus OBJECT-TYPE
+    SYNTAX          RowStatus
+    MAX-ACCESS      read-create
+    STATUS          current
+    DESCRIPTION
+        "The status of this conceptual row. To create a row in this
+        table, a manager must set this object to either createAndGo(4)
+        or createAndWait(5). Until instances of all corresponding
+        columns are appropriately configured, the value of the
+        corresponding instance of the RowStatus column is 'notReady'.
+        In particular, a newly created row cannot be made active until
+        the cLATICapSubMode, cLATICapSubModeId, cLATICapSubType, &
+        cLATICapRadioSlot has been set. cLATICapSubMode,
+        cLATICapSubModeId, cLATICapSubType, & cLATICapRadioSlot may not
+        be modified while the value of this object is active(1): An
+        attempt to set this object while the value of RowStatus is
+        active(1) will result in an inconsistentValue error."
+    ::= { cLATICapRadioSlotEntry 2 }
+
+
+
+cLATICapAnomalyDetectionTable OBJECT-TYPE
+    SYNTAX          SEQUENCE OF CLATICapAnomalyDetectionEntry
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION
+        "This table represents options configured for the ICapture
+        Client Anomaly Detection subscription type: anomalyDetection
+        (3). These  options cannot be configured for any other ICapture
+        Subscription Types."
+    ::= { cLATIcapSubscriptionConfig 6 }
+
+cLATICapAnomalyDetectionEntry OBJECT-TYPE
+    SYNTAX          CLATICapAnomalyDetectionEntry
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION
+        "An entry (conceptual row) in the
+        cLATICapAnomalyDetectionTable."
+    INDEX           {
+                        cLATICapSubMode,
+                        cLATICapSubModeId,
+                        cLATICapSubType
+                    }
+    ::= { cLATICapAnomalyDetectionTable 1 }
+
+CLATICapAnomalyDetectionEntry ::= SEQUENCE {
+        cLATICapAnomalyDetectionTimeoutDhcp  Unsigned32,
+        cLATICapAnomalyDetectionTimeoutDot1x Unsigned32,
+        cLATICapAnomalyDetectionPktTraceAp   TruthValue,
+        cLATICapAnomalyDetectionRowStatus    RowStatus
+}
+
+cLATICapAnomalyDetectionTimeoutDhcp OBJECT-TYPE
+    SYNTAX          Unsigned32 (1..120)
+    UNITS           "seconds"
+    MAX-ACCESS      read-create
+    STATUS          current
+    DESCRIPTION
+        "The DHCP timeout value for the ICapture Anomaly Detection
+        subscription to detect 'slow DHCP' anomalies."
+    DEFVAL          { 5 }
+    ::= { cLATICapAnomalyDetectionEntry 1 }
+
+cLATICapAnomalyDetectionTimeoutDot1x OBJECT-TYPE
+    SYNTAX          Unsigned32 (1..60)
+    UNITS           "seconds"
+    MAX-ACCESS      read-create
+    STATUS          current
+    DESCRIPTION
+        "The 802.1x timeout value for the ICapture Anomaly Detection
+        subscription to detect 'slow 802.1x' anomalies."
+    DEFVAL          { 3 }
+    ::= { cLATICapAnomalyDetectionEntry 2 }
+
+cLATICapAnomalyDetectionPktTraceAp OBJECT-TYPE
+    SYNTAX          TruthValue
+    MAX-ACCESS      read-create
+    STATUS          current
+    DESCRIPTION
+        "Set to true if the ICapture Anomaly Detection subscription
+        should attach packet traces for supported anomaly events
+        triggered by the AP (e.g. client deauthentication). Set to false
+        if packet traces should not be attached to supported anomaly
+        events."
+    DEFVAL          { false }
+    ::= { cLATICapAnomalyDetectionEntry 3 }
+
+cLATICapAnomalyDetectionRowStatus OBJECT-TYPE
+    SYNTAX          RowStatus
+    MAX-ACCESS      read-create
+    STATUS          current
+    DESCRIPTION
+        "The status of this conceptual row. To create a row in this
+        table, a manager must set this object to either createAndGo(4)
+        or createAndWait(5). Until instances of all corresponding
+        columns are appropriately configured, the value of the
+        corresponding instance of the RowStatus column is 'notReady'.
+        In particular, a newly created row cannot be made active until
+        the cLATICapSubMode, cLATICapSubModeId, & cLATICapSubType, has
+        been set. cLATICapSubMode, cLATICapSubModeId, & cLATICapSubType
+        may not be modified while the value of this object is active(1):
+        An attempt to set this object while the value of RowStatus is
+        active(1) will result in an inconsistentValue error."
+    ::= { cLATICapAnomalyDetectionEntry 4 }
+
+END
+

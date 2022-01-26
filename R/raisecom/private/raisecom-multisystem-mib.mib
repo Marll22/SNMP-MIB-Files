@@ -1,0 +1,48 @@
+--MibName=raisecomMultiSystem
+-- *****************************************************************
+-- RAISECOM-MULTISYS-MIB.mib
+--
+-- Jan 2011, lijimin
+--
+-- Copyright(c) 2003-2005 by RAISECOM TECH, Ltd. 
+-- All rights reserved.
+-- *****************************************************************
+
+
+RAISECOM-MULTISYSTEM-MANAGEMENT-MIB DEFINITIONS ::= BEGIN
+
+	IMPORTS
+         MODULE-IDENTITY,
+         Unsigned32,
+         NOTIFICATION-TYPE ,
+         OBJECT-TYPE 
+                	FROM SNMPv2-SMI
+        DisplayString 
+                	FROM SNMPv2-TC 
+        raisecomCommonManagement
+			FROM RAISECOM-COMMON-MANAGEMENT-MIB;
+
+raisecomMultiSystem MODULE-IDENTITY
+    LAST-UPDATED   "201101100000Z"
+    ORGANIZATION   "RAISECOM TECH, Ltd."
+    CONTACT-INFO  
+                "Raisecom Systems
+                        
+                Postal: Beijing,
+                        China
+
+                Tel: 86-010-82884499"
+    DESCRIPTION
+        "This MIB module defines objects to boot list "
+        ::={ raisecomCommonManagement 7 }
+        
+    
+    raisecomMultiSystemBootList OBJECT-TYPE
+		    SYNTAX DisplayString
+		    ACCESS read-create
+		    STATUS mandatory
+		    DESCRIPTION
+		        "the content of  boot list, which is stored in flash"
+		    ::= { raisecomMultiSystem 1 }
+                
+END
