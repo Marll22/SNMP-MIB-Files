@@ -1,0 +1,316 @@
+--
+-- BDCOM EAPS MIB
+--    2009.12.02 Lysh
+--
+
+BDCOM-EAPS-MIB DEFINITIONS ::= BEGIN
+
+	IMPORTS
+		OBJECT-TYPE
+			FROM RFC-1212
+		bdlocal
+			FROM BDCOM-SMI;
+
+--
+-- Node definitions
+--
+
+-- 1.3.6.1.4.1.3320.2.X
+bdEAPS OBJECT IDENTIFIER ::={ bdlocal 230 }
+
+	-- 1.3.6.1.4.1.3320.2.X.1
+	bdEAPSRings OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"The number of running ethernet ring instances."
+		::={ bdEAPS 1 }
+
+	-- 1.3.6.1.4.1.3320.2.X.2
+	bdEAPSPduRx OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"The total number of input EAPS PDUs."
+		::={ bdEAPS 2 }
+
+	-- 1.3.6.1.4.1.3320.2.X.3
+	bdEAPSPduTx OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"The total number of output EAPS PDUs."
+		::={ bdEAPS 3 }
+
+	-- 1.3.6.1.4.1.3320.2.X.4
+	bdEAPSRingTable OBJECT-TYPE
+		SYNTAX  SEQUENCE OF BdEAPSRingTableEntry
+		ACCESS  not-accessible
+		STATUS  mandatory
+		DESCRIPTION
+			"A table that contains information of ethernet ring instances."
+		::= { bdEAPS 4 }
+
+		-- 1.3.6.1.4.1.3320.2.X.4.1
+		bdEAPSRingTableEntry OBJECT-TYPE
+			SYNTAX BdEAPSRingTableEntry
+			ACCESS  not-accessible
+			STATUS  mandatory
+			DESCRIPTION
+				"A table that contains information of ethernet ring instances."
+			INDEX { bdEAPSRingID }
+			::= { bdEAPSRingTable 1 }
+
+		BdEAPSRingTableEntry ::=
+			SEQUENCE {
+				bdEAPSRingID
+					INTEGER,
+				bdEAPSRingNodeType
+					INTEGER,
+				bdEAPSRingControlVlan
+					INTEGER,
+				bdEAPSRingPorts
+					INTEGER,
+				bdEAPSRingState
+					INTEGER,
+				bdEAPSRingHealthCheck
+					INTEGER,
+				bdEAPSRingHelloTime
+					INTEGER,
+				bdEAPSRingFailTime
+					INTEGER,
+				bdEAPSRingPreforwardTime
+					INTEGER
+			}
+
+			-- 1.3.6.1.4.1.3320.2.X.4.1.1
+			bdEAPSRingID OBJECT-TYPE
+				SYNTAX INTEGER
+				ACCESS read-only
+				STATUS mandatory
+				DESCRIPTION
+					"The index of ethernet ring instances."
+				::={ bdEAPSRingTableEntry 1 }
+
+			-- 1.3.6.1.4.1.3320.2.X.4.1.2
+			bdEAPSRingNodeType OBJECT-TYPE
+				SYNTAX INTEGER {
+					unknown(0),
+					masterNode(1),
+					transitNode(2)
+				}
+				ACCESS read-only
+				STATUS mandatory
+				DESCRIPTION
+					"A value indicates the node-type of this device in the ring."
+				::={ bdEAPSRingTableEntry 2 }
+
+			-- 1.3.6.1.4.1.3320.2.X.4.1.3
+			bdEAPSRingControlVlan OBJECT-TYPE
+				SYNTAX INTEGER
+				ACCESS read-only
+				STATUS mandatory
+				DESCRIPTION
+					"The id of the VLAN in which EAPS PDUs are transmitted."
+				::={ bdEAPSRingTableEntry 3 }
+
+			-- 1.3.6.1.4.1.3320.2.X.4.1.4
+			bdEAPSRingPorts OBJECT-TYPE
+				SYNTAX INTEGER
+				ACCESS read-only
+				STATUS mandatory
+				DESCRIPTION
+					"The number of interfaces which are configured in a ring."
+				::={ bdEAPSRingTableEntry 4 }
+
+			-- 1.3.6.1.4.1.3320.2.X.4.1.5
+			bdEAPSRingState OBJECT-TYPE
+				SYNTAX INTEGER {
+					unknown(0),
+					complete(1),
+					ringFault(2)
+				}
+				ACCESS read-only
+				STATUS mandatory
+				DESCRIPTION
+					"A value indicates the state of a node in the ring.
+					Only the value from a MasterNode indicates the state of the whole ring.
+					The value from a TransitNode means the local ring ports are all operational or not."
+				::={ bdEAPSRingTableEntry 5 }
+
+			-- 1.3.6.1.4.1.3320.2.X.4.1.6
+			bdEAPSRingHealthCheck OBJECT-TYPE
+				SYNTAX INTEGER {
+					disabled(0),
+					enabled(1)
+				}
+				ACCESS read-only
+				STATUS mandatory
+				DESCRIPTION
+					"A value indicates whether Health packets are being sent from MasterNode.
+					Available only for MasterNodes."
+				::={ bdEAPSRingTableEntry 6 }
+
+			-- 1.3.6.1.4.1.3320.2.X.4.1.7
+			bdEAPSRingHelloTime OBJECT-TYPE
+				SYNTAX INTEGER
+				ACCESS read-only
+				STATUS mandatory
+				DESCRIPTION
+					"The inteval between the transmit of two Health packets, in seconds.
+					Available only for MasterNodes."
+				::={ bdEAPSRingTableEntry 7 }
+
+			-- 1.3.6.1.4.1.3320.2.X.4.1.8
+			bdEAPSRingFailTime OBJECT-TYPE
+				SYNTAX INTEGER
+				ACCESS read-only
+				STATUS mandatory
+				DESCRIPTION
+					"The hold time for the SecondaryPort after a Health packet is received, in seconds.
+					Available only for MasterNodes."
+				::={ bdEAPSRingTableEntry 8 }
+
+			-- 1.3.6.1.4.1.3320.2.X.4.1.9
+			bdEAPSRingPreforwardTime OBJECT-TYPE
+				SYNTAX INTEGER
+				ACCESS read-only
+				STATUS mandatory
+				DESCRIPTION
+					"The hold time for a TransitPort which is recovered from a failure,	in seconds.
+					During the pre-forward time, no packets other than PDUs in control vlan can be forwarded.
+					Only available for TransitNodes."
+				::={ bdEAPSRingTableEntry 9 }
+
+	-- 1.3.6.1.4.1.3320.2.X.5
+	bdEAPSRingPortTable OBJECT-TYPE
+		SYNTAX  SEQUENCE OF BdEAPSRingPortTableEntry
+		ACCESS  not-accessible
+		STATUS  mandatory
+		DESCRIPTION
+			"A table that contains information of ethernet ring ports."
+		::= { bdEAPS 5 }
+
+		-- 1.3.6.1.4.1.3320.2.X.5.1
+		bdEAPSRingPortTableEntry OBJECT-TYPE
+			SYNTAX BdEAPSRingPortTableEntry
+			ACCESS  not-accessible
+			STATUS  mandatory
+			DESCRIPTION
+				"A table that contains information of ethernet ring ports."
+			INDEX { bdEAPSRingPortRingID, bdEAPSRingPort }
+			::= { bdEAPSRingPortTable 1 }
+
+		BdEAPSRingPortTableEntry ::=
+			SEQUENCE {
+				bdEAPSRingPortRingID
+					INTEGER,
+				bdEAPSRingPort
+					INTEGER,
+				bdEAPSRingPortType
+					INTEGER,
+				bdEAPSRingPortState
+					INTEGER,
+				bdEAPSRingPortForwards
+					INTEGER,
+				bdEAPSRingPortRx
+					INTEGER,
+				bdEAPSRingPortTx
+					INTEGER
+			}
+
+			-- 1.3.6.1.4.1.3320.2.X.5.1.1
+			bdEAPSRingPortRingID OBJECT-TYPE
+				SYNTAX INTEGER
+				ACCESS read-only
+				STATUS mandatory
+				DESCRIPTION
+					"The index of an ethernet ring instance, in which this port is configured."
+				::={ bdEAPSRingPortTableEntry 1 }
+
+			-- 1.3.6.1.4.1.3320.2.X.5.1.2
+			bdEAPSRingPort OBJECT-TYPE
+				SYNTAX INTEGER
+				ACCESS read-only
+				STATUS mandatory
+				DESCRIPTION
+					"The port number of the ring port."
+				::={ bdEAPSRingPortTableEntry 2 }
+
+			-- 1.3.6.1.4.1.3320.2.X.5.1.3
+			bdEAPSRingPortType OBJECT-TYPE
+				SYNTAX INTEGER {
+					unknown(0),
+					primaryPort(1),
+					secondaryPort(2),
+					transitPort(3)
+				}
+				ACCESS read-only
+				STATUS mandatory
+				DESCRIPTION
+					"A value indicates the type of a ring port."
+				::={ bdEAPSRingPortTableEntry 3 }
+
+			-- 1.3.6.1.4.1.3320.2.X.5.1.4
+			bdEAPSRingPortState OBJECT-TYPE
+				SYNTAX INTEGER {
+					unknown(0),
+					forwarding(1),
+					preforwarding(2),
+					blocking(3)
+				}
+				ACCESS read-only
+				STATUS mandatory
+				DESCRIPTION
+					"A value indicates the forward state of a ring port in data vlans."
+				::={ bdEAPSRingPortTableEntry 4 }
+
+			-- 1.3.6.1.4.1.3320.2.X.5.1.5
+			bdEAPSRingPortForwards OBJECT-TYPE
+				SYNTAX INTEGER
+				ACCESS read-only
+				STATUS mandatory
+				DESCRIPTION
+					"The number of times this port has transitioned to forwarding state."
+				::={ bdEAPSRingPortTableEntry 5 }
+
+			-- 1.3.6.1.4.1.3320.2.X.5.1.6
+			bdEAPSRingPortRx OBJECT-TYPE
+				SYNTAX INTEGER
+				ACCESS read-only
+				STATUS mandatory
+				DESCRIPTION
+					"The number of received EAPS PDUs on this port."
+				::={ bdEAPSRingPortTableEntry 6 }
+
+			-- 1.3.6.1.4.1.3320.2.X.5.1.7
+			bdEAPSRingPortTx OBJECT-TYPE
+				SYNTAX INTEGER
+				ACCESS read-only
+				STATUS mandatory
+				DESCRIPTION
+					"The Number of transmitted EAPS PDUs on this port."
+				::={ bdEAPSRingPortTableEntry 7 }
+
+	-- Notifications
+
+	-- 1.3.6.1.4.1.3320.2.X.6
+	bdEAPSRingNotifications OBJECT IDENTIFIER ::= { bdEAPS 6 }
+
+	bdEAPSRingNotification NOTIFICATION-TYPE
+		OBJECTS {
+			bdEAPSRingID,
+			bdEAPSRingNodeType,
+			bdEAPSRingState
+		}
+		STATUS current
+		DESCRIPTION
+			"This notification is generated when a MasterNode detects that
+			the state of ring is changed."
+		::= { bdEAPSRingNotifications 1 }
+
+END
+

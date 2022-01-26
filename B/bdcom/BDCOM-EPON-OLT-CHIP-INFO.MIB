@@ -1,0 +1,115 @@
+-- *****************************************************************
+-- BDCOM-EPON-OLT-CHIP-INFO.MIB:  BDCom OLT-COMM MIB file
+-- AUG 2009
+-- *****************************************************************
+--
+
+               BDCOM-EPON-OLT-CHIP-INFO DEFINITIONS ::= BEGIN
+
+               IMPORTS
+                    Counter, IpAddress, Counter
+			FROM RFC1155-SMI
+		    OBJECT-TYPE
+			FROM RFC-1212
+                    DisplayString, ifIndex, PhysAddress
+			FROM RFC1213-MIB
+		    bdEPONGroup
+			FROM BDCOM-SMI;
+          
+               bdEponOltChipInfo         OBJECT IDENTIFIER ::= { bdEPONGroup 2 }
+
+               bdeponoltchipTable OBJECT-TYPE
+                   SYNTAX  SEQUENCE OF BdEponOltChipEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A list of epon olt chip table entries."
+                   ::= { bdEponOltChipInfo 1 }
+
+               bdEponOltChipEntry OBJECT-TYPE
+                   SYNTAX BdEponOltChipEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of additional objects in the
+                            epon olt chip table."
+                   INDEX { oltChipIndex }
+               ::= { bdeponoltchipTable 1 }
+
+               BdEponOltChipEntry ::=
+                   SEQUENCE {
+                       oltChipIndex
+                           INTEGER,
+                       oltChipSlotID
+                           INTEGER,
+                       oltChipModuleID
+                           INTEGER,
+                       oltChipDeviceID
+                           INTEGER,
+                       oltChipMACAddress
+                           PhysAddress,
+                       oltChipStatus
+                           INTEGER
+                   }
+
+
+          -- The following section describes the components of the
+          -- table.
+
+               oltChipIndex OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "OLT chip index corresponding allocated by system."
+                   ::= { bdEponOltChipEntry 1 } 
+
+               oltChipSlotID OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "OLT chip slot id."
+                   ::= { bdEponOltChipEntry 2 } 
+
+               oltChipModuleID OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "OLT chip module id."
+                   ::= { bdEponOltChipEntry 3 } 
+
+               oltChipDeviceID OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "OLT chip device id."
+                   ::= { bdEponOltChipEntry 4 } 
+
+               oltChipMACAddress OBJECT-TYPE
+                   SYNTAX  PhysAddress
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "OLT chip MAC address."
+                   ::= { bdEponOltChipEntry 5 } 
+
+               oltChipStatus OBJECT-TYPE
+                   SYNTAX  INTEGER {
+                          wait_config(1),
+                          operational(2),
+                          shut_down(3),
+                          timed_out(4),
+                          downloading_image(5)                          
+                               	    }
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "OLT chip Status."
+                   ::= { bdEponOltChipEntry 6 } 
+
+
+
+END

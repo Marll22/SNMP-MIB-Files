@@ -1,0 +1,131 @@
+-- *****************************************************************
+-- BDCOM-WLAN-MIB.my: BDCOM WLAN MIB
+--
+-- March 2010
+-- Edit by LIUQIANG
+-- Copyright (c) 2010 by BDCOM, Inc.
+-- All rights reserved.
+-- *****************************************************************
+
+
+BDCOM-WLAN-MIB DEFINITIONS ::= BEGIN 
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,INTEGER
+                                                FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION                          FROM SNMPv2-TC
+    MODULE-COMPLIANCE, OBJECT-GROUP             FROM SNMPv2-CONF
+    ifIndex                            FROM RFC1213-MIB
+    bdMgmt                             FROM BDCOM-SMI;
+
+--definition of BDCOM device card related operations and trap related values
+
+               	wlan         OBJECT IDENTIFIER ::= { bdMgmt 352 }
+
+               bdDot11Table OBJECT-TYPE
+                   SYNTAX  SEQUENCE OF BdDot11Entry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "BDCOM dot11 table."
+                   ::= { wlan 1 }
+        
+               bdDot11Entry OBJECT-TYPE
+                   SYNTAX  BdDot11Entry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "BDCOM dot11 table entry."
+                   INDEX   { ifIndex }
+                   ::= { bdDot11Table 1 }
+        
+               BdDot11Entry ::=
+                   SEQUENCE {
+                       bdDot11DesiredSSID
+                           OCTET STRING,
+                       bdDot11SSIDHide
+                           INTEGER
+                   }
+
+               
+                bdDot11DesiredSSID OBJECT-TYPE
+                    SYNTAX  OCTET STRING
+                    ACCESS  read-write
+                    STATUS  mandatory
+                    DESCRIPTION
+                            "BDCOM dot11 desired SSID."
+                    ::= { bdDot11Entry 1 }
+
+               bdDot11SSIDHide OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                              disable(0),
+                              enable(1)
+                                  }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "BDCOM dot11 SSID hide status."
+                   ::= { bdDot11Entry 2 }
+               
+               bdDot11RadioTable OBJECT-TYPE
+                   SYNTAX  SEQUENCE OF BdDot11RadioEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "BDCOM dot11 radio table."
+                   ::= { wlan 2 }
+        
+               bdDot11RadioEntry OBJECT-TYPE
+                   SYNTAX  BdDot11RadioEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "BDCOM dot11 radio table entry."
+                   INDEX   { bdDot11RadioIndex }
+                   ::= { bdDot11RadioTable 1 }
+        
+               BdDot11RadioEntry ::=
+                   SEQUENCE {
+                       bdDot11RadioIndex
+                           INTEGER,
+                       bdDot11RadioEnabled
+                           INTEGER,
+                       bdDot11RadioMode
+                           INTEGER
+                   }
+
+                bdDot11RadioIndex OBJECT-TYPE
+                    SYNTAX  INTEGER
+                    ACCESS  read-only
+                    STATUS  mandatory
+                    DESCRIPTION
+                            "A unique value for each dot11 radio table entry."
+                    ::= { bdDot11RadioEntry 1 }
+               
+                bdDot11RadioEnabled OBJECT-TYPE
+                    SYNTAX  INTEGER{
+                                    enable(0),
+                                    disable(1)
+                                    }
+                    ACCESS  read-write
+                    STATUS  mandatory
+                    DESCRIPTION
+                            "dot11 radio enable status. 0-enable,1-disable."
+                    ::= { bdDot11RadioEntry 2 }
+               
+                bdDot11RadioMode OBJECT-TYPE
+                    SYNTAX  INTEGER{
+                                    a(0),
+                                    b(1),
+                                    g(2),
+                                    bg(3)
+                                    }
+                    ACCESS  read-write
+                    STATUS  mandatory
+                    DESCRIPTION
+                            "dot11 radio mode. 0-a ,1-b, 2-g, 3-bg."
+                    ::= { bdDot11RadioEntry 3 }
+               
+               
+END               
+               

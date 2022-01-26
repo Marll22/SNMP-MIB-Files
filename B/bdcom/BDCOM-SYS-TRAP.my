@@ -1,0 +1,114 @@
+-- *****************************************************************
+-- BDCOM-SYS-TRAP.my: BDCOM SYS-TRAP MIB
+--
+-- March 2010
+-- Edit by LIUQIANG
+-- Copyright (c) 2010 by BDCOM, Inc.
+-- All rights reserved.
+-- *****************************************************************
+
+
+BDCOM-SYS-TRAP DEFINITIONS ::= BEGIN 
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, INTEGER
+                                                FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION                          FROM SNMPv2-TC
+    MODULE-COMPLIANCE, OBJECT-GROUP             FROM SNMPv2-CONF
+    entPhysicalSerialNum                        FROM ENTITY-MIB
+    sysDescr,sysObjectID,sysUpTime,sysContact,sysLocation FROM RFC1213-MIB
+    bdMgmt                             FROM BDCOM-SMI;
+    
+    
+
+-- Notifications   --
+	bdSysNotifications OBJECT IDENTIFIER
+                                ::= { bdMgmt 354 }
+
+
+	bdSysResetNotification NOTIFICATION-TYPE
+    		OBJECTS {
+                  sysDescr,
+                  sysObjectID,
+                  sysUpTime,
+		  sysContact,
+		  sysLocation
+    		}
+    		STATUS      current
+    		DESCRIPTION
+        	"The agent generates this notification before system reset. "
+    		::= { bdSysNotifications 1 }
+
+	bdSnmpAgentInitNotification NOTIFICATION-TYPE
+    		OBJECTS {
+                  sysDescr,
+                  sysObjectID,
+                  sysUpTime,
+		  sysContact,
+		  sysLocation
+    		}
+    		STATUS      current
+    		DESCRIPTION
+        	"The agent generates this notification after snmp ageent starts. "
+    		::= { bdSysNotifications 2 }
+    		
+    	
+    	
+        bdDeviceOUI OBJECT-TYPE
+            SYNTAX  OCTET STRING
+            ACCESS  read-only
+            STATUS  mandatory
+            DESCRIPTION
+                    "BDCOM OUI, first 6 bits in mac address."
+            ::= { bdSysNotifications 3 }
+    		
+    	
+	bdWillRebootNotification NOTIFICATION-TYPE
+    		OBJECTS {
+                  bdDeviceOUI,
+		  entPhysicalSerialNum
+    		}
+    		STATUS      current
+    		DESCRIPTION
+        	"The agent generates this notification after system reset or snmp ageent starts. "
+    		::= { bdSysNotifications 4 }
+    		
+	bdCPUExNotification NOTIFICATION-TYPE
+    		OBJECTS {
+                  bdDeviceOUI,
+		  entPhysicalSerialNum
+    		}
+    		STATUS      current
+    		DESCRIPTION
+        	"The agent generates this notification when cpu usage execeeds the threshold. "
+    		::= { bdSysNotifications 5 }
+    		
+	bdMemoryExNotification NOTIFICATION-TYPE
+    		OBJECTS {
+                  bdDeviceOUI,
+		  entPhysicalSerialNum
+    		}
+    		STATUS      current
+    		DESCRIPTION
+        	"The agent generates this notification when memory usage execeeds the threshold. "
+    		::= { bdSysNotifications 6 }
+    		
+	bdHardwareFailedNotification NOTIFICATION-TYPE
+    		OBJECTS {
+                  bdDeviceOUI,
+		  entPhysicalSerialNum
+    		}
+    		STATUS      current
+    		DESCRIPTION
+        	"The agent generates this notification when hardware failure. "
+    		::= { bdSysNotifications 7 }
+    		
+       
+
+
+	
+	
+
+
+END    
+    

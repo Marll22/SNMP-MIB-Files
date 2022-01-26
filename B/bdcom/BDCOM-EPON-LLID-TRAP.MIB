@@ -1,0 +1,111 @@
+-- *****************************************************************
+-- BDCOM-EPON-LLID-TRAP.my: BDCOM EPON LLID TRAP MIB
+--
+-- October 2009
+-- Edit by LIUQIANG
+-- Copyright (c) 2009 by BDCOM, Inc.
+-- All rights reserved.
+-- *****************************************************************
+
+BDCOM-EPON-LLID-TRAP DEFINITIONS ::= BEGIN
+
+
+
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,INTEGER,
+    Integer32, Unsigned32                       FROM SNMPv2-SMI
+    MODULE-COMPLIANCE, OBJECT-GROUP,
+    NOTIFICATION-GROUP                          FROM SNMPv2-CONF
+    bdEPONGroup                              	FROM BDCOM-SMI
+    ifDescr                                     FROM RFC1213-MIB                                                 
+    llidIfIndex,llidToEponPortDiid,llidsequenceNo                                 FROM BDCOM-EPON-LLID
+    onuID  FROM BDCOM-EPON-ONU ;
+
+
+               bdEponLlidTrap         OBJECT IDENTIFIER ::= { bdEPONGroup 17 }
+               
+               TypeOfLlidOamChange ::= INTEGER
+                	{ Disabled(1),
+                           Linkfault(2),
+                           PassiveWait(3),
+                           ActiveSendLocal(4),
+                           SendLocalAndRemote(5),
+                           SendLocalAndRemoteOk(6),
+                           OamPeeringLocallyRejected(7),
+                           OamPeeringRemotelyRejected(8),
+                           Operational(9),
+                           Unknown(10)
+                         }
+                         
+                         
+               oAMStatusChange OBJECT-TYPE
+                   SYNTAX  TypeOfLlidOamChange
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "BDCOM EPON LLID status change."
+                   ::= { bdEponLlidTrap 1 }
+		                
+                         
+             
+
+-- Notifications
+	bdEponLlidOamChangesNotifications OBJECT IDENTIFIER
+                                ::= { bdEponLlidTrap 2 }
+
+
+
+	bdEponLlidOamChangesNotification NOTIFICATION-TYPE
+    		OBJECTS {
+                       llidIfIndex,
+                       ifDescr,
+                       oAMStatusChange
+    		}
+    		STATUS      current
+    		DESCRIPTION
+        	"The agent generates this notification when oam llid change ."
+    		::= { bdEponLlidOamChangesNotifications 1 }
+
+
+
+               TypeOfLlidChange ::= INTEGER
+                	{ create(1),
+                           delete(2)
+                         }
+
+
+ 
+               llidStatusChange OBJECT-TYPE
+                   SYNTAX  TypeOfLlidChange
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "BDCOM EPON LLID status change."
+                   ::= { bdEponLlidTrap 3 }
+ 
+ 
+ 
+-- Notifications
+	bdEponLlidChangesNotifications OBJECT IDENTIFIER
+                                ::= { bdEponLlidTrap 4 }
+
+
+	bdEponLlidChangesNotification NOTIFICATION-TYPE
+    		OBJECTS {
+                       llidIfIndex,
+                       llidToEponPortDiid,
+                       llidsequenceNo,
+                       ifDescr,
+                       onuID,
+                       llidStatusChange
+    		}
+    		STATUS      current
+    		DESCRIPTION
+        	"The agent generates this notification when llid change ."
+    		::= { bdEponLlidChangesNotifications 1 }
+
+ 
+              
+
+END

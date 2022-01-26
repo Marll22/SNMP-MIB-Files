@@ -1,0 +1,166 @@
+BDCOM-GBSC-MIB  DEFINITIONS ::= BEGIN
+
+	IMPORTS
+        MODULE-IDENTITY,
+        OBJECT-TYPE
+            FROM SNMPv2-SMI
+        
+     	Gauge,TimeTicks
+      		FROM RFC1155-SMI
+                  
+        DisplayString
+			FROM RFC1213-MIB
+        bdMgmt
+            FROM BDCOM-SMI 
+        PhysAddress 
+            FROM SNMPv2-TC;
+                        
+bdGbscHostMIB  MODULE-IDENTITY
+        LAST-UPDATED    "20090317"
+        ORGANIZATION    "BDCom,Inc"
+        CONTACT-INFO
+                	"Shanghai baud data communication Co.ltd
+			Postal:No.123,Juli RD,Zhangjiang Hi-tech Park,
+			      Pudong New Zone,Shanghai City,201203
+			      P.R.C
+			Tel: 8621-50800666"
+			
+        DESCRIPTION
+                "Definition for host 
+                "
+        ::= { bdMgmt 101 }
+
+
+
+bdGbscHostsObjects   OBJECT IDENTIFIER ::= { bdGbscHostMIB 1 } 
+
+	--new define for 17 series broadband router: nat host table        
+	          BdGBSCHostsEntry ::= SEQUENCE {
+			    bdGBSCHostsID                      INTEGER,
+			    bdGBSCHostsAddr                    IpAddress,  
+			    bdGBSCHostsCurrentNatItems         INTEGER, 
+			    bdGBSCHostsMaxTranslationItems     INTEGER,
+			    bdGBSCHostsUpLoadRate              INTEGER,	
+			    bdGBSCHostsDownLoadRate			   INTEGER,
+			    bdGBSCHostsUpLoadTotalFlow     	   Counter,
+			    bdGBSCHostsDownLoadTotalFlow	   Counter,
+			    bdGBSCHostsUpLoadLostPks     	   Counter,
+			    bdGBSCHostsDownLoadLostPks	       Counter,      
+			    bdGBSCHostsServiceStatus           BIT STRING
+			    
+		  }    
+		  
+         bdGBSCHostsTable OBJECT-TYPE
+              SYNTAX  SEQUENCE OF BdGBSCHostsEntry
+              ACCESS  not-accessible
+              STATUS  mandatory
+              DESCRIPTION
+                      "the index of GBSC Hosts Table."
+              ::= { bdGbscHostsObjects 1 }          
+              
+          bdGBSCHostsEntry OBJECT-TYPE
+              SYNTAX  BdGBSCHostsEntry
+              ACCESS  not-accessible
+              STATUS  mandatory
+              DESCRIPTION
+              		"An entry (conceptual row) containing information
+             		about an active GBSC Hosts on this NAT device."
+              INDEX   { bdGBSCHostsID }
+              ::= { bdGBSCHostsTable 1 }
+              
+		  bdGBSCHostsID OBJECT-TYPE
+			    SYNTAX     INTEGER 
+			    ACCESS 	   read-only
+			    STATUS     current
+			    DESCRIPTION
+			            "The ID for this GBSC Hosts."
+			    ::= { bdGBSCHostsEntry 1 }
+			    
+		  bdGBSCHostsAddr OBJECT-TYPE
+			    SYNTAX     IpAddress
+			    ACCESS 	   read-only
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "The IP address for certain GBSC host"
+			    ::= { bdGBSCHostsEntry 2 }
+
+		  bdGBSCHostsCurrentNatItems OBJECT-TYPE
+			    SYNTAX     INTEGER 
+			    ACCESS 	   read-write
+			    STATUS     current
+			    DESCRIPTION
+			            "The current translation items for every GBSC host."
+			    ::= { bdGBSCHostsEntry 3 }
+			    
+		  bdGBSCHostsMaxTranslationItems OBJECT-TYPE
+			    SYNTAX     INTEGER 
+			    ACCESS 	   read-write
+			    STATUS     current
+			    DESCRIPTION
+			            "The maximal translation items for every GBSC host."
+			    ::= { bdGBSCHostsEntry 4 }
+
+		  bdGBSCHostsUpLoadRate OBJECT-TYPE
+			    SYNTAX     INTEGER
+			    ACCESS 	   read-only
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "The upload rate for certain GBSC host."
+			    ::= { bdGBSCHostsEntry 5 }
+
+		  bdGBSCHostsDownLoadRate OBJECT-TYPE
+			    SYNTAX     INTEGER
+			    ACCESS 	   read-only
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "The download rate for certain GBSC host."
+			    ::= { bdGBSCHostsEntry 6 }
+          
+          bdGBSCHostsUpLoadTotalFlow OBJECT-TYPE
+			    SYNTAX     Counter
+			    ACCESS 	   read-only
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "The total upload flow for certain GBSC host."
+			    ::= { bdGBSCHostsEntry 7 }
+
+		  bdGBSCHostsDownLoadTotalFlow OBJECT-TYPE
+			    SYNTAX     Counter
+			    ACCESS	   read-only
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "The total download flow for certain GBSC host."
+			    ::= { bdGBSCHostsEntry 8 }     
+              
+              
+          bdGBSCHostsUpLoadLostPks OBJECT-TYPE
+			    SYNTAX     Counter
+			    ACCESS 	   read-only
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "The total upload lost packages for certain GBSC host."
+			    ::= { bdGBSCHostsEntry 9 }      
+			    
+          bdGBSCHostsDownLoadLostPks OBJECT-TYPE
+			    SYNTAX     Counter
+			    ACCESS 	   read-only
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "The total download lost packages for certain GBSC host."
+			    ::= { bdGBSCHostsEntry 10 }
+			    
+         bdGBSCHostsServiceStatus OBJECT-TYPE
+              SYNTAX  BIT STRING
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION
+                      "The GBSC host Service status.Every bit means a service status."
+              ::= { bdGBSCHostsEntry 11 }
+     
+
+ 
+
+
+           
+END
+

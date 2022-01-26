@@ -1,0 +1,47 @@
+-- *****************************************************************
+-- BDCOM-EPON-PON-ILLEAGL-REG-TRAP.my: BDCOM EPON PON TRAP MIB
+--
+-- October 2009
+-- Edit by LIUQIANG
+-- Copyright (c) 2009 by BDCOM, Inc.
+-- All rights reserved.
+-- *****************************************************************
+
+BDCOM-EPON-PON-ILLEAGL-REG-TRAP DEFINITIONS ::= BEGIN
+
+
+
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,INTEGER,
+    MODULE-COMPLIANCE, OBJECT-GROUP,
+    NOTIFICATION-GROUP                          FROM SNMPv2-CONF
+    bdEPONGroup                              	FROM BDCOM-SMI
+    ponIfIndex                                  FROM BDCOM-EPON-OLT-PON
+    ifDescr                                     FROM RFC1213-MIB                                                 
+    onuID                                       FROM BDCOM-EPON-ONU;
+
+
+               bdEponPonIlleagalRegTrap         OBJECT IDENTIFIER ::= { bdEPONGroup 16 }
+               
+             
+
+-- Notifications
+	bdEponPonOnuIllegalRegNotifications OBJECT IDENTIFIER
+                                ::= { bdEponPonIlleagalRegTrap 1 }
+
+
+	bdEponPonOnuIllegalRegNotification NOTIFICATION-TYPE
+    		OBJECTS {
+                       ponIfIndex,
+                       ifDescr,
+                       onuID
+    		}
+    		STATUS      current
+    		DESCRIPTION
+        	"The agent generates this notification when pon gets an illegal registration ."
+    		::= { bdEponPonOnuIllegalRegNotifications 1 }
+
+              
+
+END

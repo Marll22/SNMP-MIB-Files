@@ -1,0 +1,55 @@
+-- *****************************************************************
+-- BDCOM-FAN-TRAP.MIB: BDCOM FAN TRAP MIB
+--
+-- JAN 2010
+-- Edit by LIUQIANG
+-- Copyright (c) 2010 by BDCOM, Inc.
+-- All rights reserved.
+-- *****************************************************************
+
+BDCOM-FAN-TRAP DEFINITIONS ::= BEGIN
+
+
+
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,INTEGER,
+    Integer32, Unsigned32                       FROM SNMPv2-SMI
+    MODULE-COMPLIANCE, OBJECT-GROUP,
+    NOTIFICATION-GROUP                          FROM SNMPv2-CONF
+    bdEPONGroup,bdMgmt                                 FROM BDCOM-SMI;
+
+
+               fanTrap         OBJECT IDENTIFIER ::= { bdMgmt 187 }
+
+
+
+    
+-- Notifications
+          fanStatus OBJECT-TYPE
+              SYNTAX  INTEGER {
+                          normal(1), 
+                          --normal(-268435456),     
+                          stop(0)
+                          }
+              ACCESS  not-accessible
+              STATUS  mandatory
+              DESCRIPTION
+                      "Fan status, 1-normal, 2-stop."
+              ::= { fanTrap 1 }
+
+	bdFanNotifications OBJECT IDENTIFIER
+                                ::= { fanTrap 2 }
+
+
+	bdFanNotification NOTIFICATION-TYPE
+    		OBJECTS {
+                       fanStatus
+                        }
+    		STATUS      current
+    		DESCRIPTION
+        	"The agent generates this notification when fan stops or resumes ."
+    		::= { bdFanNotifications 1 }
+
+              
+END

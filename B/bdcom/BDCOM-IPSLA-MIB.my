@@ -1,0 +1,183 @@
+BDCOM-IPSLA-MIB  DEFINITIONS ::= BEGIN
+
+	IMPORTS
+        MODULE-IDENTITY,
+        OBJECT-TYPE
+            FROM SNMPv2-SMI
+        
+     	Gauge,TimeTicks
+      		FROM RFC1155-SMI
+                  
+        DisplayString
+			FROM RFC1213-MIB
+        bdMgmt
+            FROM BDCOM-SMI 
+        PhysAddress 
+            FROM SNMPv2-TC;
+                        
+bdIpslaJitterMIB  MODULE-IDENTITY
+        LAST-UPDATED    "20090317"
+        ORGANIZATION    "BDCom,Inc"
+        CONTACT-INFO
+                	"Shanghai baud data communication Co.ltd
+			Postal:No.123,Juli RD,Zhangjiang Hi-tech Park,
+			      Pudong New Zone,Shanghai City,201203
+			      P.R.C
+			Tel: 8621-50800666"
+			
+        DESCRIPTION
+                "Definition for host 
+                "
+        ::= { bdMgmt 102 }
+
+
+       
+bdIpslaJitterObjects   OBJECT IDENTIFIER ::= { bdIpslaJitterMIB 1 } 
+
+	--new define for 17 series broadband router: nat host table        
+	          IpslaJitterEntry ::= SEQUENCE {
+			    bdIpslaJobEntryIndex                      INTEGER,
+			    bdIpslaJobSuccesses			INTEGER,  
+			    bdIpslaJobFailures         		INTEGER, 
+			    bdIpslaJitterSamples     		INTEGER,
+			    bdIpslaJitterSrc2DstMin            INTEGER,	
+			    bdIpslaJitterSrc2DstMax		INTEGER,
+			    bdIpslaJitterSrc2DstAvg     	   INTEGER,
+			    bdIpslaJitterDst2SrcMin	   INTEGER,
+			    bdIpslaJitterDst2SrcMax     	   INTEGER,
+			    bdIpslaJitterDst2SrcAvg	       INTEGER,      
+			    bdIpslaJitterRttMin           INTEGER,
+			    bdIpslaJitterRttMax	INTEGER,
+			    bdIpslaJitterRttAvg	INTEGER
+			    
+		  }    
+		  
+         ipslaJitterTable OBJECT-TYPE
+              SYNTAX  SEQUENCE OF IpslaJitterEntry
+              ACCESS  not-accessible
+              STATUS  mandatory
+              DESCRIPTION
+                      "the index of ipsla udp-jitter Table."
+              ::= { bdIpslaJitterObjects 1 }          
+              
+          bdIpslaJitterEntry OBJECT-TYPE
+              SYNTAX  IpslaJitterEntry
+              ACCESS  not-accessible
+              STATUS  mandatory
+              DESCRIPTION
+              		"An entry (conceptual row) containing information
+             		about a ipsla job."
+              INDEX   { bdIpslaJobEntryIndex }
+              ::= { ipslaJitterTable 1 }
+              
+		  bdIpslaJobEntryIndex OBJECT-TYPE
+			    SYNTAX     INTEGER 
+			    ACCESS 	   read-only
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "The index for this ipsla job entry."
+			    ::= { bdIpslaJitterEntry 1 }
+			    
+		  bdIpslaJobSuccesses OBJECT-TYPE
+			    SYNTAX     INTEGER
+			    ACCESS 	   read-only
+			    STATUS     current
+			    DESCRIPTION
+			            "The Ipsla job entry's success times."
+			    ::= { bdIpslaJitterEntry 2 }
+
+		  bdIpslaJobFailures OBJECT-TYPE
+			    SYNTAX     INTEGER 
+			    ACCESS 	   read-only
+			    STATUS     current
+			    DESCRIPTION
+			            "The Ipsla job entry's failure times."
+			    ::= { bdIpslaJitterEntry 3 }
+			    
+		  bdIpslaJitterSamples OBJECT-TYPE
+			    SYNTAX     INTEGER 
+			    ACCESS 	   read-only
+			    STATUS     current
+			    DESCRIPTION
+			            "The Ipsla udp-jitter's samples ."
+			    ::= { bdIpslaJitterEntry 4 }
+
+		  bdIpslaJitterSrc2DstMin OBJECT-TYPE
+			    SYNTAX     INTEGER
+			    ACCESS 	   read-only
+			    STATUS     current
+			    DESCRIPTION
+			            "The Ipsla udp min jitter for source to destination."
+			    ::= { bdIpslaJitterEntry 5 }
+
+		  bdIpslaJitterSrc2DstMax	 OBJECT-TYPE
+			    SYNTAX     INTEGER
+			    ACCESS 	   read-only
+			    STATUS     current
+			    DESCRIPTION
+			            "The Ipsla udp max jitter for source to destination."
+			    ::= { bdIpslaJitterEntry 6 }
+          
+          bdIpslaJitterSrc2DstAvg OBJECT-TYPE
+			    SYNTAX     INTEGER
+			    ACCESS 	   read-only
+			    STATUS     current
+			    DESCRIPTION
+			            "The Ipsla udp average jitter for source to destination."
+			    ::= { bdIpslaJitterEntry 7 }
+
+		  bdIpslaJitterDst2SrcMin OBJECT-TYPE
+			    SYNTAX     INTEGER
+			    ACCESS	   read-only
+			    STATUS     current
+			    DESCRIPTION
+			            "The Ipsla udp min jitter for destination to source."
+			    ::= { bdIpslaJitterEntry 8 }     
+              
+              
+          bdIpslaJitterDst2SrcMax OBJECT-TYPE
+			    SYNTAX     INTEGER
+			    ACCESS 	   read-only
+			    STATUS     current
+			    DESCRIPTION
+			            "The Ipsla udp max jitter for destination to source."
+			    ::= { bdIpslaJitterEntry 9 }      
+			    
+          bdIpslaJitterDst2SrcAvg OBJECT-TYPE
+			    SYNTAX     INTEGER
+			    ACCESS 	   read-only
+			    STATUS     current
+			    DESCRIPTION
+			            "The Ipsla udp average jitter for destination to source."
+			    ::= { bdIpslaJitterEntry 10 }
+			    
+         bdIpslaJitterRttMin OBJECT-TYPE
+              SYNTAX  INTEGER
+              ACCESS  read-only
+              STATUS  current
+              DESCRIPTION
+                      "The Ipsla udp jitter's min round trip time "
+              ::= { bdIpslaJitterEntry 11 }
+     
+
+ 	bdIpslaJitterRttMax OBJECT-TYPE
+              SYNTAX  INTEGER
+              ACCESS  read-only
+              STATUS  current
+              DESCRIPTION
+                      "The Ipsla udp jitter's max round trip time "
+              ::= { bdIpslaJitterEntry 12 }
+
+
+	bdIpslaJitterRttAvg	OBJECT-TYPE
+              SYNTAX  INTEGER
+              ACCESS  read-only
+              STATUS  current
+              DESCRIPTION
+                      "The Ipsla udp jitter's average round trip time "
+              ::= { bdIpslaJitterEntry 13 }
+
+
+           
+END
+

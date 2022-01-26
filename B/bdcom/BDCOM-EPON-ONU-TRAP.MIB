@@ -1,0 +1,92 @@
+-- *****************************************************************
+-- BDCOM-EPON-ONU-TRAP.my: BDCOM EPON OLT CHIP STATUS TRAP MIB
+--
+-- October 2009
+-- Edit by LIUQIANG
+-- Copyright (c) 2008 by BDCOM, Inc.
+-- All rights reserved.
+-- *****************************************************************
+
+BDCOM-EPON-ONU-TRAP DEFINITIONS ::= BEGIN
+
+
+
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,INTEGER,
+    Integer32, Unsigned32                       FROM SNMPv2-SMI
+    MODULE-COMPLIANCE, OBJECT-GROUP,
+    NOTIFICATION-GROUP                          FROM SNMPv2-CONF
+    bdEPONGroup                                 FROM BDCOM-SMI
+    llidIfIndex                                 FROM BDCOM-EPON-LLID
+    ifDescr                                     FROM RFC1213-MIB                                                 
+    onuID,onuStatus,onuVendorID,onuModuleID,onuSerialPortCount               FROM BDCOM-EPON-ONU;
+
+
+               bdEponOnuTrap         OBJECT IDENTIFIER ::= { bdEPONGroup 18 }
+               
+               TypeOfRemoteFailureIndication ::= INTEGER
+                	{ link_fault(1),
+                           dying_gasp(2),
+                           critical_link_event(3)
+                         }
+
+               TypeOfVersionUpdateStatus ::= INTEGER
+                	{ start(1),
+                           success(2),
+                           failed(3)
+                         }                        
+                         
+               onuRemoteFailureIndication OBJECT-TYPE
+                   SYNTAX  TypeOfRemoteFailureIndication
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "BDCOM ONU remote failure indication."
+                   ::= { bdEponOnuTrap 1 }
+		                
+               onuVersionUpdateStatus OBJECT-TYPE
+                   SYNTAX  TypeOfVersionUpdateStatus
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "BDCOM ONU software version update status."
+                   ::= { bdEponOnuTrap 2 }
+		                
+               onuEpromVersionUpdateStatus OBJECT-TYPE
+                   SYNTAX  TypeOfVersionUpdateStatus
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "BDCOM ONU EPROM software version update status."
+                   ::= { bdEponOnuTrap 3 }
+		                
+                         
+             
+
+-- Notifications
+	bdOnuNotifications OBJECT IDENTIFIER
+                                ::= { bdEponOnuTrap 4 }
+
+
+	bdOnuNotification NOTIFICATION-TYPE
+    		OBJECTS {
+                       llidIfIndex,
+                       ifDescr,
+                       onuID,
+                       onuRemoteFailureIndication,
+                       onuStatus,
+                       onuVersionUpdateStatus,
+                       onuEpromVersionUpdateStatus,
+                       onuVendorID,
+                       onuModuleID,
+                       onuSerialPortCount
+    		}
+    		STATUS      current
+    		DESCRIPTION
+        	"The agent generates this notification when onu changes ."
+    		::= { bdOnuNotifications 1 }
+
+              
+
+END

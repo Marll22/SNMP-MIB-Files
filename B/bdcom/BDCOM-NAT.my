@@ -1,0 +1,454 @@
+-- *****************************************************************
+-- BDCOM-NAT.my:  BDCom NAT MIB file
+-- OCT. 25 2003
+-- *****************************************************************
+--
+
+            BDCOM-NAT DEFINITIONS ::= BEGIN
+
+            IMPORTS 
+            	MODULE-IDENTITY,
+        		OBJECT-TYPE
+            		FROM SNMPv2-SMI            	
+            		
+            	DisplayString 
+					FROM RFC1213-MIB
+
+                bdMgmt
+					FROM BDCOM-SMI;
+                                   
+bdcomNatMIB  MODULE-IDENTITY
+        LAST-UPDATED    "200310250000Z"
+        ORGANIZATION    "BDCom,Inc"
+        CONTACT-INFO
+                	"Shanghai baud data communication Co.ltd
+			Postal:	No.123,Juli RD,Zhangjiang Hi-tech Park,
+			      	Pudong New Zone,Shanghai City,201203
+			      	P.R.C
+			Tel: 	8621-50800666"
+			
+        DESCRIPTION
+            "This MIB module defines the generic managed objects
+            for NAT."
+        ::= { bdMgmt 100 }
+
+
+
+bdcomNatObjects   OBJECT IDENTIFIER ::= { bdcomNatMIB 1 }
+
+         -- The NAT PAT link Table       
+         	--.1
+         bdNatSessionNumber OBJECT-TYPE
+              SYNTAX  INTEGER
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION
+                      "The number of the total session in the NAPT rule."
+              ::= { bdcomNatObjects 1 }
+		
+		--jiudian mib .2.1.1--.2.1.12
+         bdNatSessionTableJD OBJECT-TYPE
+              SYNTAX  SEQUENCE OF BdNatSessionEntryJD
+              ACCESS  not-accessible
+              STATUS  mandatory
+              DESCRIPTION
+              		"The (conceptual) table containing one entry for each
+             		NAT session currently active on this NAT device."
+              ::= { bdcomNatObjects 2 } 
+                                                
+          bdNatSessionEntryJD OBJECT-TYPE
+              SYNTAX  BdNatSessionEntryJD
+              ACCESS  not-accessible
+              STATUS  mandatory
+              DESCRIPTION
+              		"An entry (conceptual row) containing information
+             		about an active NAT session on this NAT device."
+              INDEX   { bdNatSessionId }
+              ::= { bdNatSessionTableJD 1 }
+
+          BdNatSessionEntryJD ::= SEQUENCE {
+			    bdNatSessionIdJD                  OCTET STRING,
+			    bdNatSessionProtocolTypeJD        INTEGER,
+			    bdNatSessionDirectionJD           INTEGER,	
+			    bdNatSessionIntAddrJD			    OCTET STRING,
+			    bdNatSessionIntPortJD     		INTEGER,
+			    bdNatSessionExtAddrJD			    IpAddress,
+			    bdNatSessionExtPortJD             INTEGER,
+			    bdNatSessionRemoteAddrJD      	IpAddress,
+			    bdNatSessionRemotePortJD      	INTEGER,
+			    bdNatSessionUpTimeJD              TimeTicks,
+			    bdNatSessionIdletimeJD		    TimeTicks,
+			    bdNatSessionContextJD             DisplayString,   
+			    bdNATLimitedHostSessionsJD		INTEGER,
+			    bdNATHostFlowsJD		INTEGER
+		  }
+		       
+		  bdNatSessionIdJD OBJECT-TYPE
+			    SYNTAX     OCTET STRING 
+			    ACCESS 	   read-only
+			    STATUS     current
+			    DESCRIPTION
+			            "The session ID for this NAT session."
+			    ::= { bdNatSessionEntryJD 1 }
+			    
+		  bdNatSessionProtocolTypeJD OBJECT-TYPE
+			    SYNTAX     INTEGER{
+                        		other (-1), -- not specified
+                        		icmp (1),
+                        		udp (2),
+                        		tcp (4)
+                        	}
+			    ACCESS 	   read-only
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "The protocol type of this session.
+			
+			             TCP and UDP sessions are uniquely identified by the
+			             tuple of (source IP address, source UDP/TCP port,
+			             destination IP address, destination TCP/UCP port).
+			             ICMP query sessions are identified by the tuple of
+			             (source IP address, ICMP query ID, destination IP
+			             address)."
+			    ::= { bdNatSessionEntryJD 2 }
+			    
+		  bdNatSessionDirectionJD OBJECT-TYPE
+			    SYNTAX     INTEGER {
+			                   inbound (1),
+			                   outbound (2)
+			               }
+			    ACCESS 	   read-only
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "The direction of this session with respect to the
+			             local network. 'inbound' indicates that this session
+			             was initiated from the public network into the private
+			             network. 'outbound' indicates that this session was
+			             initiated from the private network into the public
+			             network."
+			    ::= { bdNatSessionEntryJD 3 }
+
+		  bdNatSessionIntAddrJD OBJECT-TYPE
+			    SYNTAX     OCTET STRING
+			    ACCESS 	   read-only
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "The original IP address of the session endpoint that
+			             lies in the private network."
+			    ::= { bdNatSessionEntryJD 4 }
+          
+         	 bdNatSessionIntPortJD OBJECT-TYPE
+			    SYNTAX     INTEGER
+			    ACCESS 	   read-only
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "The original transport port of the session endpoint that
+			             belongs to the private network. If this is an ICMP session
+			             then the value is the ICMP request ID."
+			    ::= { bdNatSessionEntryJD 5 }
+
+		  bdNatSessionExtAddrJD OBJECT-TYPE
+			    SYNTAX     IpAddress
+			    ACCESS	   read-only
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "The translated IP address of the session endpoint that
+			             lies in the private network."
+			    ::= { bdNatSessionEntryJD 6 }     
+		  
+		  bdNatSessionExtPortJD OBJECT-TYPE
+			    SYNTAX     INTEGER
+			    ACCESS 	   read-only
+			    STATUS     mandatory
+			    DESCRIPTION
+			    		"The original IP address of the session endpoint that lies
+             			in the public network."
+			    ::= { bdNatSessionEntryJD 7 }    
+		  
+		  bdNatSessionRemoteAddrJD OBJECT-TYPE
+			    SYNTAX     IpAddress
+			    ACCESS 	   read-only
+			    STATUS     current
+			    DESCRIPTION
+			            "The original IP address of the session endpoint that lies
+			             in the public network."
+    			::= { bdNatSessionEntryJD 8 }
+
+		  bdNatSessionRemotePortJD OBJECT-TYPE
+			    SYNTAX     INTEGER
+			    ACCESS 	   read-only
+			    STATUS     current
+			    DESCRIPTION
+			            "The original transport port of the session endpoint that
+			             belongs to the public network. If this is an ICMP
+			             session then the value contains the ICMP request ID."
+			    ::= { bdNatSessionEntryJD 9 } 
+			    
+		  bdNatSessionUpTimeJD OBJECT-TYPE
+			    SYNTAX     TimeTicks
+			    ACCESS 	   read-only
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "The up time of this session in one-hundredths of a
+			             second."
+			    ::= { bdNatSessionEntryJD 10 }
+		  
+		  bdNatSessionIdletimeJD OBJECT-TYPE
+			    SYNTAX     TimeTicks
+			    ACCESS 	   read-only
+			    STATUS     current
+			    DESCRIPTION
+			            "The time in one-hundredths of a second since a packet
+			             belonging to this session was last detected."
+			    ::= { bdNatSessionEntryJD 11 }
+          
+          	bdNatSessionContextJD OBJECT-TYPE
+	              SYNTAX  DisplayString (SIZE (0..255))
+	              ACCESS  read-only
+	              STATUS  mandatory
+	              DESCRIPTION
+	                      "A textual string containing information about the
+	                      protocol context of the session."
+	              ::= { bdNatSessionEntryJD 12 }
+			
+			
+			-- wangba mib .3		                               
+          bdNATLimitedTotalSessions OBJECT-TYPE
+              SYNTAX  INTEGER
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "The number of the total permitted session in the NAPT rule."
+              ::= { bdcomNatObjects 3 }   
+              
+                       -- .4.1.1 - .4.1.14
+          BdNatSessionEntry ::= SEQUENCE {
+			    bdNatSessionId                  OCTET STRING,
+			    bdNatSessionProtocolType        OCTET STRING,
+			    bdNatSessionDirection           OCTET STRING,	
+			    bdNatSessionIntAddr			OCTET STRING,
+			    bdNatSessionIntPort     		OCTET STRING,
+			    bdNatSessionExtAddr			    OCTET STRING,
+			    bdNatSessionExtPort             OCTET STRING,
+			    bdNatSessionRemoteAddr      	OCTET STRING,
+			    bdNatSessionRemotePort      	OCTET STRING,
+			    bdNatSessionUpTime              OCTET STRING,
+			    bdNatSessionIdletime		    OCTET STRING,
+			    bdNatSessionContext             OCTET STRING,   
+			    bdNATLimitedHostSessions		OCTET STRING,
+			    bdNATHostFlows		OCTET STRING
+		  }
+		                         
+         bdNatSessionTable OBJECT-TYPE
+              SYNTAX  SEQUENCE OF BdNatSessionEntry
+              ACCESS  not-accessible
+              STATUS  mandatory
+              DESCRIPTION
+              		"The (conceptual) table containing one entry for each
+             		NAT session currently active on this NAT device."
+              ::= { bdcomNatObjects 4 } 
+                                                
+          bdNatSessionEntry OBJECT-TYPE
+              SYNTAX  BdNatSessionEntry
+              ACCESS  not-accessible
+              STATUS  mandatory
+              DESCRIPTION
+              		"An entry (conceptual row) containing information
+             		about an active NAT session on this NAT device."
+              INDEX   { bdNatSessionId }
+              ::= { bdNatSessionTable 1 }
+		       
+		  bdNatSessionId OBJECT-TYPE
+			    SYNTAX     OCTET STRING 
+			    ACCESS 	   read-only
+			    STATUS     current
+			    DESCRIPTION
+			            "The session ID for this NAT session."
+			    ::= { bdNatSessionEntry 1 }
+			    
+		  bdNatSessionProtocolType OBJECT-TYPE
+			    SYNTAX     OCTET STRING
+			    ACCESS 	   read-only
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "The protocol type of this session.
+			
+			             TCP and UDP sessions are uniquely identified by the
+			             tuple of (source IP address, source UDP/TCP port,
+			             destination IP address, destination TCP/UCP port).
+			             ICMP query sessions are identified by the tuple of
+			             (source IP address, ICMP query ID, destination IP
+			             address)."
+			    ::= { bdNatSessionEntry 2 }
+			    
+		  bdNatSessionDirection OBJECT-TYPE
+			    SYNTAX     OCTET STRING
+			    ACCESS 	   read-only
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "The direction of this session with respect to the
+			             local network. 'inbound' indicates that this session
+			             was initiated from the public network into the private
+			             network. 'outbound' indicates that this session was
+			             initiated from the private network into the public
+			             network."
+			    ::= { bdNatSessionEntry 3 }
+
+		  bdNatSessionIntAddr OBJECT-TYPE
+			    SYNTAX     OCTET STRING
+			    ACCESS 	   read-only
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "The original IP address of the session endpoint that
+			             lies in the private network."
+			    ::= { bdNatSessionEntry 4 }
+          
+         	 bdNatSessionIntPort OBJECT-TYPE
+			    SYNTAX     OCTET STRING
+			    ACCESS 	   read-only
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "The original transport port of the session endpoint that
+			             belongs to the private network. If this is an ICMP session
+			             then the value is the ICMP request ID."
+			    ::= { bdNatSessionEntry 5 }
+
+		  bdNatSessionExtAddr OBJECT-TYPE
+			    SYNTAX     OCTET STRING
+			    ACCESS	   read-only
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "The translated IP address of the session endpoint that
+			             lies in the private network."
+			    ::= { bdNatSessionEntry 6 }     
+		  
+		  bdNatSessionExtPort OBJECT-TYPE
+			    SYNTAX     OCTET STRING
+			    ACCESS 	   read-only
+			    STATUS     mandatory
+			    DESCRIPTION
+			    		"The original IP address of the session endpoint that lies
+             			in the public network."
+			    ::= { bdNatSessionEntry 7 }    
+		  
+		  bdNatSessionRemoteAddr OBJECT-TYPE
+			    SYNTAX     OCTET STRING
+			    ACCESS 	   read-only
+			    STATUS     current
+			    DESCRIPTION
+			            "The original IP address of the session endpoint that lies
+			             in the public network."
+    			::= { bdNatSessionEntry 8 }
+
+		  bdNatSessionRemotePort OBJECT-TYPE
+			    SYNTAX     OCTET STRING
+			    ACCESS 	   read-only
+			    STATUS     current
+			    DESCRIPTION
+			            "The original transport port of the session endpoint that
+			             belongs to the public network. If this is an ICMP
+			             session then the value contains the ICMP request ID."
+			    ::= { bdNatSessionEntry 9 } 
+			    
+		  bdNatSessionUpTime OBJECT-TYPE
+			    SYNTAX     OCTET STRING
+			    ACCESS 	   read-only
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "The up time of this session in one-hundredths of a
+			             second."
+			    ::= { bdNatSessionEntry 10 }
+		  
+		  bdNatSessionIdletime OBJECT-TYPE
+			    SYNTAX     OCTET STRING
+			    ACCESS 	   read-only
+			    STATUS     current
+			    DESCRIPTION
+			            "The time in one-hundredths of a second since a packet
+			             belonging to this session was last detected."
+			    ::= { bdNatSessionEntry 11 }
+          
+          	bdNatSessionContext OBJECT-TYPE
+	              SYNTAX  OCTET STRING
+	              ACCESS  read-only
+	              STATUS  mandatory
+	              DESCRIPTION
+	                      "A textual string containing information about the
+	                      protocol context of the session."
+	              ::= { bdNatSessionEntry 12 }
+	              
+          	bdNATLimitedHostSessions OBJECT-TYPE
+	              SYNTAX  OCTET STRING
+	              ACCESS  read-write
+	              STATUS  mandatory
+	              DESCRIPTION
+	                      "The number of the permitted single session in the NAPT rule."
+	              ::= { bdNatSessionEntry 13 }  
+		
+		bdNATHostFlows OBJECT-TYPE
+	              SYNTAX  OCTET STRING
+	              ACCESS  read-only
+	              STATUS  mandatory
+	              DESCRIPTION
+	                      "The bytes number of each link during one period."
+	              ::= { bdNatSessionEntry 14 } 
+	         
+         bdNatCpuPercent OBJECT-TYPE
+              SYNTAX  INTEGER
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION
+                      "The number of the total cpu usage percent."
+              ::= { bdcomNatObjects 5 }
+              
+         bdNatHeapPercent OBJECT-TYPE
+              SYNTAX  INTEGER
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION
+                      "The number of the total heap allocation percent."
+              ::= { bdcomNatObjects 6 }
+              
+         bdNatMblkPercent OBJECT-TYPE
+              SYNTAX  INTEGER
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION
+                      "The number of the total Mblk allocation percent."
+              ::= { bdcomNatObjects 7 }
+              
+         bdNathostlimitset OBJECT-TYPE
+              SYNTAX  INTEGER
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "set the count that nat can service for inside users"
+              ::= { bdcomNatObjects 8 }
+              
+         bdNathostlimitcurrent OBJECT-TYPE
+              SYNTAX  INTEGER
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION
+                      "currently, nat service how many inside user."
+              ::= { bdcomNatObjects 9 }
+              
+         bdNathostlimitenable OBJECT-TYPE
+              SYNTAX  INTEGER
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "enable limit-user function."
+              ::= { bdcomNatObjects 10 }
+              
+         bdNatIf OBJECT-TYPE
+              SYNTAX  OCTET STRING
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION
+                      "the ifindex of NAT Interface."
+              ::= { bdcomNatObjects 11 }
+              
+	-- End of table
+
+
+END

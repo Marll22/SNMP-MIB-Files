@@ -1,0 +1,212 @@
+								   -- *****************************************************************
+-- BDCOM-MacAcl.my:  BDCom MacAcl MIB file
+-- Jan. 6 2010
+-- *****************************************************************
+--
+
+BDCOM-MacAcl DEFINITIONS ::= BEGIN
+
+			IMPORTS
+				MODULE-IDENTITY,
+				OBJECT-TYPE
+					FROM SNMPv2-SMI
+				bdlocal,bdcom
+					FROM BDCOM-SMI
+				DisplayString
+					FROM RFC1213-MIB
+				RowStatus,MacAddress
+					FROM SNMPv2-TC;
+
+bdcomMacAclMIB	MODULE-IDENTITY
+		LAST-UPDATED	"201001060000Z"
+		ORGANIZATION	"BDCom,Inc"
+		CONTACT-INFO
+					"Shanghai baud data communication Co.ltd
+			Postal:	No.123,Juli RD,Zhangjiang Hi-tech Park,
+					Pudong New Zone,Shanghai City,201203
+					P.R.C
+			Tel:	8621-50800666"
+
+		DESCRIPTION
+			"This MIB module defines the generic managed objects
+			for MAC Acl."
+		::= { bdcom 151 }
+
+  --ACL TABLE
+		 bdMacAclTable OBJECT-TYPE
+			  SYNTAX  SEQUENCE OF bdMacAclEntry
+			  ACCESS  not-accessible
+			  STATUS  mandatory
+			  DESCRIPTION
+					"This table containing one entry for each
+					MAC Acl on this device."
+			  ::= { bdcomMacAclMIB 1 }
+
+		  bdMacAclEntry OBJECT-TYPE
+			  SYNTAX  bdMacAclEntry
+			  ACCESS  not-accessible
+			  STATUS  mandatory
+			  DESCRIPTION
+					"An entry (conceptual row) containing information
+					about an MAC Acl on this device."
+			  INDEX   { bdMacAclname }
+			  ::= { bdMacAclTable 1 }
+
+		  bdMacAclEntry ::= SEQUENCE {
+				bdMacAclname			DisplayString,
+				bdMacAclnulecnt 		INTEGER,
+				bdMacAclmergeenable		INTEGER,
+				bdMacAclrowstatus		RowStatus
+				}
+
+		  bdMacAclname OBJECT-TYPE
+				SYNTAX	   DisplayString
+				ACCESS	   read-only
+				STATUS	   mandatory
+				DESCRIPTION
+						"The name of this MAC Acl. Length: 1~20."
+				::= { bdMacAclEntry 1 }
+
+
+		  bdMacAclnulecnt OBJECT-TYPE
+				SYNTAX	  INTEGER
+				ACCESS	   read-only
+				STATUS	   mandatory
+				DESCRIPTION
+						"The total number of this MAC Acl entries."
+				::= { bdMacAclEntry 2 }
+
+		  bdMacAclmergeenable OBJECT-TYPE
+				SYNTAX	   INTEGER{
+								enable (1),
+								disable (2)
+							}
+				ACCESS	   read-write
+				STATUS	   mandatory
+				DESCRIPTION
+						"Mac ACL merge."
+				::= { bdMacAclEntry 3 }
+
+		  bdMacAclrowstatus OBJECT-TYPE
+				SYNTAX	   RowStatus
+				ACCESS	   read-write
+				STATUS	   mandatory
+				DESCRIPTION
+						"Table row status.
+						SNMP_ROW_ACTIVE				1, active Mac Acl
+						SNMP_ROW_NOTREADY			3, lock Mac Acl
+						SNMP_ROW_CREATEANDGO		4, create Mac Acl
+						SNMP_ROW_DESTROY			6, delete Mac Acl"
+				::= { bdMacAclEntry 4 }
+
+
+--MAC ACL RULE TABLE
+				bdMacAclRuleTable OBJECT-TYPE
+						SYNTAX	SEQUENCE OF bdMacAclRuleEntry
+						ACCESS	not-accessible
+						STATUS	mandatory
+						DESCRIPTION
+						   ""
+						::= { bdcomMacAclMIB 2 }
+
+				bdMacAclRuleEntry OBJECT-TYPE
+						 SYNTAX  bdMacAclRuleEntry
+						 ACCESS  not-accessible
+						 STATUS  mandatory
+						 DESCRIPTION
+							""
+						 INDEX	 { bdMacAclRulename, bdMacAclRuleid }
+						::= { bdMacAclRuleTable 1 }
+
+				bdMacAclRuleEntry ::= SEQUENCE {
+						bdMacAclRulename			DisplayString,
+						bdMacAclRuleid				INTEGER,
+						bdMacAclRuleopt				INTEGER,
+						bdMacAclRulesrcmac			MacAddress,
+						bdMacAclRulesrcmacmask		MacAddress,
+						bdMacAclRuledestmac			MacAddress,
+						bdMacAclRuledestmacmask		MacAddress,
+						bdMacAclRuleethertype		INTEGER,
+						bdMacAclRulerowstatus		RowStatus
+						}
+
+				bdMacAclRulename OBJECT-TYPE
+						SYNTAX	   DisplayString
+						ACCESS	   read-only
+						STATUS	   current
+						DESCRIPTION
+								"The name of this MAC Acl."
+						::= { bdMacAclRuleEntry 1 }
+
+				bdMacAclRuleid OBJECT-TYPE
+						SYNTAX	   INTEGER
+						ACCESS	   read-write
+						STATUS	   current
+						DESCRIPTION
+								"Index of the rules."
+						::= { bdMacAclRuleEntry 2 }
+
+				bdMacAclRuleopt OBJECT-TYPE
+						SYNTAX	   INTEGER{
+								permit (1),
+								deny (2)
+								}
+						ACCESS	   read-write
+						STATUS	   mandatory
+						DESCRIPTION
+								"MAC ACL rule operation."
+						::= { bdMacAclRuleEntry 3 }
+
+				bdMacAclRulesrcmac OBJECT-TYPE
+						SYNTAX	   MacAddress
+						ACCESS	   read-write
+						STATUS	   current
+						DESCRIPTION
+								"source MAC address. all zero means any."
+						::= { bdMacAclRuleEntry 4 }
+
+				bdMacAclRulesrcmacmask OBJECT-TYPE
+						SYNTAX	   MacAddress
+						ACCESS	   read-write
+						STATUS	   current
+						DESCRIPTION
+								"source MAC address mask."
+						::= { bdMacAclRuleEntry 5 }
+
+				bdMacAclRuledestmac OBJECT-TYPE
+						SYNTAX	   MacAddress
+						ACCESS	   read-write
+						STATUS	   current
+						DESCRIPTION
+								"destination MAC address. all zero means any."
+						::= { bdMacAclRuleEntry 6 }
+
+				bdMacAclRuledestmacmask OBJECT-TYPE
+						SYNTAX	   MacAddress
+						ACCESS	   read-write
+						STATUS	   current
+						DESCRIPTION
+								"destination MAC address mask."
+						::= { bdMacAclRuleEntry 7 }
+
+				bdMacAclRuleethertype OBJECT-TYPE
+						SYNTAX	   INTEGER
+						ACCESS	   read-write
+						STATUS	   current
+						DESCRIPTION
+								"ethernet packet type. zero means not set."
+						::= { bdMacAclRuleEntry 8 }
+
+				bdMacAclRulerowstatus OBJECT-TYPE
+						SYNTAX	   RowStatus
+						ACCESS	   read-write
+						STATUS	   current
+						DESCRIPTION
+								"table row status.
+								SNMP_ROW_ACTIVE				1, active Mac Acl rule
+								SNMP_ROW_NOTREADY			3, lock Mac Acl rule
+								SNMP_ROW_CREATEANDGO		4, create Mac Acl rule
+								SNMP_ROW_DESTROY			6, delete Mac Acl rule"
+						::= { bdMacAclRuleEntry 9 }
+
+END

@@ -1,0 +1,70 @@
+-- *****************************************************************
+-- BDCOM-EPON-ONU-RESET.MIB:  BDCom LLID ONU RESET MIB file
+-- MAY 2010
+-- *****************************************************************
+--
+
+               BDCOM-EPON-ONU-RESET DEFINITIONS ::= BEGIN
+
+               IMPORTS
+                    Counter, IpAddress, Counter
+			FROM RFC1155-SMI
+		    OBJECT-TYPE
+			FROM RFC-1212
+                    DisplayString
+			FROM RFC1213-MIB
+		    bdEPONGroup
+			FROM BDCOM-SMI
+	            PortList
+	                FROM Q-BRIDGE-MIB;
+
+               bdEponOnuReset         OBJECT IDENTIFIER ::= { bdEPONGroup 25 }
+               
+               bdEponOnuResetTable OBJECT-TYPE
+                   SYNTAX  SEQUENCE OF BdEponOnuResetEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A list of the ONU reset table entries. The corresponding onu id will input and corresponding onu will reset."
+                   ::= { bdEponOnuReset 1 }
+
+               bdEponOnuResetEntry OBJECT-TYPE
+                   SYNTAX BdEponOnuResetEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of certain ONU reset operation table entry. The ONU id can be reset through this table."
+                   INDEX { onuLlid }
+               ::= { bdEponOnuResetTable 1 }
+
+               BdEponOnuResetEntry ::=
+                   SEQUENCE {
+                       onuLlid
+                           INTEGER,
+                       onuReset
+                           INTEGER
+                   }
+                   
+               onuLlid OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU LLID."
+                   ::= { bdEponOnuResetEntry 1 } 
+                   
+               onuReset OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                                   no_action(0),
+                                   reset(1)
+				   }                                  
+                   ACCESS  write-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU reset operation.1-reset,0-no action."
+                   ::= { bdEponOnuResetEntry 2 } 
+                   
+               
+      END         
+               
+               

@@ -1,0 +1,51 @@
+-- *****************************************************************
+-- BDCOM-ROUTING-MIB.my: BDCOM ROUTING MIB
+--
+-- March 2010
+-- Edit by LIUQIANG
+-- Copyright (c) 2010 by BDCOM, Inc.
+-- All rights reserved.
+-- *****************************************************************
+
+
+BDCOM-ROUTING-MIB DEFINITIONS ::= BEGIN 
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,INTEGER
+                                                FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION                          FROM SNMPv2-TC
+    MODULE-COMPLIANCE, OBJECT-GROUP             FROM SNMPv2-CONF
+    bdMgmt                             FROM BDCOM-SMI;
+
+--definition of BDCOM device card related operations and trap related values
+
+               routing         OBJECT IDENTIFIER ::= { bdMgmt 350 }
+               
+               
+               
+               bdRtStaticNum OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Number of running static routing ."
+                   ::= { routing 1 }
+                   
+                   
+               bdRtIgpRuningProto OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                   		none(0),
+                   		rip(1),
+                   		isis(2),
+                                eigrp(3),    
+                                ospf(4),
+                                bgp(5)
+                                   }
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Specific running routing protocol ."
+                   ::= { routing 2 }
+                   
+END
+               

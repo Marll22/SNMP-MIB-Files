@@ -1,0 +1,39 @@
+-- *****************************************************************
+-- BDCOM-CONFIG-MGMT.my: MIB for CPU and process statistics
+--
+-- July 2009
+--
+-- Copyright (c) 2003 by BDCOM, Inc.
+-- All rights reserved.
+-- *****************************************************************
+ BDCOM-CONFIG-MGMT  DEFINITIONS ::= BEGIN
+
+IMPORTS
+	MODULE-IDENTITY,
+	OBJECT-TYPE
+		FROM SNMPv2-SMI
+	bdWorkGroup
+		FROM BDCOM-SMI;
+
+
+       libdm       OBJECT IDENTIFIER ::= { bdWorkGroup 15 }
+       configuration       OBJECT IDENTIFIER ::= { libdm 1 }
+
+
+          operation OBJECT-TYPE
+              SYNTAX  INTEGER (0..127)
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION  "1 means to save the commmand configuration. 2 means to save ifIndex configuration."
+             ::= { configuration 1 }
+
+          result OBJECT-TYPE
+              SYNTAX  INTEGER (0..127)
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION  ""
+             ::= { configuration 2 }
+
+
+END
+

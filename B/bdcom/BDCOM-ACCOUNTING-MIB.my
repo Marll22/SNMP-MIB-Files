@@ -1,0 +1,128 @@
+-- *****************************************************************
+-- BDCOM-ACCOUNTING-MIB.my: BDCOM ACCOUNTING MIB
+--
+-- March 2010
+-- Edit by LIUQIANG
+-- Copyright (c) 2010 by BDCOM, Inc.
+-- All rights reserved.
+-- *****************************************************************
+
+
+BDCOM-ACCOUNTING-MIB DEFINITIONS ::= BEGIN 
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,INTEGER
+                                                FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION                          FROM SNMPv2-TC
+    MODULE-COMPLIANCE, OBJECT-GROUP             FROM SNMPv2-CONF
+    bdMgmt                             FROM BDCOM-SMI;
+
+--definition of BDCOM device card related operations and trap related values
+
+               bdAccounting         OBJECT IDENTIFIER ::= { bdMgmt 351 }
+               
+               bdTelecomAccount     OBJECT IDENTIFIER ::= { bdAccounting 1 }
+               
+               bdTelecomAccountIsEanble OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                                    disable(0),
+                                    enable(1)
+                                  }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Telecommunication account status. 0-disable, 1-enable."
+                   ::= { bdTelecomAccount 1 }
+              
+               bdTelecomAccountPassword OBJECT-TYPE
+                   SYNTAX  OCTET STRING
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Telecommunication account password."
+                   ::= { bdTelecomAccount 2 }
+              
+              
+               bdUserAccountNumber OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Number of user account."
+                   ::= { bdAccounting 2 }
+                    
+               bdUserAccountTable OBJECT-TYPE
+                   SYNTAX  SEQUENCE OF BdUserAccountEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "BDCOM user account table."
+                   ::= { bdAccounting 3 }
+        
+               bdUserAccountEntry OBJECT-TYPE
+                   SYNTAX  BdUserAccountEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Device user account related table entry."
+                   INDEX   { bdUserAccountIndex }
+                   ::= { bdUserAccountTable 1 }
+        
+               BdUserAccountEntry ::=
+                   SEQUENCE {
+                       bdUserAccountIndex
+                           INTEGER,
+                       bdUserAccountIsEnable
+                           INTEGER,
+                       bdUserAccountUserName
+                           OCTET STRING,
+                       bdUserAccountUserPassword
+                           OCTET STRING,
+                       bdUserAccountLevel
+                           INTEGER
+                   }
+     
+                bdUserAccountIndex OBJECT-TYPE
+                    SYNTAX  INTEGER
+                    ACCESS  read-only
+                    STATUS  mandatory
+                    DESCRIPTION
+                            "A unique value for each user account."
+                    ::= { bdUserAccountEntry 1 }
+           
+                bdUserAccountIsEnable OBJECT-TYPE
+                    SYNTAX  INTEGER{
+                                     disable(0),
+                                     enable(1)
+                                   }
+                    ACCESS  read-write
+                    STATUS  mandatory
+                    DESCRIPTION
+                            "User account status. 0-disable, 1-enable."
+                    ::= { bdUserAccountEntry 2 }
+       
+                bdUserAccountUserName OBJECT-TYPE
+                    SYNTAX  OCTET STRING
+                    ACCESS  read-write
+                    STATUS  mandatory
+                    DESCRIPTION
+                            "User account user name."
+                    ::= { bdUserAccountEntry 3 }
+                    
+                bdUserAccountUserPassword OBJECT-TYPE
+                    SYNTAX  OCTET STRING
+                    ACCESS  read-write
+                    STATUS  mandatory
+                    DESCRIPTION
+                            "User account user password."
+                    ::= { bdUserAccountEntry 4 }
+     
+                bdUserAccountLevel OBJECT-TYPE
+                    SYNTAX  INTEGER
+                    ACCESS  read-only
+                    STATUS  mandatory
+                    DESCRIPTION
+                            "User account level, default value is 0, which is lowest level."
+                    ::= { bdUserAccountEntry 5 }
+               
+END

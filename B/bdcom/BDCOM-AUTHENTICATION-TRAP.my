@@ -1,0 +1,98 @@
+-- *****************************************************************
+-- BDCOM-AUTHENTICATION-TRAP.MIB: BDCOM AUTHENTICATION TRAP MIB
+--
+-- JAN 2010
+-- Edit by LIUQIANG
+-- Copyright (c) 2010 by BDCOM, Inc.
+-- All rights reserved.
+-- *****************************************************************
+
+BDCOM-AUTHENTICATION-TRAP DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,INTEGER,
+    Integer32, Unsigned32                       FROM SNMPv2-SMI
+    MODULE-COMPLIANCE, OBJECT-GROUP,
+    NOTIFICATION-GROUP                          FROM SNMPv2-CONF
+    IpAddress   				FROM RFC1155-SMI
+    bdEPONGroup,bdMgmt                                 FROM BDCOM-SMI;
+
+
+               bdAuthenticationTrap         OBJECT IDENTIFIER ::= { bdMgmt 188 }
+               
+               
+    
+-- Notifications
+          authenIpAddr OBJECT-TYPE
+              SYNTAX  IpAddress
+              ACCESS  not-accessible
+              STATUS  mandatory
+              DESCRIPTION
+                      "Definition of variable binding in authentication trap."
+              ::= { bdAuthenticationTrap 1 }
+              
+          authenVty OBJECT-TYPE
+              SYNTAX  INTEGER
+              ACCESS  not-accessible
+              STATUS  mandatory
+              DESCRIPTION
+                      "Definition of variable binding in authentication trap."
+              ::= { bdAuthenticationTrap 2 }
+              
+          authenUserName OBJECT-TYPE
+              SYNTAX  OCTET STRING
+              ACCESS  not-accessible
+              STATUS  mandatory
+              DESCRIPTION
+                      "Definition of variable binding in authentication trap."
+              ::= { bdAuthenticationTrap 3 }
+              
+          authenTime OBJECT-TYPE
+              SYNTAX  OCTET STRING
+              ACCESS  not-accessible
+              STATUS  mandatory
+              DESCRIPTION
+                      "Definition of variable binding in authentication trap."
+              ::= { bdAuthenticationTrap 4 }
+              
+          authenStatus OBJECT-TYPE
+              SYNTAX  INTEGER{
+                                success(0),
+                                failed(1)
+                             }
+              ACCESS  not-accessible
+              STATUS  mandatory
+              DESCRIPTION
+                      "Definition of variable binding in authentication trap."
+              ::= { bdAuthenticationTrap 5 }
+              
+              
+              
+              
+
+	bdAuthNotifications OBJECT IDENTIFIER
+                                ::= { bdAuthenticationTrap 6 }
+
+
+	bdAuthNotification NOTIFICATION-TYPE
+    		OBJECTS {
+                       authenIpAddr,
+                       authenVty,
+                       authenUserName,
+                       authenTime,
+                       authenStatus
+                        }
+    		STATUS      current
+    		DESCRIPTION
+        	"The agent generates this notification when login authentication succeeds or fails."
+    		::= { bdAuthNotifications 1 }
+
+              
+END
+               
+
+	
+
+
+
+

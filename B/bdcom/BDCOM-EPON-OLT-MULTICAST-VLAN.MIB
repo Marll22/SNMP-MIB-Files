@@ -1,0 +1,80 @@
+--BDCOM-EPON-OLT-MULTICAST-VLAN.MIB
+-- *****************************************************************
+-- BDCOM-EPON-OLT-MULTICAST-VLAN.MIB:  BDCom EPON OLT MULTICAST VLAN MIB file
+-- AUG 2009
+-- *****************************************************************
+--
+
+               BDCOM-EPON-OLT-MULTICAST-VLAN DEFINITIONS ::= BEGIN
+
+               IMPORTS
+                    Counter, IpAddress, TimeTicks
+			FROM RFC1155-SMI
+		    OBJECT-TYPE
+			FROM RFC-1212
+                    DisplayString
+			FROM RFC1213-MIB
+		    bdEPONGroup
+			FROM BDCOM-SMI
+		    TruthValue,RowStatus,MacAddress
+		    	FROM SNMPv2-TC;
+          
+               bdEponOltMulticastVlan         OBJECT IDENTIFIER ::= { bdEPONGroup 5 }
+
+               bdeponoltmulticastvlanTable OBJECT-TYPE
+                   SYNTAX  SEQUENCE OF BdEponOltMulticastVlanEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A list of epon olt multicast forwarding table entries."
+                   ::= { bdEponOltMulticastVlan 1 }
+
+               bdEponOltMulticastVlanEntry OBJECT-TYPE
+                   SYNTAX BdEponOltMulticastVlanEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of additional objects in the
+                            epon olt multicast forwarding table."
+                   INDEX { oltMcVlanId,oltMcIpAddress  }
+               ::= { bdeponoltmulticastvlanTable 1 }
+
+               BdEponOltMulticastVlanEntry ::=
+                   SEQUENCE {
+                       oltMcVlanId
+                           INTEGER,
+                       oltMcVlanIpAddress
+                           IpAddress,
+                       oltMcVlanRowStatus
+                           RowStatus
+                   }
+          -- The following section describes the components of the
+          -- table.
+
+               oltMcVlanId OBJECT-TYPE
+                   SYNTAX  INTEGER(1..4094)
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "OLT multicast vlan id, as one of the index together with oltMcIpAddress."
+                   ::= { bdEponOltMulticastVlanEntry 1 } 
+			
+               oltMcVlanIpAddress OBJECT-TYPE
+                   SYNTAX  IpAddress
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "The IP multicast group address for which this entry contains information. As one of the index together with oltMcVlanId."
+                   ::= { bdEponOltMulticastVlanEntry 2 } 
+			
+               oltMcVlanRowStatus OBJECT-TYPE
+                   SYNTAX  RowStatus
+                   ACCESS  read-create
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "OLT multicast vlan table row status."
+                   ::= { bdEponOltMulticastVlanEntry 3 } 
+
+
+
+END

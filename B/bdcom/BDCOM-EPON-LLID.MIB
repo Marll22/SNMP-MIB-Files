@@ -1,0 +1,225 @@
+-- *****************************************************************
+-- BDCOM-EPON-LLID.MIB:  BDCom LLID MIB file
+-- AUG 2009
+-- *****************************************************************
+--
+
+               BDCOM-EPON-LLID DEFINITIONS ::= BEGIN
+
+               IMPORTS
+                    Counter, IpAddress, Counter
+			FROM RFC1155-SMI
+		    OBJECT-TYPE
+			FROM RFC-1212
+                    DisplayString
+			FROM RFC1213-MIB
+		    bdEPONGroup
+			FROM BDCOM-SMI
+		    TruthValue,RowStatus
+		    	FROM SNMPv2-TC;
+          
+               bdEponLlid         OBJECT IDENTIFIER ::= { bdEPONGroup 9 }
+
+               bdeponllidTable OBJECT-TYPE
+                   SYNTAX  SEQUENCE OF BdEponLlidEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A list of epon ONU and LLID table entries."
+                   ::= { bdEponLlid 1 }
+
+               bdEponLlidEntry OBJECT-TYPE
+                   SYNTAX BdEponLlidEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of additional objects in the
+                            epon ONU and LLID table."
+                   INDEX { llidIfIndex }
+               ::= { bdeponllidTable 1 }
+
+               BdEponLlidEntry ::=
+                   SEQUENCE {
+                       llidIfIndex
+                           INTEGER,
+                       llidToEponPortDiid
+                           INTEGER,
+                       llidsequenceNo
+                           INTEGER,
+                       llidEncrypStatus
+                           TruthValue,
+                       llidCtcOamExtStatus
+                           OCTET STRING,
+                       llidCtcOamExtOui
+                           OCTET STRING,
+                       llidCtcOamExtVersion
+                           INTEGER,
+                       llidIfPIR
+                           INTEGER,
+                       llidIfCIR
+                           INTEGER,
+                       llidIfFIR
+                           INTEGER,
+                       llidIfConfigRowStatus
+                           RowStatus,
+                       llidIfDynamicMacLearningStatus
+                           INTEGER,
+                       llidIfDynamicMacLearningLimit
+                           TruthValue,
+                       llidIfDynamicMacLearningNumberLimit
+                           INTEGER,
+   		       llidIfQosPolicy
+                           OCTET STRING,
+                       llidIfACL
+                           OCTET STRING,
+                       llidIfShapping
+                           INTEGER                   
+                   }
+
+          -- The following section describes the components of the
+          -- table.
+
+               llidIfIndex OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "LLID interface id, unique in system."
+                   ::= { bdEponLlidEntry 1 } 
+			
+               llidToEponPortDiid OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "EPON port DIID that LLID belongs to."
+                   ::= { bdEponLlidEntry 2 } 
+			
+               llidsequenceNo OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "LLID squence number,unique in system."
+                   ::= { bdEponLlidEntry 3 } 
+			
+               llidEncrypStatus OBJECT-TYPE
+                   SYNTAX  TruthValue
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "LLID encryption status."
+                   ::= { bdEponLlidEntry 4 } 
+
+               llidCtcOamExtStatus OBJECT-TYPE
+                   SYNTAX  OCTET STRING 
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "CTC OAM version negotiation result£ºCTC OAM extended status."
+                   ::= { bdEponLlidEntry 5 } 
+			
+               llidCtcOamExtOui OBJECT-TYPE
+                   SYNTAX  OCTET STRING 
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "CTC OAM version negotiation result£ºCTC OAM extended OUI."
+                   ::= { bdEponLlidEntry 6 } 
+			
+               llidCtcOamExtVersion OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "CTC OAM version negotiation result£ºCTC OAM extended version."
+                   ::= { bdEponLlidEntry 7 } 
+			
+               llidIfPIR OBJECT-TYPE
+                   SYNTAX  INTEGER(0..1000000)
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "LLID port peak bandwidth.Notes:dba mode=1,2(12144/cycle-size(ms) to MIN(1000000,1000000/cycle-size(ms) ), dba mode =3,4(512 to1000000)."
+                   ::= { bdEponLlidEntry 8 } 
+			
+               llidIfCIR OBJECT-TYPE
+                   SYNTAX  INTEGER(0..955000)
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "LLID port assurance bandwidth. Note:CIR<=PIR."
+                   ::= { bdEponLlidEntry 9 } 
+			
+               llidIfFIR OBJECT-TYPE
+                   SYNTAX  INTEGER(0..955000)
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "LLID port fixed bandwidth. Note:FIR<=CIR."
+                   ::= { bdEponLlidEntry 10 } 
+               
+               		
+               llidIfConfigRowStatus OBJECT-TYPE
+                   SYNTAX  RowStatus
+                   ACCESS  read-create
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "LLID port configuration row status."
+                   ::= { bdEponLlidEntry 11 } 
+		    
+               
+			
+               llidIfDynamicMacLearningStatus OBJECT-TYPE
+                   SYNTAX  INTEGER {
+                          on(1),
+                          off(2)
+                               	    }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "LLID port dynamic MAC address learning status."
+                   ::= { bdEponLlidEntry 12 } 
+			
+               llidIfDynamicMacLearningLimit OBJECT-TYPE
+                   SYNTAX  TruthValue
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "LLID port dynamic MAC address learning limition."
+                   ::= { bdEponLlidEntry 13 } 
+			
+               llidIfDynamicMacLearningNumberLimit OBJECT-TYPE
+                   SYNTAX  INTEGER(1..1023)
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "LLID port dynamic MAC address learning number limition."
+                   ::= { bdEponLlidEntry 14 } 
+			
+               llidIfQosPolicy OBJECT-TYPE
+                   SYNTAX  OCTET STRING 
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "LLID interface qos policy name."
+                   ::= { bdEponLlidEntry 15 } 
+			
+               llidIfACL OBJECT-TYPE
+                   SYNTAX  OCTET STRING
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "LLID interface ACL."
+                   ::= { bdEponLlidEntry 16 } 
+
+               llidIfShapping OBJECT-TYPE
+                   SYNTAX  INTEGER(0..1000000)
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "LLID port down-stream shaping bandwidth. Notes:dba mode=1,2(12144/cycle-size(ms) to MIN(1000000,1000000/cycle-size(ms) ), dba mode =3,4(512 to1000000)."
+                   ::= { bdEponLlidEntry 17 } 
+
+			
+END			

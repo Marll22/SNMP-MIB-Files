@@ -1,0 +1,91 @@
+-- *****************************************************************
+-- BDCOM-EPON-TFTP.my: BDCOM EPON TFTP MIB
+--
+-- October 2009
+-- Edit by LIUQIANG
+-- Copyright (c) 2008 by BDCOM, Inc.
+-- All rights reserved.
+-- *****************************************************************
+
+BDCOM-EPON-TFTP DEFINITIONS ::= BEGIN
+
+
+
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,INTEGER,
+    Integer32, Unsigned32                       FROM SNMPv2-SMI
+    MODULE-COMPLIANCE, OBJECT-GROUP,
+    NOTIFICATION-GROUP                          FROM SNMPv2-CONF
+    bdEPONGroup                                 FROM BDCOM-SMI;
+    
+  
+  
+    bdEponTftp         OBJECT IDENTIFIER ::= { bdEPONGroup 20 }
+
+    
+
+                         
+               bdTftpSrcPath OBJECT-TYPE
+                   SYNTAX  OCTET STRING
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "BDCOM EPON OLT device  source file path."
+                   ::= { bdEponTftp 1 }
+    
+                         
+               bdTftpSrcFileName OBJECT-TYPE
+                   SYNTAX  OCTET STRING
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "BDCOM EPON OLT device source file name."
+                   ::= { bdEponTftp 2 }
+    
+               bdTftpDestPath OBJECT-TYPE
+                   SYNTAX  OCTET STRING
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "BDCOM EPON OLT device destination file path."
+                   ::= { bdEponTftp 3 }
+    
+               bdTftpDestFileName OBJECT-TYPE
+                   SYNTAX  OCTET STRING
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "BDCOM EPON OLT device destination file name."
+                   ::= { bdEponTftp 4 }
+    
+               bdTftpActvice OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                          upload(1),
+                          download(2),
+                          disable(3)
+                               	    }
+
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "BDCOM EPON OLT device tftp operation status. When the value 'upload(1)' is set, all the value in this mib file would be read into system and cresponding file in destination would be uploaded into flash. As the value 'download(2)' is set, the file in the flash would be downloaded into local machine. After all the operations finish, the value would be set as 'disable(3)' automatically. "
+                   ::= { bdEponTftp 5 }
+    
+    
+               bdTftpResult OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                         success(0),
+                         failure(8888)
+                   }
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "BDCOM EPON OLT device tftp operation result."
+                   ::= { bdEponTftp 6 }
+    
+
+
+
+END    
+

@@ -1,0 +1,257 @@
+-- *****************************************************************
+-- BDCOM-EPON-OLT-PON.MIB:  BDCom OLT-COMM MIB file
+-- AUG 2009
+-- *****************************************************************
+--
+
+               BDCOM-EPON-OLT-PON DEFINITIONS ::= BEGIN
+
+               IMPORTS
+                    Counter, IpAddress, Counter
+			FROM RFC1155-SMI
+		    OBJECT-TYPE
+			FROM RFC-1212
+                    DisplayString, ifIndex, PhysAddress
+			FROM RFC1213-MIB
+		    bdEPONGroup
+			FROM BDCOM-SMI
+		    RowStatus
+		    	FROM SNMPv2-TC;
+		    
+          
+               bdEponOltPon         OBJECT IDENTIFIER ::= { bdEPONGroup 6 }
+
+               bdeponoltponTable OBJECT-TYPE
+                   SYNTAX  SEQUENCE OF BdEponOltPonEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A list of epon olt pon property table entries."
+                   ::= { bdEponOltPon 1 }
+
+               bdEponOltPonEntry OBJECT-TYPE
+                   SYNTAX BdEponOltPonEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of additional objects in the
+                            epon olt pon property table."
+                   INDEX { ponIfIndex }
+               ::= { bdeponoltponTable 1 }
+
+               BdEponOltPonEntry ::=
+                   SEQUENCE {
+                       ponIfIndex
+                           INTEGER,
+                       llidSequenceNo
+                           INTEGER,
+                       onuAuthMethod
+                           INTEGER,
+                       isCheckOnuMac
+                           INTEGER,
+                       isPONBelongtoPSG
+                           INTEGER,
+                       pONBelongtoPSGID
+                           INTEGER,
+                       isUsingMpcpRegisteAckDelayTime
+                           INTEGER,
+                       mpcpRegisteAckDelayTime
+                           INTEGER,
+                       ponIfAdminStatus
+                           INTEGER,
+                       ponIfInFecStatus
+                           INTEGER,
+                       ponIfOutFecStatus
+                           INTEGER,
+                       ponIfLaserStatus
+                           INTEGER,
+                       isOnuDataSwitch
+                           INTEGER,
+                       ponIfProtectedStatus
+                           INTEGER,
+                       ponIfDynamicMacLearningStatus
+                           INTEGER,
+                       ponIfMacACL
+                           DisplayString,
+                       ponIfIpACL
+                           DisplayString
+                          
+                   }
+
+          -- The following section describes the components of the
+          -- table.
+
+               ponIfIndex OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "The only diid of PON port in System."
+                   ::= { bdEponOltPonEntry 1 } 
+
+               llidSequenceNo OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Currnet LLID seqence number."
+                   ::= { bdEponOltPonEntry 2 } 
+
+               onuAuthMethod OBJECT-TYPE
+                   SYNTAX  INTEGER {
+                          none(0),
+                          manual(1)
+                               	    }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU authentication method."
+                   ::= { bdEponOltPonEntry 3 } 
+
+               isCheckOnuMac OBJECT-TYPE
+                   SYNTAX  INTEGER {
+                          yes(1),
+                          no(2)
+                               	    }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Check ONU MAC when registering."
+                   ::= { bdEponOltPonEntry 4 } 
+
+               isPONBelongtoPSG OBJECT-TYPE
+                   SYNTAX  INTEGER {
+                          alone_pon(0),
+                          b-psg(1),
+                          active_pon(2),
+                          standby_pon(3),
+                          c-psg(4)
+                               	    }
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Check if PON belongs to PSG."
+                   ::= { bdEponOltPonEntry 5 } 
+
+               pONBelongtoPSGID OBJECT-TYPE
+                   SYNTAX  INTEGER 
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "PSG ID that PON belongs to."
+                   ::= { bdEponOltPonEntry 6 } 
+
+               isUsingMpcpRegisteAckDelayTime OBJECT-TYPE
+                   SYNTAX  INTEGER {
+                          yes(1),
+                          no(2)
+                               	    }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "If using MPCP registe Ack delay time."
+                   ::= { bdEponOltPonEntry 7 } 
+
+               mpcpRegisteAckDelayTime OBJECT-TYPE
+                   SYNTAX  INTEGER(1..50)
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "MPCP registe Ack delay time,range is 1-50ms."
+                   ::= { bdEponOltPonEntry 8 } 
+
+               ponIfAdminStatus OBJECT-TYPE
+                   SYNTAX  INTEGER {
+                          up(1),
+                          down(2)
+                               	    }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "PON interface Administration Status."
+                   ::= { bdEponOltPonEntry 9 } 
+                   
+               ponIfInFecStatus OBJECT-TYPE
+                   SYNTAX  INTEGER {
+                          on(1),
+                          off(2)
+                               	    }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "PON interface in FEC Status."
+                   ::= { bdEponOltPonEntry 10 } 
+
+               ponIfOutFecStatus OBJECT-TYPE
+                   SYNTAX  INTEGER {
+                          on(1),
+                          off(2)
+                               	    }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "PON interface out FEC Status."
+                   ::= { bdEponOltPonEntry 11 } 
+
+               ponIfLaserStatus OBJECT-TYPE
+                   SYNTAX  INTEGER {
+                          on(1),
+                          off(2)
+                               	    }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "PON interface Laser Status."
+                   ::= { bdEponOltPonEntry 12 } 
+
+               isOnuDataSwitch OBJECT-TYPE
+                   SYNTAX  INTEGER {
+                          on(1),
+                          off(2)
+                               	    }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "PON interface data exchange Status with ONU."
+                   ::= { bdEponOltPonEntry 13 } 
+
+               ponIfProtectedStatus OBJECT-TYPE
+                   SYNTAX  INTEGER {
+                          on(1),
+                          off(2)
+                               	    }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "PON interface protected Status."
+                   ::= { bdEponOltPonEntry 14 } 
+
+               ponIfDynamicMacLearningStatus OBJECT-TYPE
+                   SYNTAX  INTEGER {
+                          on(1),
+                          off(2)
+                               	    }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "PON interface dynamic MAC address learning Status."
+                   ::= { bdEponOltPonEntry 15 } 
+
+               ponIfMacACL OBJECT-TYPE
+                   SYNTAX  DisplayString 
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "PON interface MAC address ACL."
+                   ::= { bdEponOltPonEntry 16 } 
+
+               ponIfIpACL OBJECT-TYPE
+                   SYNTAX  DisplayString 
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "PON interface IP address ACL."
+                   ::= { bdEponOltPonEntry 17 } 
+
+
+END

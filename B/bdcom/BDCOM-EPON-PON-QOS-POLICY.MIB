@@ -1,0 +1,87 @@
+-- *****************************************************************
+-- BDCOM-EPON-Pon.MIB:  BDCom LLID Pon MIB file
+-- AUG 2009
+-- *****************************************************************
+--
+
+BDCOM-EPON-PON-QOS-POLICY DEFINITIONS ::= BEGIN
+
+            IMPORTS
+            IpAddress
+				FROM RFC1155-SMI
+		    OBJECT-TYPE
+				FROM RFC-1212
+            DisplayString
+				FROM RFC1213-MIB
+		    bdEPONGroup
+				FROM BDCOM-SMI
+		    TruthValue,RowStatus,PhysAddress,DisplayString,QosPolicy
+		    	FROM SNMPv2-TC;
+          
+                  bdEponPonQosPolicy        OBJECT IDENTIFIER ::= { bdEPONGroup 104}
+             
+bdEponPonQosPolicyTable	OBJECT-TYPE
+		SYNTAX		SEQUENCE OF bdEponPonQosPolicyEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION	"A list of bdEponPonQosPolicyEntry entries. 
+				 The port-based security mac address information."
+					::= { bdEponPonQosPolicy 1 }		
+	                       
+		bdEponPonQosPolicyEntry	OBJECT-TYPE
+				SYNTAX		bdEponPonQosPolicyEntry
+				MAX-ACCESS	not-accessible
+				STATUS		current
+				DESCRIPTION	
+							"Policy Map Apply operation.(PonIfIndex_PonQosPolicy)to Apply a  
+		                   Policy Map.For example,'07_q1'will apply the policy map 'q1' to Pon 7.
+		                   For 3305, the EPON will return a error symbol to indicate  a unsuccessful operation. "
+				INDEX		{ PonIfIndex,PonQosPolicy}
+				::= { bdEponPonQosPolicyTable 1 }
+       
+		bdEponPonQosPolicyEntry	::= SEQUENCE { 
+                   	PonIfIndex						INTEGER,                   
+		       		PonQosPolicy				DisplayString,
+		            PonQosPolicyCreate		DisplayString, 
+                    PonQosPolicyDel			TruthValue
+  				}
+		  
+               PonIfIndex OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  current
+                   DESCRIPTION
+                           "LLID interface id, unique in system."
+                   ::= { bdEponPonQosPolicyEntry 1 } 
+               
+               PonQosPolicy OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-only
+                   STATUS  current
+                   DESCRIPTION
+                           "A unique string for each Policy Map up to 20 characters. 
+ 							This string is part of index of Table."
+                   ::= { bdEponPonQosPolicyEntry 2 } 
+
+               PonQosPolicyCreate OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-write
+                   STATUS  current
+                   DESCRIPTION
+		                   "Policy Map Apply operation.(PonIfIndex_PonQosPolicy)to Apply a  
+		                   Policy Map.For example,'07_q1'will apply the policy map 'q1' to Pon 7.
+		                   For 3305 ,the EPON will return a error symbol to indicate 
+		                   a unsuccessful operation. " 
+		           ::= { bdEponPonQosPolicyEntry 3 }  
+               PonQosPolicyDel OBJECT-TYPE
+                   SYNTAX  TruthValue
+                   ACCESS  read-write
+                   STATUS  current
+                   DESCRIPTION
+                           "Pon  Policy Map delete flag,True(1) will delete the Policy Map."
+                   ::= { bdEponPonQosPolicyEntry 4} 
+             
+             
+
+              	
+END		

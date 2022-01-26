@@ -1,0 +1,90 @@
+-- *****************************************************************
+-- BDCOM-IF-QOS-POLICY.MIB:  BDCom IF QOS POLICY MIB file
+-- FEB 2010
+-- *****************************************************************
+--
+
+BDCOM-IF-QOS-POLICY DEFINITIONS ::= BEGIN
+
+            IMPORTS
+            IpAddress
+				FROM RFC1155-SMI
+		    OBJECT-TYPE
+				FROM RFC-1212
+            DisplayString
+				FROM RFC1213-MIB
+		    bdMgmt
+				FROM BDCOM-SMI
+		    TruthValue,RowStatus,PhysAddress,DisplayString,QosPolicy
+		    	FROM SNMPv2-TC;
+          
+                  bdIfQosPolicy        OBJECT IDENTIFIER ::= { bdMgmt 186}
+             
+bdIfQosPolicyTable	OBJECT-TYPE
+		SYNTAX		SEQUENCE OF BdIfQosPolicyEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION	"A list of bdIfQosPolicyEntry entries. 
+				 The port-based security mac address information."
+					::= { bdIfQosPolicy 1 }		
+	                       
+		bdIfQosPolicyEntry	OBJECT-TYPE
+				SYNTAX		BdIfQosPolicyEntry
+				MAX-ACCESS	not-accessible
+				STATUS		current
+				DESCRIPTION	
+							"Policy Map Apply operation.(IfIndex_QosPolicy)to Apply a  
+		                   Policy Map.For example,'07_q1'will apply the policy map 'q1' to interface which pon port diid is 7." 				
+		                 INDEX		{ bdIfIndex,bdIfQosPolicy,bdIfQosPolicyDirection}
+				::= { bdIfQosPolicyTable 1 }
+       
+		BdIfQosPolicyEntry	::= SEQUENCE { 
+                   	bdIfIndex				INTEGER,    
+		       	bdIfQosPolicyDirection                  INTEGER,
+		       	bdIfQosPolicy		 		DisplayString,
+		        bdIfQosPolicyOperation	        	INTEGER
+  				}
+            
+		  
+               bdIfIndex OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  current
+                   DESCRIPTION
+                           "LLID interface id, unique in system."
+                   ::= { bdIfQosPolicyEntry 1 } 
+               
+               bdIfQosPolicyDirection OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                                    ingress(1),
+                                    egress(2)
+                                  }
+                   ACCESS  read-write
+                   STATUS  current
+                   DESCRIPTION
+                           "A unique integer note for each interface Policy Map direction. 1-ingerss, 2-egress."
+                   ::= { bdIfQosPolicyEntry 2 } 
+
+               bdIfQosPolicy OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-only
+                   STATUS  current
+                   DESCRIPTION
+                           "A unique string for each Policy Map up to 20 characters. 
+ 							This string is part of index of Table."
+                   ::= { bdIfQosPolicyEntry 3 } 
+
+               bdIfQosPolicyOperation OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                   		    doNothing(0),	
+                                    create(1),
+                                    delete(2)
+                                  }
+                   ACCESS  read-write
+                   STATUS  current
+                   DESCRIPTION
+		                   "Policy Map Apply operation.0-do nothing, 1-create a single policy applying to a certain interface, 2-delete a single policy applying to a certain interface. " 
+		           ::= { bdIfQosPolicyEntry 4 }  
+
+              	
+END		

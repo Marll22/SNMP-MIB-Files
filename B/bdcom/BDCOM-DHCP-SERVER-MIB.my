@@ -1,0 +1,119 @@
+-- *****************************************************************
+-- BDCOM-DHCP-SERVER-MIB.my: BDCOM WLAN MIB
+--
+-- March 2010
+-- Edit by LIUQIANG
+-- Copyright (c) 2010 by BDCOM, Inc.
+-- All rights reserved.
+-- *****************************************************************
+
+
+BDCOM-DHCP-SERVER-MIB DEFINITIONS ::= BEGIN 
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,INTEGER,
+                                                FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION                          FROM SNMPv2-TC
+    MODULE-COMPLIANCE, OBJECT-GROUP             FROM SNMPv2-CONF
+    IpAddress   				FROM RFC1155-SMI
+    bdMgmt                             FROM BDCOM-SMI;
+
+--definition of BDCOM device DHCP server related address
+
+              dhcp         OBJECT IDENTIFIER ::= { bdMgmt 355 }
+
+	      dhcpServerStatus OBJECT-TYPE
+              SYNTAX  INTEGER{disable(0),
+                              enable(1)
+                              }
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION
+                      "BDCOM device DHCP server status. 0-disable, 1-enable."
+              ::= { dhcp 1 }
+
+               bdDhcpIpAddrPoolTable OBJECT-TYPE
+                   SYNTAX  SEQUENCE OF BdDhcpIpAddrPoolEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "BDCOM DHCP server IP address pool table."
+                   ::= { dhcp 2 }
+        
+               bdDhcpIpAddrPoolEntry OBJECT-TYPE
+                   SYNTAX  BdDhcpIpAddrPoolEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "BDCOM DHCP IP address pool table entry."
+                   INDEX   { bdDhcpIpAddrPoolIndex }
+                   ::= { bdDhcpIpAddrPoolTable 1 }
+        
+               BdDhcpIpAddrPoolEntry ::=
+                   SEQUENCE {
+                       bdDhcpIpAddrPoolIndex
+                           INTEGER,
+                       bdDhcpIpAddrPoolSubNetwork
+                           IpAddress,
+                       bdDhcpIpAddrPoolMask
+                           IpAddress,
+                       bdDhcpIpAddrPoolStart
+                           IpAddress,
+                       bdDhcpIpAddrPoolEnd
+                           IpAddress,
+                       bdDhcpIpAddrPoolReserveAddrList
+                           OCTET STRING
+                   }
+
+                bdDhcpIpAddrPoolIndex OBJECT-TYPE
+                    SYNTAX  INTEGER
+                    ACCESS  read-only
+                    STATUS  mandatory
+                    DESCRIPTION
+                            "A unique value for each DHCP IP address pool table entry."
+                    ::= { bdDhcpIpAddrPoolEntry 1 }
+               
+                bdDhcpIpAddrPoolSubNetwork OBJECT-TYPE
+                    SYNTAX  IpAddress
+                    ACCESS  read-only
+                    STATUS  mandatory
+                    DESCRIPTION
+                            "DHCP IP address pool subnetwork address information."
+                    ::= { bdDhcpIpAddrPoolEntry 2 }
+               
+                bdDhcpIpAddrPoolMask OBJECT-TYPE
+                    SYNTAX  IpAddress
+                    ACCESS  read-only
+                    STATUS  mandatory
+                    DESCRIPTION
+                            "DHCP IP address pool network mask."
+                    ::= { bdDhcpIpAddrPoolEntry 3 }
+               
+               
+                bdDhcpIpAddrPoolStart OBJECT-TYPE
+                    SYNTAX  IpAddress
+                    ACCESS  read-only
+                    STATUS  mandatory
+                    DESCRIPTION
+                            "DHCP IP address pool start address."
+                    ::= { bdDhcpIpAddrPoolEntry 4 }
+               
+                bdDhcpIpAddrPoolEnd OBJECT-TYPE
+                    SYNTAX  IpAddress
+                    ACCESS  read-only
+                    STATUS  mandatory
+                    DESCRIPTION
+                            "DHCP IP address pool end address."
+                    ::= { bdDhcpIpAddrPoolEntry 5 }
+               
+                bdDhcpIpAddrPoolReserveAddrList OBJECT-TYPE
+                    SYNTAX  OCTET STRING
+                    ACCESS  read-only
+                    STATUS  mandatory
+                    DESCRIPTION
+                            "DHCP IP address pool reserve IP address list. Every item is separated by comma, the length is less than 64."
+                    ::= { bdDhcpIpAddrPoolEntry 6 }
+               
+               
+END               
+               

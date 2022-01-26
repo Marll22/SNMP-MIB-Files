@@ -1,0 +1,1084 @@
+-- *****************************************************************
+-- BDCOM-EPON-ONU.MIB:  BDCom LLID ONU MIB file
+-- AUG 2009
+-- *****************************************************************
+--
+
+               BDCOM-EPON-ONU DEFINITIONS ::= BEGIN
+
+               IMPORTS
+               	    llidIfIndex
+			FROM BDCOM-EPON-LLID
+                    Counter, IpAddress, Counter
+			FROM RFC1155-SMI
+		    OBJECT-TYPE
+			FROM RFC-1212
+                    DisplayString
+			FROM RFC1213-MIB
+		    bdEPONGroup
+			FROM BDCOM-SMI
+		    TruthValue,RowStatus,PhysAddress,DisplayString,MacAddress
+		    	FROM SNMPv2-TC;
+          
+               bdEponOnu         OBJECT IDENTIFIER ::= { bdEPONGroup 10 }
+               
+               bdepononuTable OBJECT-TYPE
+                   SYNTAX  SEQUENCE OF BdEponOnuEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A list of epon ONU and LLID table entries."
+                   ::= { bdEponOnu 1 }
+
+               bdEponOnuEntry OBJECT-TYPE
+                   SYNTAX BdEponOnuEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of additional objects in the
+                            epon ONU and LLID table."
+                   INDEX { llidIfIndex }
+               ::= { bdepononuTable 1 }
+
+               BdEponOnuEntry ::=
+                   SEQUENCE {
+                       onuVendorID
+                           DisplayString,
+                       onuModuleID
+                           DisplayString,
+		       onuID
+                           PhysAddress,
+		       onuHardwareVersion
+                           DisplayString,
+		       onuSoftwareVersion
+                           DisplayString,
+		       onuFirmwareVersion
+                           DisplayString,
+		       onuChipVendorID
+                           DisplayString,
+		       onuChipModuleID
+                           DisplayString,
+		       onuChipRevision
+                           DisplayString,
+		       onuIcVersion
+                           DisplayString,
+		       onuServiceSupported
+                           BIT STRING,
+		       onuGePortCount
+                           INTEGER,
+		       onuGePortDistributing
+                           BIT STRING,
+		       onuFePortCount
+                           INTEGER,
+		       onuFePortDistributing
+                           BIT STRING,
+		       onuPotsPortCount
+                           INTEGER,
+		       onuE1PortCount
+                           INTEGER,
+		       onuUsQueueCount
+                           INTEGER,
+		       onuUsQueueMaxCount
+                           INTEGER,
+		       onuDsQueueCount
+                           INTEGER,
+		       onuDsQueueMaxCount
+                           INTEGER,
+		       onuIsBakupBattery
+                           INTEGER,
+		       onuADSL2PlusPortCount
+                           INTEGER,
+		       onuVDSL2PortCount
+                           INTEGER,
+		       onuLLIDCount
+                           INTEGER,
+		       onuStatus
+                           INTEGER,
+		       onuDistance
+                           INTEGER,
+		       onuBindStatus
+                           INTEGER,
+		       onuReset
+                           INTEGER,
+		       onuUpdateImage
+                           OCTET STRING,
+		       onuUpdateEepromImage
+                           OCTET STRING,
+		       onuEncryptionStatus
+                           TruthValue,
+		       onuEncryptionMode
+                           INTEGER,
+		       onuIgmpSnoopingStatus
+                           TruthValue,
+		       onuMcstMode
+                           INTEGER,
+		       OnuAFastLeaveAbility
+                           INTEGER,
+		       onuAcFastLeaveAdminControl
+                           INTEGER,
+		       onuAFastLeaveAdminState
+                           INTEGER,
+		       onuInFecStatus
+                           TruthValue,
+		       onuOutFecStatus
+                           TruthValue,
+		       onuIfProtectedStatus
+                           TruthValue,
+		       onuSehedulePolicy
+                           INTEGER,
+		       onuDynamicMacLearningStatus
+                           INTEGER,
+		       onuDynamicMacAgingTime
+                           INTEGER,
+		       onuStaticMacAddress
+                           MacAddress,
+		       onuStaticMacAddressPortBitmap
+                           BIT STRING,
+		       onuStaticMacAddressConfigRowStatus
+                           RowStatus,
+		       onuClearDynamicMacAddressByMac
+                           MacAddress,
+		       onuClearDynamicMacAddressByPort
+                           INTEGER,
+		       onuPriorityQueueMapping
+                           OCTET STRING,
+                       onuVlanMode
+                           INTEGER,
+                       --new add for liqiancheng
+		       onuIpAddressMode
+                           INTEGER,
+		       onuStaticIpAddress
+                           IpAddress,
+		       onuStaticIpMask
+                           IpAddress,
+		       onuStaticIpGateway
+                           IpAddress,
+		       onuMgmtVlan
+                           INTEGER,
+		       onuStaticIpAddressRowStatus
+                           RowStatus,
+                       onuCIR
+                           INTEGER,
+                       onuCBS
+                           INTEGER,
+                       onuEBS
+                           INTEGER,
+                       onuIfMacACL
+                           DisplayString,
+                       onuIfIpACL
+                           DisplayString,
+		       onuVlans
+                           BIT STRING,
+                       onuActivePonDiid
+                           INTEGER,
+                       onuPonPortCount
+                       	   INTEGER,
+                       onuActivePonPortIndex
+                           INTEGER,
+                       onuSerialPortWorkMode
+                       	   INTEGER,
+                       onuSerialPortWorkPort
+                       	   INTEGER,
+		       onuSerialWorkModeRowStatus
+                           RowStatus,
+		       onuRemoteServerIpAddrIndex
+                           INTEGER,
+		       onuPeerOLTIpAddr
+                       	   IpAddress,
+                       onuPeerPONIndex	   
+                           INTEGER,
+                       onuSerialPortCount
+                           INTEGER
+		}
+
+               onuVendorID OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU vendor id."
+                   ::= { bdEponOnuEntry 1 } 
+		
+               onuModuleID OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU module id."
+                   ::= { bdEponOnuEntry 2 } 
+		
+               onuID OBJECT-TYPE
+                   SYNTAX  PhysAddress
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU id.This value is ONU MAC address."
+                   ::= { bdEponOnuEntry 3 } 
+		
+               onuHardwareVersion OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU hardware version."
+                   ::= { bdEponOnuEntry 4 } 
+
+               onuSoftwareVersion OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU hardware version."
+                   ::= { bdEponOnuEntry 5 } 
+		
+               onuFirmwareVersion OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU firmware version."
+                   ::= { bdEponOnuEntry 6 } 
+		
+               onuChipVendorID OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU chip vendor id."
+                   ::= { bdEponOnuEntry 7 } 
+		
+               onuChipModuleID OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU chip module id."
+                   ::= { bdEponOnuEntry 8 } 
+		
+               onuChipRevision OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU chip revision."
+                   ::= { bdEponOnuEntry 9 } 
+		
+               onuIcVersion OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU chip revision."
+                   ::= { bdEponOnuEntry 10 } 
+		
+               onuServiceSupported OBJECT-TYPE
+                   SYNTAX  BIT STRING
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU service type supported.The format is bitmap.bit0=1:support 1000M ethernet interface;
+                           bit0=0:do not suport gigaethernet interface;bit1=1:support 100M ethernet interface but 1000M is not supported
+                           bit1=0:do not support 100M ethernet interface;bit2=1:support VoIP service;bit2=0:do not support VoIP service;
+                           bit3=1:support TDM CES service;bit3=0:do not support TDM CES service;bit4=1:support ADSL2+ service;
+                           bit4=0:do not support ADSL2+ service; bit5=0:support VDSL2 service;bit5=1:do not support VDSL2 service;"
+                   ::= { bdEponOnuEntry 11 } 
+		
+               onuGePortCount OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU 1000M ethernet UNI port count."
+                   ::= { bdEponOnuEntry 12 } 
+		
+               onuGePortDistributing OBJECT-TYPE
+                   SYNTAX  BIT STRING
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU 1000M ethernet UNI port bitmaps.There are totaly 8 bit strings, each 
+                           bit means the bandwidth of corresponding port.So 64 ports can be described.0 means 100M,1 means 1000M."
+                   ::= { bdEponOnuEntry 13 } 
+		
+               onuFePortCount OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU 100M ethernet UNI port count."
+                   ::= { bdEponOnuEntry 14 } 
+
+               onuFePortDistributing OBJECT-TYPE
+                   SYNTAX  BIT STRING
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU 1000M ethernet UNI port bitmaps.There are totaly 8 bit strings, each 
+                           bit means the bandwidth of corresponding port.So 64 ports can be described.0 means 100M,1 means 1000M."
+                   ::= { bdEponOnuEntry 15 } 
+                   
+               onuPotsPortCount OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU IAD POTS port count."
+                   ::= { bdEponOnuEntry 16 } 
+
+               onuE1PortCount OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU E1 port count."
+                   ::= { bdEponOnuEntry 17 } 
+
+               onuUsQueueCount OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU upstream queues count."
+                   ::= { bdEponOnuEntry 18 } 
+
+               onuUsQueueMaxCount OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU upstream queues maximum count of per port."
+                   ::= { bdEponOnuEntry 19 } 
+
+               onuDsQueueCount OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU downstream queues count."
+                   ::= { bdEponOnuEntry 20 } 
+
+               onuDsQueueMaxCount OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU downstream queues maximum count of per port."
+                   ::= { bdEponOnuEntry 21 } 
+
+               onuIsBakupBattery OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                          yes(0),
+                          no(1)
+                   }
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "If ONU have bakup battery or not."
+                   ::= { bdEponOnuEntry 22 } 
+
+               onuADSL2PlusPortCount OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Number of ADSL2+ port."
+                   ::= { bdEponOnuEntry 23 } 
+
+               onuVDSL2PortCount OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Number of VDSL2 port."
+                   ::= { bdEponOnuEntry 24 } 
+
+               onuLLIDCount OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Number of LLID. ONU notify OLT whether the multi-LLID mode is supported or not. "
+                   ::= { bdEponOnuEntry 25 } 
+
+               onuStatus OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                          authenticated(0),
+                          registered(1),
+                          deregistered(2),
+                          auto_config(3)
+                   }
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU Status. 0-authenticated, 1-registered,  2-deregistered."
+                   ::= { bdEponOnuEntry 26 } 
+
+               onuDistance OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Disatance between OLT and ONU. "
+                   ::= { bdEponOnuEntry 27 } 
+
+               onuBindStatus OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                          static(0),
+                          dynamic(1)
+                   }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU bind status. 0-static, 1-dynamic."
+                   ::= { bdEponOnuEntry 28 } 
+
+               onuReset OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                          reset(0),
+                          no-reset(1)
+                   }
+                   ACCESS  write-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU reset operation. 0-reset, 1-no-reset."
+                   ::= { bdEponOnuEntry 29 } 
+
+               onuUpdateImage OBJECT-TYPE
+                   SYNTAX  OCTET STRING
+                   ACCESS  write-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU update image name."
+                   ::= { bdEponOnuEntry 30 } 
+
+               onuUpdateEepromImage OBJECT-TYPE
+                   SYNTAX  OCTET STRING
+                   ACCESS  write-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU update eeprom image name."
+                   ::= { bdEponOnuEntry 31 } 
+
+               onuEncryptionStatus OBJECT-TYPE
+                   SYNTAX  TruthValue
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Global-level encryption enable or disable for an ONU.."
+                   ::= { bdEponOnuEntry 32 } 
+
+               onuEncryptionMode OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                          ctc-churning(2)
+                   }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Global-level encryption mode for an ONU."
+                   ::= { bdEponOnuEntry 33 } 
+
+               onuIgmpSnoopingStatus OBJECT-TYPE
+                   SYNTAX  TruthValue
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Enables or disables ONU multicast."
+                   ::= { bdEponOnuEntry 34 } 
+
+               onuMcstMode OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                          igmp-snooping(0),
+                          dynamic-controllable(1)
+                   }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Config multicast mode.0-IGMP Snooping, 1-CTC dynamic controllable multicast.Only igmp-snooping is supported currently."
+                   ::= { bdEponOnuEntry 35 } 
+
+               OnuAFastLeaveAbility OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                          multicast-non-fast-leave(0),
+                          igmp-snooping-fast-leave(1),
+                          controlable-multicast-non-fast-leave(2),
+                          controlable-multicast-fast-leave(3)
+                   }
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Definition of ONU a fast-leave ability.multicast-non-fast-leave(0),igmp-snooping-fast-leave(1),
+                          controlable-multicast-non-fast-leave(2),controlable-multicast-fast-leave(3)"
+                   ::= { bdEponOnuEntry 36 } 
+
+               onuAcFastLeaveAdminControl OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                          deactivate-Fast-Leave-Function(1),
+                          activate-Fast-Leave-Function(2)
+                   }
+                   ACCESS  write-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Activating a fast-leave ability. deactivate-Fast-Leave-Function(1), activate-Fast-Leave-Function(2)"
+                   ::= { bdEponOnuEntry 37 } 
+
+               onuAFastLeaveAdminState OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                          disable(1),
+                          enable(2)
+                   }
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU multicast fast-leave ability. disable(1), enable(2)."
+                   ::= { bdEponOnuEntry 38 } 
+
+               onuInFecStatus OBJECT-TYPE
+                   SYNTAX  TruthValue
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU receiving FEC status."
+                   ::= { bdEponOnuEntry 39 } 
+
+               onuOutFecStatus OBJECT-TYPE
+                   SYNTAX  TruthValue
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU sending FEC status."
+                   ::= { bdEponOnuEntry 40 } 
+
+               onuIfProtectedStatus OBJECT-TYPE
+                   SYNTAX  TruthValue
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU port protected status."
+                   ::= { bdEponOnuEntry 41 } 
+
+               onuSehedulePolicy OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                          sp(1),
+                          wrr(2)
+                   }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU schedule policy.1=sp(1), 2=wrr(2)."
+                   ::= { bdEponOnuEntry 42 } 
+
+               onuDynamicMacLearningStatus OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                          off(1),
+                          on(2)
+                   }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU dynamic MAC address learning status. 1=off, 2=on."
+                   ::= { bdEponOnuEntry 43 } 
+
+               onuDynamicMacAgingTime OBJECT-TYPE
+                   SYNTAX  INTEGER(0,15..3825)
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU dynamic MAC address aging time. Range is 0 or 15-3825"
+                   ::= { bdEponOnuEntry 44 } 
+
+               onuStaticMacAddress OBJECT-TYPE
+                   SYNTAX  MacAddress
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU static MAC address. Need to configure with corresponding MAC addresss port together."
+                   ::= { bdEponOnuEntry 45 } 
+
+               onuStaticMacAddressPortBitmap OBJECT-TYPE
+                   SYNTAX  BIT STRING
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU static MAC address port bitmap value. Each bit manifests an ONU port static MAC address status. 0= no,1=yes. "
+                   ::= { bdEponOnuEntry 46 } 
+
+               onuStaticMacAddressConfigRowStatus OBJECT-TYPE
+                   SYNTAX  RowStatus
+                   ACCESS  read-create
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU static MAC address configuration row status. "
+                   ::= { bdEponOnuEntry 47 } 
+
+               onuClearDynamicMacAddressByMac OBJECT-TYPE
+                   SYNTAX  MacAddress
+                   ACCESS  write-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Clear dynamic MAC address according to MAC."
+                   ::= { bdEponOnuEntry 48 } 
+
+               onuClearDynamicMacAddressByPort OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  write-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Clear dynamic MAC address according to port number."
+                   ::= { bdEponOnuEntry 49 } 
+
+               onuPriorityQueueMapping OBJECT-TYPE
+                   SYNTAX  OCTET STRING
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU priority queue mapping.Totally 8 bytes,each byte manifests priority of corresponding queue number sorted by byte count."
+                   ::= { bdEponOnuEntry 50 } 
+
+               onuVlanMode OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                          transparent-mode(0),
+                          tag-mode(1),
+                          translation-mode(2),
+                          stacking-mode(3),
+                          none(254)
+                   }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU VLAN mode.(0 - transparent mode, 1 - tag mode, 2 - translation mode, 3 - stacking mode, 254 - none). Only UNI set is supported."
+                   ::= { bdEponOnuEntry 51 } 
+
+               onuIpAddressMode OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                          dhcp(1),
+                          static(2)
+                   }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU IP address work mode. 0-default mode, dhcp, 1-static IP address mode."
+                   ::= { bdEponOnuEntry 52 } 
+
+               onuStaticIpAddress OBJECT-TYPE
+                   SYNTAX  IpAddress
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU static ip address."
+                   ::= { bdEponOnuEntry 53 } 
+
+               onuStaticIpMask OBJECT-TYPE
+                   SYNTAX  IpAddress
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU static ip mask."
+                   ::= { bdEponOnuEntry 54 } 
+
+               onuStaticIpGateway OBJECT-TYPE
+                   SYNTAX  IpAddress
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU static ip gateway address."
+                   ::= { bdEponOnuEntry 55 } 
+
+               onuMgmtVlan OBJECT-TYPE
+                   SYNTAX  INTEGER(1..4094)
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU management VLAN."
+                   ::= { bdEponOnuEntry 56 } 
+
+               onuStaticIpAddressRowStatus OBJECT-TYPE
+                   SYNTAX  RowStatus
+                   ACCESS  read-create
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU static ip address configuration row status. These four items: onuIpAddressMode, onuStaticIpAddress, onuStaticIpMask, onuStaticIpGateway, onuMgmtVlan, are added together. "
+                   ::= { bdEponOnuEntry 57 } 
+
+               onuCIR OBJECT-TYPE
+                   SYNTAX  INTEGER(0..16777215)
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "onu CIR."
+                   ::= { bdEponOnuEntry 58 } 
+
+               onuCBS OBJECT-TYPE
+                   SYNTAX  INTEGER(0..65535)
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "onu CBS."
+                   ::= { bdEponOnuEntry 59 } 
+
+               onuEBS OBJECT-TYPE
+                   SYNTAX  INTEGER(0..65535)
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "onu EBS."
+                   ::= { bdEponOnuEntry 60 } 
+
+               onuIfMacACL OBJECT-TYPE
+                   SYNTAX  DisplayString 
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU MAC address ACL."
+                   ::= { bdEponOnuEntry 61 } 
+
+               onuIfIpACL OBJECT-TYPE
+                   SYNTAX  DisplayString 
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU address ACL."
+                   ::= { bdEponOnuEntry 62 } 
+
+               onuVlans OBJECT-TYPE
+                   SYNTAX  BIT STRING
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU VLAN set value. Each bit manifests a VLAN status. 0= no,1=yes. "
+                   ::= { bdEponOnuEntry 63 } 
+
+               onuActivePonDiid OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU active pon port VS OLT PON diID."
+                   ::= { bdEponOnuEntry 64 } 
+
+               onuPonPortCount OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU pon port count. Max is 2, and min is 1."
+                   ::= { bdEponOnuEntry 65 } 
+
+               onuActivePonPortIndex OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU active pon port VS OLT pon port index."
+                   ::= { bdEponOnuEntry 66 } 
+
+               onuSerialPortWorkMode OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                                  none(0),
+                                  tcp-server(1),
+                                  udp(2),
+                                  tcp-client(3)
+                                  }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU active pon port work mode. Default value is 0-none. "
+                   ::= { bdEponOnuEntry 67 } 
+
+               onuSerialPortWorkPort OBJECT-TYPE
+                   SYNTAX  INTEGER(5000..30000)
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU serial port work port."
+                   ::= { bdEponOnuEntry 68 } 
+
+               onuSerialWorkModeRowStatus OBJECT-TYPE
+                   SYNTAX  RowStatus
+                   ACCESS  read-create
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU serial port setting row status. These two items: onuSerialPortWorkMode and onuSerialPortWorkPort, are added together. "
+                   ::= { bdEponOnuEntry 69 } 
+
+               onuRemoteServerIpAddrIndex OBJECT-TYPE
+                   SYNTAX  INTEGER(0..1000)
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU remote server IP address index. This value is index of BDCOM-EPON-ONU-REMOTE-SERVER-INFO. 0-this value is deleted. Default value is none. "
+                   ::= { bdEponOnuEntry 70 } 
+
+               onuPeerOLTIpAddr OBJECT-TYPE
+                   SYNTAX  IpAddress
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU peer OLT IP address."
+                   ::= { bdEponOnuEntry 71 } 
+
+               onuPeerPONIndex OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU peer PON port index."
+                   ::= { bdEponOnuEntry 72 } 
+
+               onuSerialPortCount OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU serial port count. If no serial port, value set to 0."
+                   ::= { bdEponOnuEntry 73 } 
+                   
+                   
+                 
+
+
+
+               bdepononuPonSwitchTable OBJECT-TYPE
+                   SYNTAX  SEQUENCE OF BdEponOnuPonSwitchEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A list of epon ONU Pon Port Switch table entries. That table only uses for double PON port ONU device."
+                   ::= { bdEponOnu 2 }
+
+               bdEponOnuPonSwitchEntry OBJECT-TYPE
+                   SYNTAX BdEponOnuPonSwitchEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of additional objects in switch of
+                            epon ONU PON port."
+                   INDEX { ifIndex }
+               ::= { bdepononuPonSwitchTable 1 }
+
+               BdEponOnuPonSwitchEntry ::=
+                   SEQUENCE {
+                       ifIndex
+                           INTEGER,
+                       operType
+                           INTEGER
+		}
+				
+               ifIndex OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  write-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "EPON port diID or ONU llid."
+                   ::= { bdEponOnuPonSwitchEntry 1 } 
+
+               operType OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                   	switchBack(0),  
+                   	switchToAnother(1)
+                   }
+                   ACCESS  write-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU PON port switch operation type. 0-switch to another PON port and never switch back, 1-switch to another PON port and switch back."
+                   ::= { bdEponOnuPonSwitchEntry 2 } 
+
+               bdepononucap2Table OBJECT-TYPE
+                   SYNTAX  SEQUENCE OF BdEponOnuCap2Entry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A list of epon ONU capability-2 table entries."
+                   ::= { bdEponOnu 3 }
+
+               bdEponOnuCap2Entry OBJECT-TYPE
+                   SYNTAX BdEponOnuCap2Entry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of additional objects in the
+                            epon ONU capability-2 table."
+                   INDEX { llidIfIndex }
+               ::= { bdepononucap2Table 1 }
+
+               BdEponOnuCap2Entry ::=
+                   SEQUENCE {
+		       cap2OnuType
+                           INTEGER,
+		       cap2Multillid
+                           INTEGER,
+		       cap2ProtectionType
+                           INTEGER,
+		       cap2NumPONIf
+                           INTEGER,
+		       cap2NumSlot
+                           INTEGER,
+		       cap2NumIfType
+                           INTEGER,
+		       cap2NumGEPorts
+                           INTEGER,
+		       cap2NumFEPorts
+                           INTEGER,
+		       cap2NumVoIPPorts
+                           INTEGER,
+		       cap2NumTDMPorts
+                           INTEGER,
+		       cap2NumADSL2Ports
+                           INTEGER,
+		       cap2NumVDSL2Ports
+                           INTEGER,
+		       cap2NumWLANPorts
+                           INTEGER,
+		       cap2NumUSBPorts
+                           INTEGER,
+		       cap2NumCATVRFPorts
+                           INTEGER,
+		       cap2NumSerialPorts
+                           INTEGER,
+		       cap2BatteryBackup
+                           INTEGER
+		}
+
+               cap2OnuType OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                   	SFU(0),
+                   	HGU(1),
+                   	SBU(2),
+                   	MDU-3(3),
+                   	MDU-4(4),
+                   	MDU-5(5),
+                   	MDU-6(6),
+                   	MDU-7(7),
+                   	MTU(8)
+                   }
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU type."
+                   ::= { bdEponOnuCap2Entry 1 } 
+               cap2Multillid OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                   yes(0),
+                   no(1)
+                   }
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "If ONU support multillid or not."
+                   ::= { bdEponOnuCap2Entry 2 } 
+               cap2ProtectionType OBJECT-TYPE
+                   SYNTAX  INTEGER{ 
+                   notsupported(0),
+                   supportc-psg(1),
+                   supportd-psg(2)
+                   }
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU protection type: not supported is 0, support c-psg is 1, support d-psg is 2."
+                   ::= { bdEponOnuCap2Entry 3 } 
+               cap2NumPONIf OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Number of pon ports."
+                   ::= { bdEponOnuCap2Entry 4 } 
+               cap2NumSlot OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Number of slots."
+                   ::= { bdEponOnuCap2Entry 5 } 
+               cap2NumIfType OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Number of interface types."
+                   ::= { bdEponOnuCap2Entry 6 } 
+               cap2NumGEPorts OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Number of GE ports."
+                   ::= { bdEponOnuCap2Entry 7 } 
+               cap2NumFEPorts OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Number of FE ports."
+                   ::= { bdEponOnuCap2Entry 8 } 
+               cap2NumVoIPPorts OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Number of VoIP ports."
+                   ::= { bdEponOnuCap2Entry 9 } 
+               cap2NumTDMPorts OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Number of TDM ports."
+                   ::= { bdEponOnuCap2Entry 10 } 
+               cap2NumADSL2Ports OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Number of ADSL2 ports."
+                   ::= { bdEponOnuCap2Entry 11 } 
+               cap2NumVDSL2Ports OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Number of VDSL2 ports."
+                   ::= { bdEponOnuCap2Entry 12 } 
+               cap2NumWLANPorts OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Number of WLAN ports."
+                   ::= { bdEponOnuCap2Entry 13 } 
+               cap2NumUSBPorts OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Number of USB ports."
+                   ::= { bdEponOnuCap2Entry 14 } 
+               cap2NumCATVRFPorts OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Number of CATV RF ports."
+                   ::= { bdEponOnuCap2Entry 15 } 
+               cap2NumSerialPorts OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Number of serial ports."
+                   ::= { bdEponOnuCap2Entry 16 } 
+               cap2BatteryBackup OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                   yes(1),
+                   no(0)
+                   }
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "If ONU have bakup battery or not."
+                   ::= { bdEponOnuCap2Entry 17 } 
+	
+
+
+	
+END		

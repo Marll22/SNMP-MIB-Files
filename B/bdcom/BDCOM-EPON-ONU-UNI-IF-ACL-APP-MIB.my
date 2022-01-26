@@ -1,0 +1,111 @@
+-- *****************************************************************
+-- BDCOM-EPON-ONU-UNI-IF-ACL-APP-MIB.my:  BDCom EPON-ONU-UNI-IF-ACL-APP MIB file
+-- MAR 2010
+-- *****************************************************************
+--
+
+               BDCOM-EPON-ONU-UNI-IF-ACL-APP-MIB DEFINITIONS ::= BEGIN
+
+               IMPORTS
+                    Counter, IpAddress, Counter
+			FROM RFC1155-SMI
+		    OBJECT-TYPE
+			FROM RFC-1212
+                    DisplayString, ifIndex, PhysAddress
+			FROM RFC1213-MIB
+		    bdEPONGroup
+			FROM BDCOM-SMI
+               	    llidIfIndex
+			FROM BDCOM-EPON-LLID
+		    RowStatus
+		    	FROM SNMPv2-TC;
+		    
+          
+               bdEponOnuUniIfAppPolicy         OBJECT IDENTIFIER ::= { bdEPONGroup 105 }
+
+               bdEponOnuUniIfAppPolicyTable OBJECT-TYPE
+                   SYNTAX  SEQUENCE OF BdEponOnuUniIfAppPolicyEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A list of epon onu uni interface application policy table entries."
+                   ::= { bdEponOnuUniIfAppPolicy 1 }
+
+               bdEponOnuUniIfAppPolicyEntry OBJECT-TYPE
+                   SYNTAX  BdEponOnuUniIfAppPolicyEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of additional objects in the
+                            epon onu uni interface property table."
+                   INDEX { llidIfIndex,bdOnuUniIfIndex }
+               ::= { bdEponOnuUniIfAppPolicyTable 1 }
+               
+
+               BdEponOnuUniIfAppPolicyEntry ::=
+                   SEQUENCE {
+                       llidIfIndex
+                           INTEGER,                         
+                       bdOnuUniIfIndex
+                           INTEGER,
+                       bdOnuUniIfInMacACL
+                           DisplayString,
+                       bdOnuUniIfOutMacACL
+                           DisplayString,
+                       bdOnuUniIfInIpACL
+                           DisplayString,
+                       bdOnuUniIfOutIpACL
+                           DisplayString
+,                      
+                   }
+          llidIfIndex OBJECT-TYPE
+              SYNTAX  INTEGER
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION
+                      "LLID interface id, unique in system."
+              ::= { bdEponOnuUniIfAppPolicyEntry 1 } 
+ 
+
+          bdOnuUniIfIndex OBJECT-TYPE
+              SYNTAX  INTEGER
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION
+                      "A unique value for each onu uni interface."
+              ::= { bdEponOnuUniIfAppPolicyEntry 2 }
+               
+          bdOnuUniIfInMacACL OBJECT-TYPE
+              SYNTAX  DisplayString 
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Interface input MAC address ACL."
+              ::= { bdEponOnuUniIfAppPolicyEntry 3 } 
+
+          bdOnuUniIfOutMacACL OBJECT-TYPE
+              SYNTAX  DisplayString 
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Interface output MAC address ACL."
+              ::= { bdEponOnuUniIfAppPolicyEntry 4 } 
+
+          bdOnuUniIfInIpACL OBJECT-TYPE
+              SYNTAX  DisplayString 
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Interface input IP address ACL."
+              ::= { bdEponOnuUniIfAppPolicyEntry 5 } 
+
+          bdOnuUniIfOutIpACL OBJECT-TYPE
+              SYNTAX  DisplayString 
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Interface output IP address ACL."
+              ::= { bdEponOnuUniIfAppPolicyEntry 6 } 
+
+               
+END

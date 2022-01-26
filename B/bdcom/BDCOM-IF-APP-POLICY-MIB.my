@@ -1,0 +1,129 @@
+-- *****************************************************************
+-- BDCOM-IF-APP-POLICY-MIB.my:  BDCom IF-APP-POLICY MIB file
+-- AUG 2009
+-- *****************************************************************
+--
+
+               BDCOM-IF-APP-POLICY-MIB DEFINITIONS ::= BEGIN
+
+               IMPORTS
+                    Counter, IpAddress, Counter
+			FROM RFC1155-SMI
+		    OBJECT-TYPE
+			FROM RFC-1212
+                    DisplayString, ifIndex, PhysAddress
+			FROM RFC1213-MIB
+		    bdMgmt
+			FROM BDCOM-SMI
+		    RowStatus
+		    	FROM SNMPv2-TC;
+		    
+          
+               bdIfAppPolicy         OBJECT IDENTIFIER ::= { bdMgmt 65 }
+
+               bdIfAppPolicyTable OBJECT-TYPE
+                   SYNTAX  SEQUENCE OF BdIfAppPolicyEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A list of interface application policy table entries."
+                   ::= { bdIfAppPolicy 1 }
+
+               bdIfAppPolicyEntry OBJECT-TYPE
+                   SYNTAX  BdIfAppPolicyEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of additional objects in the
+                            interface property table."
+                   INDEX { ponIfIndex }
+               ::= { bdIfAppPolicyTable 1 }
+               
+
+               BdIfAppPolicyEntry ::=
+                   SEQUENCE {
+                       bdIfIndex
+                           INTEGER,
+                       bdIfDescr
+                           DisplayString,
+                       bdIfInMacACL
+                           DisplayString,
+                       bdIfOutMacACL
+                           DisplayString,
+                       bdIfInIpACL
+                           DisplayString,
+                       bdIfOutIpACL
+                           DisplayString,
+                       bdIfInQosPolicyName
+                           DisplayString,
+                       bdIfOutQosPolicyName
+                           DisplayString,                      
+                   }
+
+          bdIfIndex OBJECT-TYPE
+              SYNTAX  INTEGER
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION
+                      "A unique value for each interface. The same value as ifIndex of ifTable in RFC1213."
+              ::= { bdIfAppPolicyEntry 1 }
+               
+          bdIfDescr OBJECT-TYPE
+              SYNTAX  DisplayString (SIZE (0..255))
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION
+                      "A textual string containing information of interface. The same value as ifDesc of ifTable in RFC1213. "
+              ::= { bdIfAppPolicyEntry 2 }
+
+          bdIfInMacACL OBJECT-TYPE
+              SYNTAX  DisplayString 
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Interface input MAC address ACL."
+              ::= { bdIfAppPolicyEntry 3 } 
+
+          bdIfOutMacACL OBJECT-TYPE
+              SYNTAX  DisplayString 
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Interface output MAC address ACL."
+              ::= { bdIfAppPolicyEntry 4 } 
+
+          bdIfInIpACL OBJECT-TYPE
+              SYNTAX  DisplayString 
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Interface input IP address ACL."
+              ::= { bdIfAppPolicyEntry 5 } 
+
+          bdIfOutIpACL OBJECT-TYPE
+              SYNTAX  DisplayString 
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Interface output IP address ACL."
+              ::= { bdIfAppPolicyEntry 6 } 
+
+          bdIfInQosPolicyName OBJECT-TYPE
+              SYNTAX  DisplayString 
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Interface input QoS policy name."
+              ::= { bdIfAppPolicyEntry 7 } 
+
+          bdIfOutQosPolicyName OBJECT-TYPE
+              SYNTAX  DisplayString 
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Interface output QoS policy name."
+              ::= { bdIfAppPolicyEntry 8 } 
+
+               
+               
+END

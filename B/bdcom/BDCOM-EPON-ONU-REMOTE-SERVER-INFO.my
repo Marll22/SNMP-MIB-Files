@@ -1,0 +1,78 @@
+-- *****************************************************************
+-- BDCOM-EPON-ONU-REMOTE-SERVER-INFO.MIB:  BDCOM-EPON-ONU-REMOTE-SERVER-INFO MIB file
+-- JUL 2010
+-- *****************************************************************
+--
+
+               BDCOM-EPON-ONU-REMOTE-SERVER-INFO DEFINITIONS ::= BEGIN
+
+               IMPORTS
+                    IpAddress
+			FROM RFC1155-SMI
+		    OBJECT-TYPE
+			FROM RFC-1212
+		    bdEPONGroup
+			FROM BDCOM-SMI
+                    RowStatus
+		    	FROM SNMPv2-TC;    
+		    	
+		    	      
+               bdEponOnuRemoteServer         OBJECT IDENTIFIER ::= { bdEPONGroup 28 }
+               
+               bdEponOnuRemoteServerTable OBJECT-TYPE
+                   SYNTAX  SEQUENCE OF BdEponOnuRemoteServerEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A list of epon ONU remote zerver table entries."
+                   ::= { bdEponOnuRemoteServer 1 }
+
+               bdEponOnuRemoteServerEntry OBJECT-TYPE
+                   SYNTAX BdEponOnuRemoteServerEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of EPON ONU remote server IP address table."
+                   INDEX { onuRemoteServerIndex }
+               ::= { bdEponOnuRemoteServerTable 1 }
+
+               BdEponOnuRemoteServerEntry ::=
+                   SEQUENCE {
+                       onuRemoteServerIndex
+                           INTEGER,
+                       onuRemoteServerIpAddr
+                           IpAddress,
+		       onuRemoteServerRowStatus
+                           RowStatus
+                           }
+                           
+                           
+               onuRemoteServerIndex OBJECT-TYPE
+                   SYNTAX  INTEGER(0..1000)
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU remote server IP address Index. This value is index of . 0-this value is deleted. Default value is none. "
+                   ::= { bdEponOnuRemoteServerEntry 1 } 
+                           
+               onuRemoteServerIpAddr OBJECT-TYPE
+                   SYNTAX  IpAddress
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU remote server IP address."
+                   ::= { bdEponOnuRemoteServerEntry 2 } 
+                           
+               onuRemoteServerRowStatus OBJECT-TYPE
+                   SYNTAX  RowStatus
+                   ACCESS  read-create
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU remote server IP address setting row status. These two items: onuRemoteServerIndex, onuRemoteServerIpAddr, are set together. "
+                   ::= { bdEponOnuRemoteServerEntry 3 } 
+                           
+                           
+                           
+                           
+  END
+               

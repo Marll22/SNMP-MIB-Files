@@ -1,0 +1,35 @@
+ BDCOMTRAP-MIB DEFINITIONS ::= BEGIN
+
+          IMPORTS
+              sysUpTime, ifIndex, ifDescr, ifType
+                   FROM RFC1213-MIB
+              bdcom
+                   FROM BDCOM-SMI
+              adslLineUser, adslProductID, adslConfigAddr, adslMemLoad,  adslCPULoad, 
+              adslPtInCRC,  adslPtStatus,  adslPtSpeed,    adslPtOutPkts,adslPtInPkts,
+              adslPtOutError,adslPtInError,adslPtOutSpeed, adslPtInSpeed,adslPtOutDrop,
+              adslPtInDrop  
+		   FROM BDCOM-1705
+	       TRAP-TYPE
+                   FROM RFC-1215;
+		
+	-- bdcom Private Enterprise Traps
+	
+	 adslConnection TRAP-TYPE
+	              ENTERPRISE  bdcom
+	              VARIABLES   { adslLineUser, adslProductID, 
+	                            adslConfigAddr}
+	              DESCRIPTION
+	                          "A line trap signifies that a line connection has been established"
+	              ::= 0
+	 adslPeriod TRAP-TYPE
+	              ENTERPRISE  bdcom
+	              VARIABLES   { adslMemLoad, adslCPULoad, adslPtInCRC, adslPtStatus,
+	                            adslPtSpeed, adslPtOutPkts,adslPtInPkts,adslPtOutError,
+	                            adslPtInError,adslPtOutSpeed,adslPtInSpeed,adslPtOutDrop,
+	                            adslPtInDrop}
+	              DESCRIPTION
+	                          "A adsl period trap signifies the current information of online connect port."
+	              ::= 1
+	              
+	END

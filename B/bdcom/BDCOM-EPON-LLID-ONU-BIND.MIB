@@ -1,0 +1,142 @@
+-- *****************************************************************
+-- BDCOM-EPON-LLID-ONU-BIND.MIB:  BDCom LLID ONU binding MIB file
+-- AUG 2009
+-- *****************************************************************
+--
+
+               BDCOM-EPON-LLID-ONU-BIND DEFINITIONS ::= BEGIN
+
+               IMPORTS
+                    Counter, IpAddress, Counter
+			FROM RFC1155-SMI
+		    OBJECT-TYPE
+			FROM RFC-1212
+                    DisplayString
+			FROM RFC1213-MIB
+		    bdEPONGroup
+			FROM BDCOM-SMI
+		    TruthValue,RowStatus,MacAddress
+		    	FROM SNMPv2-TC;
+          
+               bdEponLlidOnuBind         OBJECT IDENTIFIER ::= { bdEPONGroup 11 }
+               
+               bdeponllidonubindTable OBJECT-TYPE
+                   SYNTAX  SEQUENCE OF BdEponLlidOnuBindEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A list of epon ONU and LLID vs ONU binding table entries."
+                   ::= { bdEponLlidOnuBind 1 }
+
+               bdEponLlidOnuBindEntry OBJECT-TYPE
+                   SYNTAX BdEponLlidOnuBindEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of additional objects in the
+                            epon ONU and LLID vs ONU binding table."
+                   INDEX { llidEponIfDiid }
+               ::= { bdeponllidonubindTable 1 }
+
+               BdEponLlidOnuBindEntry ::=
+                   SEQUENCE {
+                       llidEponIfDiid
+                           INTEGER,
+                       llidSequenceNo
+                           INTEGER,
+                       onuMacAddressIndex
+                           MacAddress,
+                       llidOnuBindDesc
+                           OCTET STRING,
+                       llidOnuBindType
+                           INTEGER,
+                       llidOnuBindStatus
+                           INTEGER,
+                       llidOnuBindDistance
+                           INTEGER,
+                       llidOnuBindRTT
+                           INTEGER
+                      
+                   }
+                   
+                   
+          -- The following section describes the components of the
+          -- table.
+
+               llidEponIfDiid OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-create
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "EPON port DIID that LLID belongs to."
+                   ::= { bdEponLlidOnuBindEntry 1 } 
+                   	
+               llidSequenceNo OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-create
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "LLID sequence number."
+                   ::= { bdEponLlidOnuBindEntry 2 } 
+                   	
+               onuMacAddressIndex OBJECT-TYPE
+                   SYNTAX  MacAddress
+                   ACCESS  read-create
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "ONU MAC address, that is unique id for ONU."
+                   ::= { bdEponLlidOnuBindEntry 3 } 
+                   	
+               llidOnuBindDesc OBJECT-TYPE
+                   SYNTAX  OCTET STRING
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "LLID & ONU binding description."
+                   ::= { bdEponLlidOnuBindEntry 4 } 
+                   	
+               llidOnuBindType OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                   	static(0),
+                   	dynamic(1)
+                   }
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "LLID & ONU binding type,0-static, 1-dynamic."
+                   ::= { bdEponLlidOnuBindEntry 5 } 
+                   	
+               llidOnuBindStatus OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                   	authenticated(0),
+                   	registered(1),
+                   	deregistered(2),
+                   	discovered(3),
+                   	lost(4),
+                   	auto_configured(5),
+                   	unknow(255)
+                   }
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "LLID & ONU binding status."
+                   ::= { bdEponLlidOnuBindEntry 6 } 
+                   	
+               llidOnuBindDistance OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "LLID & ONU binding Distance."
+                   ::= { bdEponLlidOnuBindEntry 7 } 
+                   	
+               llidOnuBindRTT OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "LLID & ONU binding round-trip time."
+                   ::= { bdEponLlidOnuBindEntry 8 } 
+                   	
+               
+END

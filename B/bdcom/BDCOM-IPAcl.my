@@ -1,0 +1,690 @@
+-- *****************************************************************
+-- BDCOM-IPAcl.my:  BDCom IPAcl MIB file
+-- NOV. 18 2008
+-- *****************************************************************
+--
+
+            BDCOM-IPAcl DEFINITIONS ::= BEGIN
+
+            IMPORTS 
+            	MODULE-IDENTITY,
+        		OBJECT-TYPE
+            		FROM SNMPv2-SMI 
+            	bdlocal
+            		FROM BDCOM-SMI	           	           		
+            	DisplayString 
+					FROM RFC1213-MIB
+ 			   	RowStatus
+  		      		FROM SNMPv2-TC;
+                                   
+bdcomIPAclMIB  MODULE-IDENTITY
+        LAST-UPDATED    "200811180000Z"
+        ORGANIZATION    "BDCom,Inc"
+        CONTACT-INFO
+                	"Shanghai baud data communication Co.ltd
+			Postal:	No.123,Juli RD,Zhangjiang Hi-tech Park,
+			      	Pudong New Zone,Shanghai City,201203
+			      	P.R.C
+			Tel: 	8621-50800666"
+			
+        DESCRIPTION
+            "This MIB module defines the generic managed objects
+            for IP Acl."
+        ::= { bdlocal 5 }
+                             
+                             
+         bdcomAclTotal OBJECT-TYPE
+              SYNTAX  INTEGER
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION
+              		"the total num of access-lists"
+              ::= { bdcomIPAclMIB 1 } 
+ --ACL TABLE
+         bdIPAclTable OBJECT-TYPE
+              SYNTAX  SEQUENCE OF BdIPAclEntry
+              ACCESS  not-accessible
+              STATUS  mandatory
+              DESCRIPTION
+              		"This table containing one entry for each
+             		IP Acl on this device."
+              ::= { bdcomIPAclMIB 2 } 
+                                                
+          bdIPAclEntry OBJECT-TYPE
+              SYNTAX  BdIPAclEntry
+              ACCESS  not-accessible
+              STATUS  mandatory
+              DESCRIPTION
+              		"An entry (conceptual row) containing information
+             		about an IP Acl on this device."
+              INDEX   { bdIPAclname }
+              ::= { bdIPAclTable 1 }
+
+          BdIPAclEntry ::= SEQUENCE {			    
+          		bdIPAclname           	DisplayString,
+          		bdIPAclEntrytotal       INTEGER,		
+          	    bdIPAclType				INTEGER, 
+          	    bdIPAclMergeEnable		INTEGER, 
+          	    bdIPAclRowStatus		RowStatus		
+			    }     
+
+		  bdIPAclname OBJECT-TYPE
+			    SYNTAX     DisplayString 
+			    ACCESS 	   read-only
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "The name of this IP Acl."
+			    ::= { bdIPAclEntry 1 }   
+			                                                        
+			                                                        
+		  bdIPAclEntrytotal OBJECT-TYPE
+			    SYNTAX    INTEGER 
+			    ACCESS 	   read-only
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "The total number of this IP Acl entries."
+			    ::= { bdIPAclEntry 2 }  
+			    
+		  bdIPAclType OBJECT-TYPE
+			    SYNTAX     INTEGER{
+                        		standard (1),
+                        		extended (0)
+                        	}
+			    ACCESS 	   read-write
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "The type of this IP Acl."
+			    ::= { bdIPAclEntry 3 }
+
+		  bdIPAclMergeEnable OBJECT-TYPE
+			    SYNTAX     INTEGER{
+                        		enable (1),
+                        		disable (0)
+                        	}
+			    ACCESS 	   read-write
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "if merge enable"
+			    ::= { bdIPAclEntry 4 }
+ 		
+		  bdIPAclRowStatus OBJECT-TYPE
+			    SYNTAX     RowStatus 
+			    ACCESS 	   read-write
+			    STATUS     mandatory
+			    DESCRIPTION
+			            "table row status"
+			    ::= { bdIPAclEntry 5 } 		  	    
+			    
+			    
+--STANDARD ACL RULE TABLE
+	          bdIPAclsRuleTable OBJECT-TYPE
+             		    SYNTAX  SEQUENCE OF BdIPAclsRuleEntry
+             		    ACCESS  not-accessible
+             		    STATUS  mandatory
+            		    DESCRIPTION
+              			   ""
+              		    ::= { bdcomIPAclMIB 3 } 
+
+          		bdIPAclsRuleEntry OBJECT-TYPE
+            		 	 SYNTAX  BdIPAclsRuleEntry
+            		 	 ACCESS  not-accessible
+            		 	 STATUS  mandatory
+            		 	 DESCRIPTION
+              				""
+              			 INDEX   { bdIPAclsname,bdIPAclsentryId }
+              		    ::= { bdIPAclsRuleTable 1 }
+
+         		 BdIPAclsRuleEntry ::= SEQUENCE {          
+         		 		bdIPAclsname                 DisplayString,
+					    bdIPAclsentryId              INTEGER,       
+					    bdIPAclsrule        			INTEGER,		
+					    bdIPAclssrcip		IpAddress,
+					    bdIPAclssrcmask		IpAddress,
+					  	bdIPAclssrcbeginip		IpAddress,
+					    bdIPAclssrcendip		IpAddress,  
+					    bdIPAclscompare        			INTEGER,  
+					    bdIPAclsany        			INTEGER,  
+					    bdIPAclslog        			INTEGER,  
+					    bdIPAclsrowstatus	RowStatus
+				 		 }
+                   
+                bdIPAclsname OBJECT-TYPE
+			   	 		SYNTAX     DisplayString 
+			   			ACCESS 	   read-only
+			   			STATUS     current
+			    		DESCRIPTION
+			           			"The name of this IP Acl."
+			    		::= { bdIPAclsRuleEntry 1 }
+
+		 		 bdIPAclsentryId OBJECT-TYPE
+					    SYNTAX     INTEGER 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "Index of the entry"
+					    ::= { bdIPAclsRuleEntry 2 }
+
+		 		 bdIPAclsrule OBJECT-TYPE
+					    SYNTAX     INTEGER{    
+					    		permit (1),
+                        		deny (0)	
+     				    		} 
+					    ACCESS 	   read-write
+					    STATUS     mandatory
+					    DESCRIPTION
+					            "IP ACL rule"
+					    ::= { bdIPAclsRuleEntry 3 }
+
+		 		 bdIPAclssrcip OBJECT-TYPE
+					    SYNTAX     IpAddress 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "source ip address"
+					    ::= { bdIPAclsRuleEntry 4 }
+
+		 		 bdIPAclssrcmask OBJECT-TYPE
+					    SYNTAX     IpAddress 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "subnet mask of source ip address"
+					    ::= { bdIPAclsRuleEntry 5 }
+	
+		 		 bdIPAclssrcbeginip OBJECT-TYPE
+					    SYNTAX     IpAddress 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "destination ip address"
+					    ::= { bdIPAclsRuleEntry 6 }
+
+		 		 bdIPAclssrcendip OBJECT-TYPE
+					    SYNTAX     IpAddress 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "subnet mask of destination ip address"
+					    ::= { bdIPAclsRuleEntry 7 }
+
+		 		 bdIPAclscompare OBJECT-TYPE
+					    SYNTAX     INTEGER{    
+					    		usemask (1),
+                        		userange (2)	
+     				    		} 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "compare flag"
+					    ::= { bdIPAclsRuleEntry 8 }
+
+		 		 bdIPAclsany OBJECT-TYPE
+					    SYNTAX     INTEGER{    
+					    		usezero (1),
+                        		useany (0)	
+     				    		} 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "any flag"
+					    ::= { bdIPAclsRuleEntry 9 }
+
+		 		 bdIPAclslog OBJECT-TYPE
+					    SYNTAX     INTEGER{    
+					    		enable (1),
+                        		disable (0)	
+     				    		} 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "logging packet"
+					    ::= { bdIPAclsRuleEntry 10 }
+
+		 		 bdIPAclsrowstatus OBJECT-TYPE
+					    SYNTAX     RowStatus 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "table row status"
+					    ::= { bdIPAclsRuleEntry 11 }
+   
+			    
+--EXTENDED ACL RULE TABLE			    
+
+	          bdIPAcleRuleTable OBJECT-TYPE
+             		    SYNTAX  SEQUENCE OF BdIPAcleRuleEntry
+             		    ACCESS  not-accessible
+             		    STATUS  mandatory
+            		    DESCRIPTION
+              			   ""
+              		    ::= { bdcomIPAclMIB 4 } 
+
+          		bdIPAcleRuleEntry OBJECT-TYPE
+            		 	 SYNTAX  BdIPAcleRuleEntry
+            		 	 ACCESS  not-accessible
+            		 	 STATUS  mandatory
+            		 	 DESCRIPTION
+              				""
+              			 INDEX   { bdIPAclename,bdIPAcleentryId }
+              		    ::= { bdIPAcleRuleTable 1 }
+
+         		 BdIPAcleRuleEntry ::= SEQUENCE {          
+         		 		bdIPAclename                 DisplayString,
+					    bdIPAcleentryId              INTEGER,       
+					    bdIPAclerule        			INTEGER, 
+					    bdIPAcleprotocol			INTEGER,
+					    bdIPAclesrceid           	INTEGER,		
+					    bdIPAclesrcip		IpAddress,
+					    bdIPAclesrcmask		IpAddress, 
+					    bdIPAclesrcport		INTEGER,  
+					    bdIPAclesrcpflag	INTEGER,
+					    bdIPAclesrcbeginip	IpAddress,
+					    bdIPAclesrcendip	IpAddress,
+					    bdIPAclesrcbeginport INTEGER,
+					    bdIPAclesrcendport	INTEGER, 
+					    bdIPAclesrccompare	INTEGER,
+					    bdIPAclesrcany		INTEGER,
+					    bdIPAcledeseid      INTEGER,		
+					    bdIPAcledesip		IpAddress,
+					    bdIPAcledesmask		IpAddress, 
+					    bdIPAcledesport		INTEGER,  
+					    bdIPAcledespflag	INTEGER,
+					    bdIPAcledesbeginip	IpAddress,
+					    bdIPAcledesendip	IpAddress,
+					    bdIPAcledesbeginport INTEGER,
+					    bdIPAcledesendport	INTEGER,   
+					    bdIPAcledescompare	INTEGER,
+					    bdIPAcledesany		INTEGER,
+					    bdIPAcleicmptype		INTEGER,
+					    bdIPAcleigmptype		INTEGER,
+					    bdIPAcletimerange	DisplayString, 
+					    bdIPAcletos			INTEGER,
+					    bdIPAcleprecedence	INTEGER,
+					    bdIPAcleestablished	INTEGER, 
+					    bdIPAclelog			INTEGER,
+					    bdIPAcledonotfragment			INTEGER,
+					    bdIPAcleisfragment	INTEGER,
+					    bdIPAcletotallen	INTEGER, 
+					    bdIPAcletotallenflag			INTEGER,
+					    bdIPAclettl	INTEGER, 
+					    bdIPAclettlflag			INTEGER,
+					    bdIPAclerowstatus   RowStatus
+				 		 }
+                   
+                bdIPAclename OBJECT-TYPE
+			   	 		SYNTAX     DisplayString 
+			   			ACCESS 	   read-only
+			   			STATUS     current
+			    		DESCRIPTION
+			           			"The name of this IP Acl."
+			    		::= { bdIPAcleRuleEntry 1 }
+
+		 		 bdIPAcleentryId OBJECT-TYPE
+					    SYNTAX     INTEGER 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "Index of the entry"
+					    ::= { bdIPAcleRuleEntry 2 }
+
+		 		 bdIPAclerule OBJECT-TYPE
+					    SYNTAX     INTEGER{    
+					    		permit (1),
+                        		   		deny (0)	
+     				    		} 
+					    ACCESS 	   read-write
+					    STATUS     mandatory
+					    DESCRIPTION
+					            "IP ACL rule"
+					    ::= { bdIPAcleRuleEntry 3 }
+
+		 		 bdIPAcleprotocol OBJECT-TYPE
+					    SYNTAX     INTEGER 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "protocol num"
+					    ::= { bdIPAcleRuleEntry 4 }  
+					    
+		 		 bdIPAclesrceid OBJECT-TYPE
+					    SYNTAX     INTEGER 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "source interface id"
+					    ::= { bdIPAcleRuleEntry 5 }
+
+		 		 bdIPAclesrcip OBJECT-TYPE
+					    SYNTAX     IpAddress 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "source ip address"
+					    ::= { bdIPAcleRuleEntry 6 }
+
+		 		 bdIPAclesrcmask OBJECT-TYPE
+					    SYNTAX     IpAddress 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "subnet mask of source ip address"
+					    ::= { bdIPAcleRuleEntry 7 }       
+					    
+		 		 bdIPAclesrcport OBJECT-TYPE
+					    SYNTAX     INTEGER 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "source port num"
+					    ::= { bdIPAcleRuleEntry 8 }   
+					    
+		 		 bdIPAclesrcpflag OBJECT-TYPE
+					    SYNTAX     INTEGER{
+                        		none (0),
+                        		gt (1),
+                        		lt (2),
+                        		eq (3),
+                        		neq (4),
+                        		range (5)
+                        	}
+ 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "source port flag"
+					    ::= { bdIPAcleRuleEntry 9 }
+	
+		 		 bdIPAclesrcbeginip OBJECT-TYPE
+					    SYNTAX     IpAddress 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "source ip address range begin"
+					    ::= { bdIPAcleRuleEntry 10 }
+
+		 		 bdIPAclesrcendip OBJECT-TYPE
+					    SYNTAX     IpAddress 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "source ip address range end"
+					    ::= { bdIPAcleRuleEntry 11 }
+
+                bdIPAclesrcbeginport OBJECT-TYPE
+			   	 		SYNTAX     INTEGER 
+			   			ACCESS 	   read-write
+			   			STATUS     current
+			    		DESCRIPTION
+			           			"source port range begin"
+			    		::= { bdIPAcleRuleEntry 12 }
+				bdIPAclesrcendport OBJECT-TYPE
+					    SYNTAX     INTEGER 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "source port range end"
+					    ::= { bdIPAcleRuleEntry 13 }
+				bdIPAclesrccompare OBJECT-TYPE
+					    SYNTAX     INTEGER{    
+					    		usemask (1),
+                        		userange (2)	
+     				    		} 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "source compare flag"
+					    ::= { bdIPAcleRuleEntry 14 }   
+					    
+				bdIPAclesrcany OBJECT-TYPE
+					    SYNTAX     INTEGER{    
+					    		usezero (1),
+                        		useany (0)	
+     				    		} 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "source any flag"
+					    ::= { bdIPAcleRuleEntry 15 }
+ 										    
+		 		 bdIPAcledeseid OBJECT-TYPE
+					    SYNTAX     INTEGER 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "destination interface id"
+					    ::= { bdIPAcleRuleEntry 16 }
+
+		 		 bdIPAcledesip OBJECT-TYPE
+					    SYNTAX     IpAddress 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "destination ip address"
+					    ::= { bdIPAcleRuleEntry 17 }
+
+		 		 bdIPAcledesmask OBJECT-TYPE
+					    SYNTAX     IpAddress 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "subnet mask of destination ip address"
+					    ::= { bdIPAcleRuleEntry 18 }       
+					    
+		 		 bdIPAcledesport OBJECT-TYPE
+					    SYNTAX     INTEGER 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "destination port num"
+					    ::= { bdIPAcleRuleEntry 19 }   
+					    
+		 		 bdIPAcledespflag OBJECT-TYPE
+					    SYNTAX     INTEGER{
+                        		none (0),
+                        		gt (1),
+                        		lt (2),
+                        		eq (3),
+                        		neq (4),
+                        		range (5)
+                        	}
+ 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "destination port flag"
+					    ::= { bdIPAcleRuleEntry 20 }
+	
+		 		 bdIPAcledesbeginip OBJECT-TYPE
+					    SYNTAX     IpAddress 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "destination ip address range begin"
+					    ::= { bdIPAcleRuleEntry 21 }
+
+		 		 bdIPAcledesendip OBJECT-TYPE
+					    SYNTAX     IpAddress 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "destination ip address range end"
+					    ::= { bdIPAcleRuleEntry 22 }
+
+                bdIPAcledesbeginport OBJECT-TYPE
+			   	 		SYNTAX     INTEGER 
+			   			ACCESS 	   read-write
+			   			STATUS     current
+			    		DESCRIPTION
+			           			"destination port range begin"
+			    		::= { bdIPAcleRuleEntry 23 }
+
+		 		 bdIPAcledesendport OBJECT-TYPE
+					    SYNTAX     INTEGER 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "destination port range end"
+					    ::= { bdIPAcleRuleEntry 24 }
+
+				bdIPAcledescompare OBJECT-TYPE
+					    SYNTAX     INTEGER{    
+					    		usemask (1),
+                        		userange (2)	
+     				    		} 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "destination compare flag"
+					    ::= { bdIPAcleRuleEntry 25 }   
+					    
+				bdIPAcledesany OBJECT-TYPE
+					    SYNTAX     INTEGER{    
+					    		usezero (1),
+                        		useany (0)	
+     				    		} 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "destination any flag"
+					    ::= { bdIPAcleRuleEntry 26 }
+
+		 		 bdIPAcleicmptype OBJECT-TYPE
+					    SYNTAX     INTEGER
+					    ACCESS 	   read-write
+					    STATUS     mandatory
+					    DESCRIPTION
+					            "ICMP type"
+					    ::= { bdIPAcleRuleEntry 27 }
+
+		 		 bdIPAcleigmptype OBJECT-TYPE
+					    SYNTAX     INTEGER 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "IGMP type"
+					    ::= { bdIPAcleRuleEntry 28 }
+
+		 		 bdIPAcletimerange OBJECT-TYPE
+					    SYNTAX     DisplayString 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "Time-range name"
+					    ::= { bdIPAcleRuleEntry 29 }
+
+		 		 bdIPAcletos OBJECT-TYPE
+					    SYNTAX     INTEGER 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "tos level"
+					    ::= { bdIPAcleRuleEntry 30 }
+	
+		 		 bdIPAcleprecedence OBJECT-TYPE
+					    SYNTAX     INTEGER 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "precedence level"
+					    ::= { bdIPAcleRuleEntry 31 }
+                 
+		 		 bdIPAcleestablished OBJECT-TYPE
+					    SYNTAX     INTEGER{    
+					    		yes (1),
+                        		no (0)	
+     				    		} 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "if an established connection"
+					    ::= { bdIPAcleRuleEntry 32 }           
+
+		 		 bdIPAclelog OBJECT-TYPE
+					    SYNTAX     INTEGER{    
+					    		enable (1),
+                        		disable (0)	
+     				    		} 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "logging packet"
+					    ::= { bdIPAcleRuleEntry 33 }
+					    
+		 		 bdIPAcledonotfragment OBJECT-TYPE
+					    SYNTAX     INTEGER{ 
+					    		notset (2),   
+					    		set (1),
+                        		donotcheck (0)	
+     				    		} 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "if donotfragment flag is set"
+					    ::= { bdIPAcleRuleEntry 34 }
+					    
+		 		 bdIPAcleisfragment OBJECT-TYPE
+					    SYNTAX     INTEGER{ 
+					    		notset (2),   
+					    		set (1),
+                        		donotcheck (0)	
+     				    		}  
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "if isfragment flag is set"
+					    ::= { bdIPAcleRuleEntry 35 }
+					    
+		 		 bdIPAcletotallen OBJECT-TYPE
+					    SYNTAX     INTEGER(0..65535)
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "total length of ip packet"
+					    ::= { bdIPAcleRuleEntry 36 }
+					    
+		 		 bdIPAcletotallenflag OBJECT-TYPE
+					    SYNTAX     INTEGER{
+                        		donotcheck (0),
+                        		gt (1),
+                        		lt (2),
+                        		eq (3)
+                     	} 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "flag of total length value"
+					    ::= { bdIPAcleRuleEntry 37 }
+					    
+		 		 bdIPAclettl OBJECT-TYPE
+					    SYNTAX     INTEGER(0..255) 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "time to live of ip packet"
+					    ::= { bdIPAcleRuleEntry 38 }
+					    
+		 		 bdIPAclettlflag OBJECT-TYPE
+					    SYNTAX     INTEGER{
+                        		donotcheck (0),
+                        		gt (1),
+                        		lt (2),
+                        		eq (3)
+                     	} 
+					    ACCESS 	   read-write
+					    STATUS     current
+					    DESCRIPTION
+					            "flag of time to live value"
+					    ::= { bdIPAcleRuleEntry 39 }
+					    
+                bdIPAclerowstatus OBJECT-TYPE
+			   	 		SYNTAX     RowStatus 
+			   			ACCESS 	   read-write
+			   			STATUS     current
+			    		DESCRIPTION
+			           			"The table row status"
+			    		::= { bdIPAcleRuleEntry 40 }
+
+
+END
+
+

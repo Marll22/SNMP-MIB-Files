@@ -1,0 +1,51 @@
+-- *****************************************************************
+-- BDCOM-EPON-ONU-IF-TRAP.MIB: BDCOM EPON OLT CHIP STATUS TRAP MIB
+--
+-- October 2009
+-- Edit by LIUQIANG
+-- Copyright (c) 2008 by BDCOM, Inc.
+-- All rights reserved.
+-- *****************************************************************
+
+BDCOM-EPON-ONU-IF-TRAP DEFINITIONS ::= BEGIN
+
+
+
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,INTEGER,
+    Integer32, Unsigned32                       FROM SNMPv2-SMI
+    MODULE-COMPLIANCE, OBJECT-GROUP,
+    NOTIFICATION-GROUP                          FROM SNMPv2-CONF
+    bdEPONGroup                                 FROM BDCOM-SMI
+    llidIfIndex                                 FROM BDCOM-EPON-LLID
+    ifDescr                                     FROM RFC1213-MIB                                                 
+    onuID                                      FROM BDCOM-EPON-ONU
+    onuIfSequenceNo, onuUniIfOperStatus         FROM BDCOM-EPON-ONU-INTERFACE;
+
+
+               bdEponOnuIfStatusTrap         OBJECT IDENTIFIER ::= { bdEPONGroup 19 }
+                         
+             
+
+-- Notifications
+	bdEponOnuIfStatusNotifications OBJECT IDENTIFIER
+                                ::= { bdEponOnuIfStatusTrap 1 }
+
+
+	bdEponOnuIfStatusNotification NOTIFICATION-TYPE
+    		OBJECTS {
+                       llidIfIndex,
+                       onuID,
+                       ifDescr,
+                       onuIfSequenceNo,
+                       onuUniIfOperStatus
+    		}
+    		STATUS      current
+    		DESCRIPTION
+        	"The agent generates this notification when onu interface status changes ."
+    		::= { bdEponOnuIfStatusNotifications 1 }
+
+              
+
+END

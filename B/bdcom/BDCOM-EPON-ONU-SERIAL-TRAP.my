@@ -1,0 +1,105 @@
+-- *****************************************************************
+-- BDCOM-EPON-ONU-SERIAL-TRAP.MIB: BDCOM EPON ONU SERIAL TRAP MIB
+--
+-- May 2010
+-- Edit by LIUQIANG
+-- Copyright (c) 2008 by BDCOM, Inc.
+-- All rights reserved.
+-- *****************************************************************
+
+BDCOM-EPON-ONU-SERIAL-TRAP DEFINITIONS ::= BEGIN
+
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,INTEGER
+                           FROM SNMPv2-SMI
+    MODULE-COMPLIANCE, OBJECT-GROUP,
+    NOTIFICATION-GROUP                          FROM SNMPv2-CONF
+    bdEPONGroup                                 FROM BDCOM-SMI
+    llidIfIndex                                 FROM BDCOM-EPON-LLID
+    ifDescr                                     FROM RFC1213-MIB
+    onuIfSequenceNo                             FROM BDCOM-EPON-ONU-INTERFACE
+    onuID                                       FROM BDCOM-EPON-ONU;
+
+
+               bdEponOnuSerialTrap         OBJECT IDENTIFIER ::= { bdEPONGroup 26 }
+                         
+             
+                                
+                                
+        bdEponOnuSerialBreak OBJECT-TYPE
+            SYNTAX  INTEGER{
+                            break(0),
+                            recover(1)
+                           }
+            ACCESS  not-accessible
+            STATUS  mandatory
+            DESCRIPTION
+                    "ONU serial port status change.0-break, 1-recover."
+            ::= { bdEponOnuSerialTrap 1 } 
+                                
+        bdEponOnuSerialBreakReason OBJECT-TYPE
+            SYNTAX  INTEGER{
+                            network_break(1)
+                           }
+            ACCESS  not-accessible
+            STATUS  mandatory
+            DESCRIPTION
+                    "ONU serial port status change reason."
+            ::= { bdEponOnuSerialTrap 2 } 
+            
+        bdEponOnuLoopbackDetectResult OBJECT-TYPE
+            SYNTAX  INTEGER{
+                            ok(0),
+                            error(1)
+                           }
+            ACCESS  not-accessible
+            STATUS  mandatory
+            DESCRIPTION
+                    "ONU serial port status change reason."
+            ::= { bdEponOnuSerialTrap 3 } 
+            
+            
+       
+                                        
+
+-- Notifications
+	bdEponOnuSerialBreakNotifications OBJECT IDENTIFIER
+                                ::= { bdEponOnuSerialTrap 4 }
+
+	bdEponOnuSerialBreakNotification NOTIFICATION-TYPE
+    		OBJECTS {
+                       llidIfIndex,
+                       onuIfSequenceNo,
+                       ifDescr,
+                       bdEponOnuSerialBreak,
+                       bdEponOnuSerialBreakReason,
+                       onuID
+    		}
+    		STATUS      current
+    		DESCRIPTION
+        	"The agent generates this notification when onu serial interface status changes ."
+    		::= { bdEponOnuSerialBreakNotifications 1 }
+
+-- Notifications
+	bdEponOnuoopbackDetectResultNotifications OBJECT IDENTIFIER
+                                ::= { bdEponOnuSerialTrap 5 }
+
+	bdEponOnuLoopbackDetectResultNotification NOTIFICATION-TYPE
+    		OBJECTS {
+                       llidIfIndex,
+                       onuIfSequenceNo,
+                       ifDescr,
+                       bdEponOnuLoopbackDetectResult,
+                       onuID
+    		}
+    		STATUS      current
+    		DESCRIPTION
+        	"The agent generates this notification when onu get a loopback result."
+    		::= { bdEponOnuoopbackDetectResultNotifications 1 }
+
+              
+
+END
+
+

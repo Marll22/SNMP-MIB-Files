@@ -1,0 +1,280 @@
+-- *****************************************************************
+-- BDCOM-CARD-OPERATION-MIB.my: BDCOM Card Reset MIB
+--
+-- January 2010
+-- Edit by LIUQIANG
+-- Copyright (c) 2010 by BDCOM, Inc.
+-- All rights reserved.
+-- *****************************************************************
+
+BDCOM-CARD-OPERATION-MIB DEFINITIONS ::= BEGIN 
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,INTEGER
+                                                FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, TimeStamp
+                                                FROM SNMPv2-TC
+    MODULE-COMPLIANCE, OBJECT-GROUP,
+    NOTIFICATION-GROUP                          FROM SNMPv2-CONF
+    bdMgmt, bdlocal                             FROM BDCOM-SMI
+    DisplayString				FROM RFC1213-MIB
+    bdcardType,bdcardHwVersion,bdcardSerial,bdcardSwVersion,bdcardSlotNumber FROM BDCOM-CHASSIS;
+
+
+--definition of BDCOM device card related operations and trap related values
+
+               cardOper         OBJECT IDENTIFIER ::= { bdMgmt 184 }
+
+	        
+               cardMasSlvSwitch OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                                   master-slave-switch(0)
+                                   }
+                   ACCESS  write-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Device master card and slave card switch operation."
+                   ::= { cardOper 1 }
+
+
+
+               cardResetTable OBJECT-TYPE
+                   SYNTAX  SEQUENCE OF CardResetTableEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A list of cards reset entries."
+                   ::= { cardOper 2 }
+
+               cardResetTableEntry OBJECT-TYPE
+                   SYNTAX  CardResetTableEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of cards to be reset."
+                   INDEX { cardIndex }
+               ::= { cardResetTable 1 }
+
+               CardResetTableEntry ::=
+                   SEQUENCE {
+                       bdcardIndex
+                           INTEGER,
+                       bdcardType
+                           INTEGER,
+                       bdcardDescr
+                       	   DisplayString,
+                       bdcardReset
+                       	   INTEGER
+                  }
+
+
+               bdcardIndex OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Index into cardTable (not physical chassis
+                           slot number), the same with the bdcardIndex of bdcardTable in BDCOM-CHASSIS-MIB."
+                   ::= { cardResetTableEntry 1 }
+
+
+               bdcardType OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Type of card, the same with the bdcardIndex of bdcardTable in BDCOM-CHASSIS-MIB."
+                   ::= { cardResetTableEntry 2 }
+
+
+
+               bdcardDescr OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Text description of this card, the same value with the bdcardIndex of bdcardTable in BDCOM-CHASSIS-MIB."
+                   ::= { cardResetTableEntry 3 }
+
+               bdcardReset OBJECT-TYPE
+                   SYNTAX  INTEGER{ 
+                                    no-reset(0),
+                                    reset(1),
+                                    shutdown-slot(2),
+                                    no-shutdown-slot(3)
+                                    
+                                   }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "When value is set to reset(1), that means card reset; when value is set to shutdown-slot(2), no-shutdown-slot(3), only shut down or no shut down the corresponding slot."
+                   ::= { cardResetTableEntry 4 }
+                   
+                   
+                   
+               cardMSSwitchTable OBJECT-TYPE
+                   SYNTAX  SEQUENCE OF CardMSSwitchTableEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A list of cards MSSwitch entries."
+                   ::= { cardOper 3 }
+
+               cardMSSwitchTableEntry OBJECT-TYPE
+                   SYNTAX  CardMSSwitchTableEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of cards to be MSSwitch."
+                   INDEX { cardIndex }
+               ::= { cardMSSwitchTable 1 }
+
+               CardMSSwitchTableEntry ::=
+                   SEQUENCE {
+                       bdcardIndexOld
+                           INTEGER,
+                       bdcardSlotNumberOld
+                       	   INTEGER,
+                       bdcardDescrOld
+                       	   DisplayString,
+                       bdcardIndexNew
+                           INTEGER,
+                       bdcardSlotNumberNew
+                       	   INTEGER,
+                       bdcardDescrNew
+                       	   DisplayString
+                  }
+
+
+               bdcardIndexOld OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Index into cardTable (not physical chassis
+                           slot number), the same with the bdcardIndex of bdcardTable in BDCOM-CHASSIS-MIB."
+                   ::= { cardMSSwitchTableEntry 1 }
+
+
+               bdcardSlotNumberOld OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Type of card, the same with the bdcardSlotNumber of bdcardTable in BDCOM-CHASSIS-MIB."
+                   ::= { cardMSSwitchTableEntry 2 }
+
+
+
+               bdcardDescrOld OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Text description of this card, the same value with the bdcardIndex of bdcardTable in BDCOM-CHASSIS-MIB."
+                   ::= { cardMSSwitchTableEntry 3 }
+                   
+
+               bdcardIndexNew OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Index into cardTable (not physical chassis
+                           slot number), the same with the bdcardIndex of bdcardTable in BDCOM-CHASSIS-MIB."
+                   ::= { cardMSSwitchTableEntry 4 }
+
+
+               bdcardSlotNumberNew OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Type of card, the same with the bdcardSlotNumber of bdcardTable in BDCOM-CHASSIS-MIB."
+                   ::= { cardMSSwitchTableEntry 5 }
+
+
+
+               bdcardDescrNew OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Text description of this card, the same value with the bdcardIndex of bdcardTable in BDCOM-CHASSIS-MIB."
+                   ::= { cardMSSwitchTableEntry 6 }                   
+                   
+                   
+                   
+                   
+-- Notifications
+	bdCardResetNotifications OBJECT IDENTIFIER
+                                ::= { cardOper 4 }
+
+
+	resetNotification NOTIFICATION-TYPE
+    		OBJECTS {
+        		bdcardIndex,
+        		bdcardType,
+        		bdcardDescr,
+        		bdcardSerial,
+        		bdcardHwVersion,
+        		bdcardSwVersion,
+        		bdcardSlotNumber
+    		}
+    		STATUS      current
+    		DESCRIPTION
+        	"The agent generates this notification when a certain card reset. "
+    		::= { bdCardResetNotifications 1 }
+
+
+	bdCardMSSwitchNotifications OBJECT IDENTIFIER
+                                ::= { cardOper 5 }
+
+
+	msSwitchNotification NOTIFICATION-TYPE
+    		OBJECTS {
+        		bdcardIndexOld,
+        		bdcardDescrOld,
+        		bdcardSlotNumberOld,
+        		bdcardIndexNew,
+        		bdcardDescrNew,
+        		bdcardSlotNumberNew
+    		}
+    		STATUS      current
+    		DESCRIPTION
+        	"The agent generates this notification when slave card switch into master card. "
+    		::= { bdCardMSSwitchNotifications 1 }
+
+
+	bdCardInitSucceedNotifications OBJECT IDENTIFIER
+                                ::= { cardOper 6 }
+
+
+	cardInitSucceedNotification NOTIFICATION-TYPE
+    		OBJECTS {
+        		bdcardIndex,
+        		bdcardType,
+        		bdcardDescr,
+        		bdcardSerial,
+        		bdcardHwVersion,
+        		bdcardSwVersion,
+        		bdcardSlotNumber
+        		   		}
+    		STATUS      current
+    		DESCRIPTION
+        	"The agent generates this notification when card initialized successfully . "
+    		::= { bdCardInitSucceedNotifications 1 }
+
+               bdDeviceReset OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                                   device-reset(1)
+                                   }
+                   ACCESS  write-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Device reset operation."
+                   ::= { cardOper 7 }
+               
+
+
+END

@@ -1,0 +1,356 @@
+-- *****************************************************************
+-- BDCOM-EPON-OLT-COMM.MIB:  BDCom OLT-COMM MIB file
+-- AUG 2000
+-- *****************************************************************
+--
+
+               BDCOM-EPON-OLT-COMM DEFINITIONS ::= BEGIN
+
+               IMPORTS
+                    Counter, IpAddress, Counter
+			FROM RFC1155-SMI
+		    OBJECT-TYPE
+			FROM RFC-1212
+                    DisplayString, ifIndex
+			FROM RFC1213-MIB
+		    bdEPONGroup
+			FROM BDCOM-SMI
+		    RowStatus
+		    	FROM SNMPv2-TC;
+          
+               bdEponOltComm         OBJECT IDENTIFIER ::= { bdEPONGroup 1 }
+               
+
+          oltEncrypStatus OBJECT-TYPE
+              SYNTAX  INTEGER {
+                          true(1),       
+                          false(2)
+                          }
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "global-level encryption enable or disable for an OLT."
+              ::= { bdEponOltComm 1 }
+               
+          oltEncrypMode OBJECT-TYPE
+              SYNTAX  INTEGER {
+                          ctc-churning(2)
+                          }
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "global-level encryption mode for an OLT."
+              ::= { bdEponOltComm 2 }
+
+          oltRekeyingTime OBJECT-TYPE
+              SYNTAX  INTEGER(600..10000)
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Rekeying timer (in milli-seconds) ,range is 600-10000."
+              ::= { bdEponOltComm 3 }
+               
+          oltLocalLostLinkTimeout OBJECT-TYPE
+              SYNTAX  INTEGER(2..30)
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Local lost link timeout between OAMs, range is 2-30s."
+              ::= { bdEponOltComm 4 }
+
+          oltVlanTransparentMode OBJECT-TYPE
+              SYNTAX  INTEGER {
+                          true(1),       
+                          false(2)
+                          }
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "OLT Vlan Transparent Mode."
+              ::= { bdEponOltComm 5 }
+
+          oltHostQueryFreq OBJECT-TYPE
+              SYNTAX  INTEGER(10..2147483647)
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "The frequency at which IGMP Host-Query packets are transmitted on OLT."
+              ::= { bdEponOltComm 6 }
+
+          oltMCSTStatus OBJECT-TYPE
+              SYNTAX  INTEGER {
+                          enable(1),       
+                          disable(2)
+                          }
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "EPON Multicast status(enable or disable)."
+              ::= { bdEponOltComm 7 }
+
+
+          oltMCSTMode OBJECT-TYPE
+              SYNTAX  INTEGER {
+                          igmp-snooping(0),       
+                          dynamic-controllable(1)
+                          }
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Config multicast mode.0-IGMP Snooping, 1-CTC dynamic controllable multicast.Only dynamic-controllable(1) is supported. "
+              ::= { bdEponOltComm 8 }
+
+          oltIGMPProxyStatus OBJECT-TYPE
+              SYNTAX  INTEGER {
+                          enable(1),       
+                          disable(2)
+                          }
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "EPON IGMP Proxy status(enable or disable). IGMP proxy can't be shut in dynamic-controllable mode."
+              ::= { bdEponOltComm 9 }
+               
+          oltIGMPQuerierAddress OBJECT-TYPE
+              SYNTAX  IpAddress
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "The address of the IGMP Querier of OLT self."
+              ::= { bdEponOltComm 10 }
+
+          oltQueryMaxResponseTime OBJECT-TYPE
+              SYNTAX  INTEGER(10..2147483647)
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "The maximum query response time advertised in IGMPv2 queries(in milli-seconds)."
+              ::= { bdEponOltComm 11 }
+
+          oltLastMemberQueryInterval OBJECT-TYPE
+              SYNTAX  INTEGER(1..60)
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "The Last Member Query Interval is the Max Response Time inserted into Group-Specific Queries sent in response to Leave Group messages, and is also the amount of time between Group-Specific Query messages.  This value may be tuned to modify the leave latency of the network.  A reduced value results in reduced time to detect the loss of the last member of a group.  The value of this object is irrelevant if IGMP Version is 1."
+              ::= { bdEponOltComm 12 }
+
+          oltLastMemberQueryCount OBJECT-TYPE
+              SYNTAX  INTEGER(1..5)
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "The Last Member Query Count."
+              ::= { bdEponOltComm 13 }
+
+          oltDLFDrop OBJECT-TYPE
+              SYNTAX  INTEGER {
+                          on(1),       
+                          off(2)
+                          }
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION
+                      "OLT Multicast Drop Status."
+              ::= { bdEponOltComm 14 }
+
+          oltV1Packets OBJECT-TYPE
+              SYNTAX  Counter32
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION
+                      "The number of IGMP V1 packets has been received."
+              ::= { bdEponOltComm 15 }
+
+          oltV2Packets OBJECT-TYPE
+              SYNTAX  Counter32
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION
+                      "The number of IGMP V2 packets has been received."
+              ::= { bdEponOltComm 16 }
+
+          oltV3Packets OBJECT-TYPE
+              SYNTAX  Counter32
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION
+                      "The number of IGMP V3 packets has been received."
+              ::= { bdEponOltComm 17 }
+
+          oltJoinsPackets OBJECT-TYPE
+              SYNTAX  Counter32
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION
+                      "The number of IGMP join packets has been received."
+              ::= { bdEponOltComm 18 }
+
+          oltLeavesPackets OBJECT-TYPE
+              SYNTAX  Counter32
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION
+                      "The number of IGMP leaves packets has been received."
+              ::= { bdEponOltComm 19 }
+
+          oltGeneralQueryPackets OBJECT-TYPE
+              SYNTAX  Counter32
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION
+                      "The number of IGMP General Query packets has been received."
+              ::= { bdEponOltComm 20 }
+
+          oltSpecialQueryPackets OBJECT-TYPE
+              SYNTAX  Counter32
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION
+                      "The number of IGMP Special Query packets has been received."
+              ::= { bdEponOltComm 21 }
+
+          oltDBAMode OBJECT-TYPE
+              SYNTAX  INTEGER {
+                          hardware-DBA(1),       
+                          software-DBA(2),
+                          hybrid-DBA(3),       
+                          software-DBA-with-dynamic-cycletime(4)                                
+                          }
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "olt DBA mode."
+              ::= { bdEponOltComm 22 }
+
+          oltDBAAlgorithm OBJECT-TYPE
+              SYNTAX  INTEGER {
+                          workconserv(1),       
+                          nonworkconserv(2),
+                          cbr(3)       
+                          }
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "olt DBA algorithm."
+              ::= { bdEponOltComm 23 }
+
+          oltPriorityQueueMaping OBJECT-TYPE
+              SYNTAX  OCTET STRING
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "olt Priority Queue Maping."
+              ::= { bdEponOltComm 24 }
+
+          oltSchedulePolicy OBJECT-TYPE
+              SYNTAX  INTEGER {
+                          sp(0),       
+                          wrr(1),
+                          fcfs(2),
+                          hybrid1(3),
+                          hybrid2(4),
+                          drr(5),
+                          sp-exoam(6)       
+                          }
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "olt Schedule Policy."
+              ::= { bdEponOltComm 25 }
+               
+          oltWRRScheduleQueuePriority OBJECT-TYPE
+              SYNTAX  OCTET STRING
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "olt WRR Schedule Queue Priority."
+              ::= { bdEponOltComm 26 }
+
+          oltDefaultCoS OBJECT-TYPE
+              SYNTAX  INTEGER(0..7)
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "olt Default CoS value."
+              ::= { bdEponOltComm 27 }
+               
+          oltMacAgingTime OBJECT-TYPE
+              SYNTAX  INTEGER(0,10..1000000)
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "olt Mac Address Aging Time."
+              ::= { bdEponOltComm 28 }
+
+          oltFlowControl OBJECT-TYPE
+              SYNTAX  INTEGER {
+                          on(1),
+                          off(2)
+                          }
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "olt Flow Control status."
+              ::= { bdEponOltComm 29 }
+
+          oltStormControlBroadcast OBJECT-TYPE
+              SYNTAX  INTEGER(10..1000000)
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "olt Storm Control Broadcast, range is 10-1000000kbps"
+              ::= { bdEponOltComm 30 }
+
+          oltStormControlMulticast OBJECT-TYPE
+              SYNTAX  INTEGER(10..1000000)
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "olt Storm Control Multicast, range is 10-1000000kbps"
+              ::= { bdEponOltComm 31 }
+
+          oltStormControlUnicast OBJECT-TYPE
+              SYNTAX  INTEGER(10..1000000)
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "olt Storm Control Unicast, range is 10-1000000kbps"
+              ::= { bdEponOltComm 32 }
+              
+          oltIfDbaParamCycleTime OBJECT-TYPE
+              SYNTAX  INTEGER(25000.. 1000000) 
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "PON interface DBA parameter cycle time. Range is HW DBA£º25000 to 1000000£»software, DBA£º125000 to 1000000. "
+              ::= { bdEponOltComm 33 } 
+
+          oltIfDbaParamDiscFreq OBJECT-TYPE
+              SYNTAX  INTEGER(0..255) 
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "PON interface DBA parameter discovery frequency. Range is 0-255. "
+              ::= { bdEponOltComm 34 } 
+
+          oltIfDbaParamDiscTime OBJECT-TYPE
+              SYNTAX  INTEGER(1024..14000) 
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "PON interface DBA parameter discovery time. Range is 1024-14000. "
+              ::= { bdEponOltComm 35 } 
+
+          oltIfDbaParamRowStatus OBJECT-TYPE
+              SYNTAX  RowStatus 
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "PON interface DBA parameter row status. "
+              ::= { bdEponOltComm 36 } 
+
+          
+
+
+END

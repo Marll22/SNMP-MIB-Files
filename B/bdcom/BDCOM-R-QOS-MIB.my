@@ -1,0 +1,1040 @@
+-- *****************************************************************
+-- BDCOM R qos MIB -  The MIB for ROUTER Product
+--
+-- JAN 2011 
+
+-- Copyright (c) 2010 by  Co., Ltd. 
+-- All rights reserved.
+-- *****************************************************************
+   
+-- ********************************************************************************
+--  Log for Switch MIB.
+--
+--  JAN 12 2010
+--  1. Add policyMapTable            
+--
+
+-- ********************************************************************************   
+ 
+BDCOM-R-QOS-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	MODULE-IDENTITY, 
+	OBJECT-TYPE, 
+	Counter32,
+	Gauge32,
+	Counter64,
+	Integer32, 
+	TimeTicks, 
+	mib-2, 
+	NOTIFICATION-TYPE
+		FROM SNMPv2-SMI
+	TEXTUAL-CONVENTION,
+	DisplayString, 
+	PhysAddress, 
+	TruthValue, 
+	RowStatus, 
+	TimeStamp, 
+	AutonomousType, 
+	TestAndIncr 
+		FROM SNMPv2-TC
+	MODULE-COMPLIANCE, 
+	OBJECT-GROUP        
+		FROM SNMPv2-CONF 
+	bdcom,bdMgmt
+				FROM BDCOM-SMI;	
+  
+bdrqos	MODULE-IDENTITY
+    	LAST-UPDATED	"201101130000Z"
+    	ORGANIZATION	" bdcom Co., Ltd."
+    	CONTACT-INFO	""
+    	DESCRIPTION     ""
+	::= { bdMgmt 194 }
+
+
+--  class  Table       
+rQosClassTable	OBJECT-TYPE
+		SYNTAX		SEQUENCE OF RQosClassEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION	"A list of class table entries. 
+				 Each rule contains Classify informations for making qos(Quality of Service) class."
+		::= { bdrqos 1 }
+
+
+               rQosClassEntry OBJECT-TYPE
+                   SYNTAX RQosClassEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of additional objects in the
+                            router QoS class table."
+                   INDEX { classMapID }
+               ::= { rQosClassTable 1 }
+
+               RQosClassEntry ::=
+                   SEQUENCE {
+                       classMapID
+                           INTEGER,
+                       classMapName
+                           DisplayString,
+		       aclID
+                           INTEGER,
+		       aclName
+                           DisplayString,
+		       protocolType
+                           INTEGER,
+                       dscp
+                           INTEGER,
+	               inIfIndex
+                           INTEGER,
+		       precedence	               
+                           INTEGER,
+ 		       maxLen
+                           INTEGER,
+ 		       minLen
+                           INTEGER
+ 		       }
+ 		       
+               classMapID OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "class map id, unique in this table as a index."
+                   ::= { rQosClassEntry 1 } 
+                    		       
+                classMapName OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "class map name, size is between 0-64."
+                   ::= { rQosClassEntry 2 } 
+              
+                aclID OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "class-map match acl ID."
+                   ::= { rQosClassEntry 3 } 
+                    		       
+                aclName OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "class-map match acl name, size is between 0-64."
+                   ::= { rQosClassEntry 4 } 
+              
+                protocolType OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                                 none(0),
+                                 ip(1),
+                                 arp(2),
+                                 tcp(3)
+                                  }
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "class-map match protrol. 0=NONE 1=IP 2=ARP 3=TCP."
+                   ::= { rQosClassEntry 5 } 
+              
+                dscp OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "class-map match dscp value."
+                   ::= { rQosClassEntry 6 } 
+              
+                inIfIndex OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "class-map match incoming interface number. The corresponding value as ifIndex in ifTable."
+                   ::= { rQosClassEntry 7 } 
+              
+                precedence OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "class-map match precedence value."
+                   ::= { rQosClassEntry 8 } 
+              
+                maxLen OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "class-map match maximal length."
+                   ::= { rQosClassEntry 9 } 
+              
+                minLen OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "class-map match minmal length."
+                   ::= { rQosClassEntry 10 } 
+                   
+
+--  policy table
+
+               policyTable         OBJECT IDENTIFIER ::= { bdrqos 2 }
+                 
+--  policy_cq_table     	
+    
+policyCqTable	OBJECT-TYPE
+		SYNTAX		SEQUENCE OF PolicyCqEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION	"A list of policy CQ table entries. 
+				 Each rule contains policy CQ informations."
+		::= { policyTable 1 }
+
+
+               policyCqEntry OBJECT-TYPE
+                   SYNTAX  PolicyCqEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of additional objects in the
+                            router policy CQ table."
+                   INDEX { listNumCq,queueNumCq }
+               ::= { policyCqTable 1 }
+
+               PolicyCqEntry ::=
+                   SEQUENCE {
+                       listNumCq
+                           INTEGER,
+                       queueNumCq
+                           INTEGER,
+                       defaultCq
+                           INTEGER,
+		       inIfIndexCq
+                           INTEGER,
+                       protocolCq
+                           INTEGER,
+                       queuelimitCq
+                           INTEGER,
+                       bytecountCq
+                           INTEGER
+                       
+		       }
+
+               listNumCq OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "listNum together with queueNum, is the index of this table ."
+                   ::= { policyCqEntry 1 } 
+
+               queueNumCq OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "queueNum together with listNum, is the index of this table ."
+                   ::= { policyCqEntry 2 } 
+
+               defaultCq OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                                 yes(1),
+                                 no(2)
+                                  }
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "As default queue or not. 1=yes, 2=no."
+                   ::= { policyCqEntry 3 } 
+
+               inIfIndexCq OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Based on incoming interface number. The corresponding value as ifIndex in ifTable."
+                   ::= { policyCqEntry 4 } 
+
+               protocolCq OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                                 none(0),
+                                 ip(1),
+                                 arp(2),
+                                 tcp(3)
+                                  }
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Based on protrol 0=NONE 1=IP 2=ARP 3=TCP."
+                   ::= { policyCqEntry 5 } 
+
+               queuelimitCq OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Maximal queue limit."
+                   ::= { policyCqEntry 6 } 
+
+               bytecountCq OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Byte count of queue."
+                   ::= { policyCqEntry 7 } 
+
+--policy_pq_table
+
+policyPqTable	OBJECT-TYPE
+		SYNTAX		SEQUENCE OF PolicyPqEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION	"A list of policy PQ table entries. 
+				 Each rule contains policy PQ informations."
+		::= { policyTable 2 }
+
+
+               policyPqEntry OBJECT-TYPE
+                   SYNTAX  PolicyPqEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of additional objects in the
+                            router policy PQ table."
+                   INDEX { listNumPq,queueNumPq }
+               ::= { policyPqTable 1 }
+
+               PolicyPqEntry ::=
+                   SEQUENCE {
+                       listNumPq
+                           INTEGER,
+                       queueNumPq
+                           INTEGER,
+                       defaultPq
+                           INTEGER,
+		       inIfIndexPq
+                           INTEGER,
+                       protocolPq
+                           INTEGER,
+                       queuelimitPq
+                           INTEGER
+                       
+		       }
+
+               listNumPq OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "listNum together with queueNum, is the index of this table ."
+                   ::= { policyPqEntry 1 } 
+
+               queueNumPq OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "queueNum together with listNum, is the index of this table ."
+                   ::= { policyPqEntry 2 } 
+
+               defaultPq OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                                 yes(1),
+                                 no(2)
+                                  }
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "As default queue or not. 1=yes, 2=no."
+                   ::= { policyPqEntry 3 } 
+
+               inIfIndexPq OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Based on incoming interface number. The corresponding value as ifIndex in ifTable."
+                   ::= { policyPqEntry 4 } 
+
+               protocolPq OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                                 none(0),
+                                 ip(1),
+                                 arp(2),
+                                 tcp(3)
+                                  }
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Based on protrol 0=NONE 1=IP 2=ARP 3=TCP."
+                   ::= { policyPqEntry 5 } 
+
+               queuelimitPq OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Maximal queue limit."
+                   ::= { policyPqEntry 6 } 
+
+
+--policy_cbwfq_table
+
+policyCbwfqTable	OBJECT-TYPE
+		SYNTAX		SEQUENCE OF PolicyCbwfqEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION	"A list of policy Cbwfq table entries. 
+				 Each rule contains policy Cbwfq informations."
+		::= { policyTable 3 }
+
+
+               policyCbwfqEntry OBJECT-TYPE
+                   SYNTAX  PolicyCbwfqEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of additional objects in the
+                            router policy Cbwfq table."
+                   INDEX { policyIDCbwfq, classNumCbwfq }
+               ::= { policyCbwfqTable 1 }
+
+               PolicyCbwfqEntry ::=
+                   SEQUENCE {
+                       policyIDCbwfq
+                           INTEGER,
+                       policyNameCbwfq
+                           DisplayString,
+                       classNumCbwfq
+                           INTEGER,
+		       classIDCbwfq
+                           INTEGER,
+                       classNameCbwfq
+                           DisplayString
+		       }
+
+
+               policyIDCbwfq OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "policyID together with classNum, is the index of this table ."
+                   ::= { policyCbwfqEntry 1 } 
+
+               policyNameCbwfq OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Policy Name ."
+                   ::= { policyCbwfqEntry 2 } 
+
+               classNumCbwfq OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "classNum together with policyID, is the index of this table ."
+                   ::= { policyCbwfqEntry 3 } 
+
+               classIDCbwfq OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Class ID ."
+                   ::= { policyCbwfqEntry 4 } 
+
+               classNameCbwfq OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "The referring class-map name ."
+                   ::= { policyCbwfqEntry 5 } 
+
+-- interface statistics table
+
+               statisticsTable         OBJECT IDENTIFIER ::= { bdrqos 3 }
+
+-- statistics_fifo_table
+
+fifoStatTable	OBJECT-TYPE
+		SYNTAX		SEQUENCE OF FifoStatEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION	"A list of policy fifo statistics table entries. 
+				 Each rule contains policy fifo statistics informations."
+		::= { statisticsTable 1 }
+
+
+               fifoStatEntry OBJECT-TYPE
+                   SYNTAX  FifoStatEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of additional objects in the
+                            router fifo statistics table."
+                   INDEX {  }
+               ::= { fifoStatTable 1 }
+
+               FifoStatEntry ::=
+                   SEQUENCE {
+                       fifoIfindex
+                           INTEGER,
+                       fifoQueueLen
+                           INTEGER,
+                       fifoLenLimit
+                           INTEGER
+                        }
+
+               fifoIfindex OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "fifoIfindex is the index of this table. The value is corresponding to ifIndex in ifTable."
+                   ::= { fifoStatEntry 1 } 
+
+               fifoQueueLen OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Current length of queue."
+                   ::= { fifoStatEntry 2 } 
+
+               fifoLenLimit OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Maximal length of queue."
+                   ::= { fifoStatEntry 3 } 
+
+--statistics_cq_table
+
+cqStatTable	OBJECT-TYPE
+		SYNTAX		SEQUENCE OF CqStatEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION	"A list of policy cq statistics table entries. 
+				 Each rule contains policy cq statistics informations."
+		::= { statisticsTable 2 }
+
+
+               cqStatEntry OBJECT-TYPE
+                   SYNTAX  CqStatEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of additional objects in the
+                            router cq statistics table."
+                   INDEX {cqIfindex, cqQueueNum  }
+               ::= { cqStatTable 1 }
+
+               CqStatEntry ::=
+                   SEQUENCE {
+                       cqIfindex
+                           INTEGER,
+                       cqListNum
+                           INTEGER,
+                       cqQueueNum
+                           INTEGER,
+                       cqCsize
+                           INTEGER,
+                       cqQueueLimit
+                           INTEGER,
+                       cqDrop
+                           INTEGER
+                        }
+
+               cqIfindex OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "cqIfindex together with cqQueueNum, is the index of this table. The value is corresponding to ifIndex in ifTable."
+                   ::= { cqStatEntry 1 } 
+
+               cqListNum OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Cq list number applied to interface."
+                   ::= { cqStatEntry 2 } 
+
+               cqQueueNum OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "cqQueueNum together with cqIfindex, is the index of this table. The value is corresponding to ifIndex in ifTable."
+                   ::= { cqStatEntry 3 } 
+
+               cqCsize OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Cq current size."
+                   ::= { cqStatEntry 4 } 
+
+               cqQueueLimit OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Cq queue maximal size."
+                   ::= { cqStatEntry 5 } 
+
+               cqDrop OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Cq queue drops."
+                   ::= { cqStatEntry 6 } 
+
+
+--statistics_pq_table
+
+pqStatTable	OBJECT-TYPE
+		SYNTAX		SEQUENCE OF PqStatEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION	"A list of policy pq statistics table entries. 
+				 Each rule contains policy pq statistics informations."
+		::= { statisticsTable 3 }
+
+
+               pqStatEntry OBJECT-TYPE
+                   SYNTAX  PqStatEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of additional objects in the
+                            router pq statistics table."
+                   INDEX {pqIfindex, pqQueueNum  }
+               ::= { pqStatTable 1 }
+
+               PqStatEntry ::=
+                   SEQUENCE {
+                       pqIfindex
+                           INTEGER,
+                       pqListNum
+                           INTEGER,
+                       pqQueueNum
+                           INTEGER,
+                       pqCsize
+                           INTEGER,
+                       pqQueueLimit
+                           INTEGER,
+                       pqDrop
+                           INTEGER
+                        }
+                        
+               pqIfindex OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "pqIfindex together with pqQueueNum, is the index of this table. The value is corresponding to ifIndex in ifTable."
+                   ::= { pqStatEntry 1 } 
+
+               pqListNum OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Pq list number applied to interface."
+                   ::= { pqStatEntry 2 } 
+
+               pqQueueNum OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "pqQueueNum together with pqIfindex, is the index of this table. The value is corresponding to ifIndex in ifTable."
+                   ::= { pqStatEntry 3 } 
+
+               pqCsize OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Pq current size."
+                   ::= { pqStatEntry 4 } 
+
+               pqQueueLimit OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Pq queue maximal size."
+                   ::= { pqStatEntry 5 } 
+
+               pqDrop OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Pq queue drops."
+                   ::= { pqStatEntry 6 } 
+
+--statistics_wfq_table
+
+
+wfqStatTable	OBJECT-TYPE
+		SYNTAX		SEQUENCE OF WfqStatEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION	"A list of policy wfq statistics table entries. 
+				 Each rule contains policy wfq statistics informations."
+		::= { statisticsTable 4 }
+
+
+               wfqStatEntry OBJECT-TYPE
+                   SYNTAX  WfqStatEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of additional objects in the
+                            router wfq statistics table."
+                   INDEX {wfqIfindex, wfqClassNo  }
+               ::= { wfqStatTable 1 }
+
+               WfqStatEntry ::=
+                   SEQUENCE {
+                       wfqIfindex
+                           INTEGER,
+                       wfqClassNo
+                           INTEGER,
+                       wfqQueueLen
+                           INTEGER,
+                       wfqTotalLimit
+                           INTEGER,
+                       wfqDrop
+                           INTEGER,
+                       wfqOtherNum
+                           INTEGER,
+                       wfqTos
+                           INTEGER,
+                       wfqNormalFinish
+                           INTEGER
+                        }
+
+               wfqIfindex OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "WfqIfindex together with wfqClassNo, is the index of this table. The value is corresponding to ifIndex in ifTable."
+                   ::= { wfqStatEntry 1 } 
+
+               wfqClassNo OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "WfqClassNo together with wfqIfindex, is the index of this table. The value is corresponding to ifIndex in ifTable."
+                   ::= { wfqStatEntry 2 } 
+
+               wfqQueueLen OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "WFQ queue length."
+                   ::= { wfqStatEntry 3 } 
+
+               wfqTotalLimit OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "WFQ queue maximal length."
+                   ::= { wfqStatEntry 4 } 
+
+               wfqDrop OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "WFQ queue drops."
+                   ::= { wfqStatEntry 5 } 
+
+               wfqOtherNum OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Current interface other queue length except WFQ queue."
+                   ::= { wfqStatEntry 6 } 
+
+               wfqTos OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "WFQ queue type of service."
+                   ::= { wfqStatEntry 7 } 
+
+               wfqNormalFinish OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Current WFQ queue last normal package sent."
+                   ::= { wfqStatEntry 8 } 
+
+-- statistics_cbwfq_table
+
+cbwfqStatTable	OBJECT-TYPE
+		SYNTAX		SEQUENCE OF CbwfqStatEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION	"A list of policy cbwfq statistics table entries. 
+				 Each rule contains policy cbwfq statistics informations."
+		::= { statisticsTable 5 }
+
+
+               cbwfqStatEntry OBJECT-TYPE
+                   SYNTAX  CbwfqStatEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of additional objects in the
+                            router cbwfq statistics table."
+                   INDEX {cbwfqIfindex, cbwfqClassNo  }
+               ::= { cbwfqStatTable 1 }
+
+               CbwfqStatEntry ::=
+                   SEQUENCE {
+                       cbwfqIfindex
+                           INTEGER,
+                       cbwfqClassNo
+                           INTEGER,
+                       cbwfqPolicyName
+                           DisplayString,
+                       cbwfqClassName
+                           DisplayString,
+                       cbwfqQueueLen
+                           INTEGER,
+                       cbwfqTotalLimit
+                           INTEGER,
+                       cbwfqDrop
+                           INTEGER,
+                       cbwfqOtherNum
+                           INTEGER,
+                       cbwfqTos
+                           INTEGER,
+                       cbwfqNormalFinish
+                           INTEGER,
+                       cbwfqWredFlag
+                           INTEGER,
+                       cbwfqWredMin
+                           INTEGER,
+                       cbwfqWredMax
+                           INTEGER,
+                       cbwfqWredPro
+                           INTEGER,
+                       cbwfqWredLoss
+                           INTEGER,
+                       cbwfqClassFinish
+                           INTEGER,
+                       cbwfqLlqFinish
+                           INTEGER,
+                       cbwfqPriFinish
+                           INTEGER,
+                       cbwfqMulPreFinish
+                           INTEGER,
+                       cbwfqClassPktNum
+                           INTEGER,
+                       cbwfqClassDrop
+                           INTEGER
+                        }
+
+               cbwfqIfindex OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "CbwfqIfindex together with cbwfqClassNo, is the index of this table. The value is corresponding to ifIndex in ifTable."
+                   ::= { cbwfqStatEntry 1 } 
+
+               cbwfqClassNo OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "CbwfqClassNo together with cbwfqIfindex, is the index of this table. The value is corresponding to ifIndex in ifTable."
+                   ::= { cbwfqStatEntry 2 } 
+
+               cbwfqPolicyName OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Cbwfq queue policy name."
+                   ::= { cbwfqStatEntry 3 } 
+
+               cbwfqClassName OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Cbwfq queue class name of current interface."
+                   ::= { cbwfqStatEntry 4 } 
+
+               cbwfqQueueLen OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Cbwfq queue length of current interface."
+                   ::= { cbwfqStatEntry 5 } 
+
+               cbwfqTotalLimit OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Cbwfq queue maximal length of current interface."
+                   ::= { cbwfqStatEntry 6 } 
+
+               cbwfqDrop OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Cbwfq queue drops of current interface."
+                   ::= { cbwfqStatEntry 7 } 
+
+               cbwfqOtherNum OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Current interface other queue length except CQWFQ queue."
+                   ::= { cbwfqStatEntry 8 } 
+
+               cbwfqTos OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Cbwfq queue tos value of current interface."
+                   ::= { cbwfqStatEntry 9 } 
+
+               cbwfqNormalFinish OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "CQWFQ queue last normal package sent of current interface."
+                   ::= { cbwfqStatEntry 10 } 
+
+               cbwfqWredFlag OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                                    no(0),
+                                    yes(1)
+                                   }
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Apply wred to cbwfq queue. 1=YES 0=NO"
+                   ::= { cbwfqStatEntry 11 } 
+
+               cbwfqWredMin OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Minimal value of wred in Cbwfq queue of current interface."
+                   ::= { cbwfqStatEntry 12 } 
+
+               cbwfqWredMax OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Maximal value of wred in Cbwfq queue of current interface."
+                   ::= { cbwfqStatEntry 13 } 
+
+               cbwfqWredPro OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Cbwfq queue wred package count to deal with."
+                   ::= { cbwfqStatEntry 14 } 
+
+               cbwfqWredLoss OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Cbwfq queue wred package count to lose."
+                   ::= { cbwfqStatEntry 15 } 
+
+               cbwfqClassFinish OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Cbwfq clase queue package count to transfer."
+                   ::= { cbwfqStatEntry 16 } 
+
+               cbwfqLlqFinish OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Cbwfq LLQ queue package count to transfer."
+                   ::= { cbwfqStatEntry 17 } 
+
+               cbwfqPriFinish OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Cbwfq priority queue package count to transfer."
+                   ::= { cbwfqStatEntry 18 } 
+
+               cbwfqMulPreFinish OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Cbwfq multiple precedence queue package count to transfer."
+                   ::= { cbwfqStatEntry 19 } 
+
+               cbwfqClassPktNum OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Cbwfq class queue package count."
+                   ::= { cbwfqStatEntry 20 } 
+
+               cbwfqClassDrop OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Cbwfq class queue droped package count."
+                   ::= { cbwfqStatEntry 21 } 
+
+
+ 		
+END

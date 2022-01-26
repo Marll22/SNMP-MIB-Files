@@ -1,0 +1,316 @@
+-- *****************************************************************
+-- BDCOM-SERIAL.MIB:  BDCom SERIAL MIB file
+-- JAN 2011
+-- *****************************************************************
+--
+
+               BDCOM-SERIAL DEFINITIONS ::= BEGIN
+
+               IMPORTS
+                    Counter, IpAddress, Counter
+			FROM RFC1155-SMI
+		    OBJECT-TYPE
+			FROM RFC-1212
+                    DisplayString, ifDescr
+			FROM RFC1213-MIB
+		    bdMgmt
+			FROM BDCOM-SMI
+		    TruthValue
+		    	FROM SNMPv2-TC;
+          
+               bdSerial         OBJECT IDENTIFIER ::= { bdMgmt 193 }
+               
+               serialSession         OBJECT IDENTIFIER ::= { bdSerial 1 }
+               
+               
+               
+               serialSessionTcpServerPort OBJECT-TYPE
+                   SYNTAX  INTEGER(5000..30000)
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Serial session for TCP server port number."
+                   ::= { serialSession 1 } 
+               
+               serialSessionTcpClientPort OBJECT-TYPE
+                   SYNTAX  INTEGER(5000..30000)
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Serial session for TCP client port number."
+                   ::= { serialSession 2 } 
+               
+               serialSessionTcpClientSvrAddr OBJECT-TYPE
+                   SYNTAX  IpAddress
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Serial session for TCP client service address."
+                   ::= { serialSession 3 } 
+               
+               serialSessionTcpAction OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                                   apply(0),
+                                   noAction(1)
+                                  }
+                   ACCESS  write-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Serial session for TCP server parameters setting action. 
+                           When set to 0,the value of SerialSessionTcpServerPort, 
+                           SerialSessionTcpClientPort and 
+                           SerialSessionTcpClientSvrAddr will be set together."
+                   ::= { serialSession 4 } 
+               
+               serialSessionUdpClientPort OBJECT-TYPE
+                   SYNTAX  INTEGER(5000..30000)
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Serial session for UDP client port number."
+                   ::= { serialSession 5 } 
+               
+               serialSessionUdpClientSvrAddr OBJECT-TYPE
+                   SYNTAX  IpAddress
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Serial session for UDP client service address."
+                   ::= { serialSession 6 } 
+               
+               serialSessionUdpAction OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                                   apply(0),
+                                   noAction(1)
+                                  }
+                   ACCESS  write-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Serial session for TCP server parameters setting action. 
+                           When set to 0,the value of SerialSessionUdpClientPort and 
+                           SerialSessionUdpClientSvrAddr will be set together."
+                   ::= { serialSession 7 } 
+                   
+               serialSessionNoServer OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                                   apply(0),
+                                   noAction(1)
+                                  }
+                   ACCESS  write-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Close serial session."
+                   ::= { serialSession 8 } 
+               
+               
+               bdSerialPortTable OBJECT-TYPE
+                   SYNTAX  SEQUENCE OF BdSerialPortEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A list of serial port table entries."
+                   ::= { bdSerial 2 }
+
+               bdSerialPortEntry OBJECT-TYPE
+                   SYNTAX BdSerialPortEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of additional objects in the
+                            serial port table."
+                   INDEX {  }
+               ::= { bdSerialPortTable 1 }
+
+               BdSerialPortEntry ::=
+                   SEQUENCE {
+                       serialPortIndex
+                           INTEGER,    
+                       serialPortMode
+                       	   INTEGER,
+                       serialPortSpeed
+                           INTEGER,
+		       serialPortDataBits
+                           INTEGER,
+                       serialPortHaltBits
+                           INTEGER,
+                       serialPortParity
+                           INTEGER,
+		       serialPortFlowControl
+                           INTEGER,
+		       serialPortDataReadInterval
+                           INTEGER,
+                       serialPortReadTrigger
+                           INTEGER,
+                       serialPortKeepaliveMode
+                           INTEGER,
+		       serialPortLoopback
+                           TruthValue
+                }
+                
+               serialPortIndex OBJECT-TYPE
+                   SYNTAX  INTEGER(1..16)
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Serial interface id, unique in system."
+                   ::= { bdSerialPortEntry 1 } 
+                   
+               serialPortMode OBJECT-TYPE
+                   SYNTAX  INTEGER{ rs232-full-duplex(1),
+                                    rs485-half-duplex(2),
+                                    rs485-full-duplex(3)
+                                   }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Serial interface mode."
+                   ::= { bdSerialPortEntry 2 } 
+               
+               serialPortSpeed OBJECT-TYPE
+                   SYNTAX  INTEGER(9600..115200)
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Serial interface speed."
+                   ::= { bdSerialPortEntry 3 } 
+               
+               serialPortDataBits OBJECT-TYPE
+                   SYNTAX  INTEGER(5..8)
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Serial interface data bits."
+                   ::= { bdSerialPortEntry 4 } 
+               
+               serialPortHaltBits OBJECT-TYPE
+                   SYNTAX  INTEGER(1..2)
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Serial interface halt bits."
+                   ::= { bdSerialPortEntry 5 } 
+               
+               serialPortParity OBJECT-TYPE
+                   SYNTAX  INTEGER{none(0),
+                                   odd(1),
+                                   even(2),
+                                   mark(3),
+                                   space(4)
+                                   }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Serial interface parity."
+                   ::= { bdSerialPortEntry 6 } 
+               
+               serialPortFlowControl OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                                   none(0),
+                                   software(1),
+                                   hardware(2)
+                                   }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Serial interface flow control."
+                   ::= { bdSerialPortEntry 7 } 
+               
+               serialPortDataReadInterval OBJECT-TYPE
+                   SYNTAX  INTEGER(10..100000)
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Serial interface data read interval. The unit is mili-second."
+                   ::= { bdSerialPortEntry 8 } 
+               
+               serialPortReadTrigger OBJECT-TYPE
+                   SYNTAX  INTEGER(10..1000)
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Serial interface read trigger."
+                   ::= { bdSerialPortEntry 9 } 
+               
+               serialPortKeepaliveMode OBJECT-TYPE
+                   SYNTAX  INTEGER{
+                                   disable(0),
+                                   enable(1)
+                                   }
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Serial interface keepalive mode."
+                   ::= { bdSerialPortEntry 10 } 
+               
+               serialPortLoopback OBJECT-TYPE
+                   SYNTAX  TruthValue
+                   ACCESS  read-write
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Serial interface loopback test."
+                   ::= { bdSerialPortEntry 11 } 
+               
+   
+
+               bdSerialTrap         OBJECT IDENTIFIER ::= { bdSerial 3 }
+
+        bdSerialBreak OBJECT-TYPE
+            SYNTAX  INTEGER{
+                            break(0),
+                            recover(1)
+                           }
+            ACCESS  not-accessible
+            STATUS  mandatory
+            DESCRIPTION
+                    "Serial port status change.0-break, 1-recover."
+            ::= { bdSerialTrap 1 } 
+
+        bdLoopbackDetectResult OBJECT-TYPE
+            SYNTAX  INTEGER{
+                            ok(0),
+                            error(1)
+                           }
+            ACCESS  not-accessible
+            STATUS  mandatory
+            DESCRIPTION
+                    "Serial port status change reason."
+            ::= { bdSerialTrap 2 } 
+            
+            
+-- Notifications            
+	bdSerialBreakNotifications OBJECT IDENTIFIER
+                                ::= { bdSerialTrap 3 }
+
+	bdSerialBreakNotification NOTIFICATION-TYPE
+    		OBJECTS {
+                       serialPortIndex,
+                       bdSerialBreak
+    		}
+    		STATUS      current
+    		DESCRIPTION
+        	"The agent generates this notification when serial interface status changes ."
+    		::= { bdSerialBreakNotifications 1 }
+
+
+-- Notifications
+	bdLoopbackDetectResultNotifications OBJECT IDENTIFIER
+                                ::= { bdSerialTrap 4 }
+
+	bdLoopbackDetectResultNotification NOTIFICATION-TYPE
+    		OBJECTS {
+                       serialPortIndex,
+                       bdLoopbackDetectResult
+    		}
+    		STATUS      current
+    		DESCRIPTION
+        	"The agent generates this notification when serial port get a loopback result."
+    		::= { bdLoopbackDetectResultNotifications 1 }
+
+
+                
+
+
+END
+                
+              
+	

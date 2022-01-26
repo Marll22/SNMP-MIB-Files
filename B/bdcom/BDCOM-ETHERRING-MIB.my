@@ -1,0 +1,129 @@
+-- *****************************************************************
+-- BDCOM-ETHERRING.my: BDCOM ETHERRING MIB
+--
+-- September 2008
+-- Edit by LIUQIANG
+-- Copyright (c) 2008 by BDCOM, Inc.
+-- All rights reserved.
+-- *****************************************************************
+
+BDCOM-ETHERRING DEFINITIONS ::= BEGIN
+
+
+
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,INTEGER,
+    Integer32, Unsigned32                       FROM SNMPv2-SMI
+    MODULE-COMPLIANCE, OBJECT-GROUP,
+    NOTIFICATION-GROUP                          FROM SNMPv2-CONF
+    bdlocal                              		FROM BDCOM-SMI
+    IpAddress, TimeTicks                                   FROM RFC1155-SMI
+    PhysAddress				                FROM RFC1213-MIB;
+
+--definition of the etherring table content
+
+               bdetherring         OBJECT IDENTIFIER ::= { bdlocal 224 }
+               
+               TypeOfType ::= INTEGER
+                	{ master(0),
+                           transit(1)
+                         }
+                         
+               TypeOfStatus ::= INTEGER
+                         {
+                           up(0),
+                           down(1)
+                          }
+
+               
+               
+               
+               bdEtherRingTable OBJECT-TYPE
+                   SYNTAX  SEQUENCE OF BDCOMEtherRingEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            " ."
+                   ::= { bdetherring 1 }
+
+               bdEtherRingEntry OBJECT-TYPE
+                   SYNTAX  BDCOMEtherRingEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "."
+                   INDEX { index }
+               ::= { bdEtherRingTable 1 }
+
+               BDCOMEtherRingEntry ::=
+                   SEQUENCE {
+                       index
+                           INTEGER (0..32),
+                       type
+                           TypeOfType,
+                       status
+                           TypeOfStatus,
+                       time
+                           TimeTicks
+                  }
+              
+		
+               index OBJECT-TYPE
+                   SYNTAX  INTEGER (0..32)
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "index of the etherring table."
+                   ::= { bdEtherRingEntry 1 }
+		
+
+              type OBJECT-TYPE
+                   SYNTAX  TypeOfType
+              	   ACCESS  read-only
+              	   STATUS  mandatory
+              	   DESCRIPTION
+                   	   "type of ."
+              	   ::= { bdEtherRingEntry 2 }
+              	   
+              	   
+              status OBJECT-TYPE
+                   SYNTAX  TypeOfStatus
+              	   ACCESS  read-only
+              	   STATUS  mandatory
+              	   DESCRIPTION
+                   	   "type of 2 ."
+              	   ::= { bdEtherRingEntry 3 }
+
+
+
+              time OBJECT-TYPE
+                   SYNTAX  TimeTicks
+              	   ACCESS  read-only
+              	   STATUS  mandatory
+              	   DESCRIPTION
+                   	   "Hold time of blocking."
+              	   ::= { bdEtherRingEntry 4 }
+
+                   
+
+-- Notifications
+	bdEtherRingMIBNotifications OBJECT IDENTIFIER
+                                ::= { bdetherring 2 }
+
+
+	bdEtherRingNotification NOTIFICATION-TYPE
+    		OBJECTS {
+                       index,
+                       type,
+                       status,
+                       time
+    		}
+    		STATUS      current
+    		DESCRIPTION
+        	"The agent generates this notification when certain defined types of packages have been blocked or unblocked."
+    		::= { bdEtherRingMIBNotifications 1 }
+
+              
+
+END
