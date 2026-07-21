@@ -1,7 +1,6 @@
 #!/bin/sh
 
 # Usage: mibfetch [ -d outdir ] host directory rfc [mibs]
-#
 # If "rfc" contains a "." it is expected to be a complete file name,
 # otherwise it is assumed to be just the rfc number.
 # If "mibs" is specified, it is a ":" separated list of mibs to extract,
